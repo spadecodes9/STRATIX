@@ -1,8 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bot, Send } from 'lucide-react'
-import { suggestedPrompts, seedConversation, getMockCoachReply } from '../data/aiCoach.js'
+import { suggestedPrompts, seedConversation } from '../data/aiCoach.js'
+import { getCoachResponse } from '../services/ai/coachService.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import './AICoach.css'
+
+// Turns the structured { intro, points, recommendation, followUp } reply from
+// coachService into the single display string the existing chat bubble UI
+// expects, so the message-rendering markup below doesn't need to change.
+function formatCoachReply({ intro, points, recommendation, followUp }) {
+  const parts = [intro, ...(points || [])]
+  if (recommendation) {
+    parts.push(`Recommended: ${recommendation.title} — ${recommendation.subtitle}`)
+  }
+  if (followUp) parts.push(followUp)
+  return parts.filter(Boolean).join(' ')
+}
 
 export default function AICoach() {
   const { user } = useAuth()
@@ -15,19 +28,32 @@ export default function AICoach() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, isTyping])
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     const trimmed = text.trim()
     if (!trimmed) return
+
+    // Snapshot history before appending the new user message — coachService's
+    // mock engine uses this to detect topic continuations across turns.
+    const history = messages
 
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text: trimmed }])
     setInput('')
     setIsTyping(true)
 
-    setTimeout(() => {
-      const reply = getMockCoachReply(trimmed)
-      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'coach', text: reply }])
+    try {
+      const reply = await getCoachResponse({ history, userText: trimmed, user })
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: 'coach',
+          text: formatCoachReply(reply),
+          category: reply.category,
+        },
+      ])
+    } finally {
       setIsTyping(false)
-    }, 700)
+    }
   }
 
   return (
