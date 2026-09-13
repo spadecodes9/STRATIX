@@ -1,0 +1,702 @@
+/* ==========================================================================
+   STRATIX CINEMATIC CONTINUOUS LANDING
+   One flowing experience, no separate sections
+   ========================================================================== */
+
+.cinematic-continuous-landing {
+  position: relative;
+  width: 100%;
+  background: #08080a;
+  color: #f2f1ee;
+  overflow-x: hidden;
+}
+
+/* Single sticky viewport - the stage where all scenes play */
+.cinematic-stage {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #08080a;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Scroll spacer creates scroll range without visible content */
+.scroll-spacer {
+  position: relative;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Universal sequence layer - all scenes use this */
+.sequence-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+
+/* Scene container - fills the sticky viewport */
+.scene-container {
+  position: absolute;
+  inset: 0;
+}
+
+/* ==========================================================================
+   HERO → MOVEMENT SCENE
+   ========================================================================== */
+
+.tactical-object-hero {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60vw;
+  max-width: 800px;
+  height: 40vh;
+  margin-left: -30vw;
+  margin-top: -20vh;
+  pointer-events: none;
+  z-index: 5;
+  will-change: transform;
+  transition: transform 0.15s ease-out;
+}
+
+.object-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 20px 80px rgba(255, 59, 78, 0.4));
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 10;
+  max-width: 680px;
+  text-align: center;
+  padding: 0 32px;
+  transition: opacity 0.4s ease-out;
+}
+
+.system-label {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 59, 78, 0.8);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.cinematic-title {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 56px;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #f2f1ee;
+  margin: 0 0 20px;
+}
+
+.cinematic-sub {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #a8a8b0;
+  margin: 0;
+}
+
+.tactical-character {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40vw;
+  max-width: 500px;
+  height: 50vh;
+  margin-left: -20vw;
+  margin-top: -25vh;
+  pointer-events: none;
+  z-index: 6;
+  will-change: transform, opacity;
+  transition: transform 0.15s ease-out, opacity 0.3s ease-out;
+}
+
+.character-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 60px rgba(255, 59, 78, 0.6));
+}
+
+/* ==========================================================================
+   IMPACT → PRECISION SCENE
+   ========================================================================== */
+
+.impact-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 8;
+  mix-blend-mode: screen;
+  will-change: opacity;
+  transition: opacity 0.2s ease-out;
+}
+
+.precision-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 40px;
+  transition: opacity 0.5s ease-out;
+}
+
+.precision-reticle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.reticle-bracket {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #ff3b4e;
+}
+
+.bracket-tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.bracket-tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bracket-bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.bracket-br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+.reticle-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f2f1ee;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(255, 59, 78, 0.8);
+}
+
+.sequence-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #ff3b4e;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   PLATFORM SHOWCASE
+   ========================================================================== */
+
+.platform-layer {
+  background: radial-gradient(circle at center, rgba(255, 59, 78, 0.03) 0%, transparent 60%);
+}
+
+.platform-content {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  max-width: 600px;
+  padding: 0 32px;
+  z-index: 10;
+}
+
+.platform-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.feature-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #f2f1ee;
+  margin: 0;
+}
+
+.feature-desc {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #a8a8b0;
+  margin: 0;
+}
+
+/* ==========================================================================
+   FINAL CTA
+   ========================================================================== */
+
+.final-layer {
+  background: radial-gradient(circle at center, rgba(255, 59, 78, 0.06) 0%, transparent 70%);
+}
+
+.final-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 32px;
+  max-width: 720px;
+  padding: 0 32px;
+  z-index: 10;
+}
+
+.final-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 48px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f2f1ee;
+  margin: 0;
+}
+
+.cta-primary {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f2f1ee;
+  background: #ff3b4e;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(255, 59, 78, 0.4);
+}
+
+.cta-primary:hover {
+  background: #ff5c6d;
+  box-shadow: 0 6px 30px rgba(255, 59, 78, 0.6);
+  transform: translateY(-2px);
+}
+
+.cta-primary:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .cinematic-title {
+    font-size: 42px;
+  }
+
+  .final-title {
+    font-size: 38px;
+  }
+
+  .feature-title {
+    font-size: 24px;
+  }
+
+  .tactical-object-hero,
+  .tactical-character {
+    width: 70vw;
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cinematic-title {
+    font-size: 32px;
+  }
+
+  .final-title {
+    font-size: 28px;
+  }
+
+  .feature-title {
+    font-size: 20px;
+  }
+
+  .platform-content {
+    gap: 40px;
+  }
+
+  .tactical-object-hero,
+  .tactical-character {
+    width: 80vw;
+    height: 30vh;
+  }
+
+  .hero-copy,
+  .platform-content,
+  .final-content {
+    padding: 0 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sequence-layer,
+  .platform-feature,
+  .tactical-object-hero,
+  .tactical-character,
+  .impact-core,
+  .flash-overlay,
+  .precision-layer {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   SCENE-SPECIFIC STYLES (ADDED FOR MISSING CLASSES)
+   ========================================================================== */
+
+/* Hero Scene Specific */
+.hero-scene {
+  /* Base styles handled by .scene-container */
+}
+
+.scene-ambient-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+}
+
+.scene-radial-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 59, 78, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-tactical-chassis {
+  /* Size and positioning handled via inline styles */
+}
+
+.chassis-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.chassis-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(255, 59, 78, 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.scene-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+}
+
+.hero-content {
+  /* Additional hero content styles if needed */
+}
+
+.hero-eyebrow-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.hero-status-beacon {
+  width: 8px;
+  height: 8px;
+  background: #ff3b4e;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 59, 78, 0.6);
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 59, 78, 0.8);
+}
+
+.hero-cinematic-title {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 56px;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #f2f1ee;
+  margin: 0 0 20px;
+}
+
+.text-glow-red {
+  color: #ff3b4e;
+  text-shadow: 0 0 8px rgba(255, 59, 78, 0.6);
+}
+
+.hero-cinematic-sub {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #a8a8b0;
+  margin: 0;
+}
+
+.hero-cta-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  justify-content: center;
+}
+
+.hero-telemetry-strip {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 32px;
+  font-size: 14px;
+}
+
+.telemetry-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.telemetry-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8a8b0;
+}
+
+.telemetry-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.text-success {
+  color: #00ff88;
+}
+
+.telemetry-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 8px;
+}
+
+.scene-scroll-cue {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.scroll-cue-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.scroll-cue-indicator {
+  width: 8px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scroll-cue-thumb {
+  width: 100%;
+  height: 40%;
+  background: #ff3b4e;
+  border-radius: 2px;
+}
+
+/* Movement Scene Specific */
+.movement-scene {
+  /* Base styles handled by .scene-container */
+}
+
+.speed-lines-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.speed-line {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  background: rgba(255, 59, 78, 0.3);
+}
+
+.tactical-operative-silhouette {
+  /* Size and positioning handled via inline styles */
+}
+
+.ghost-trail {
+  position: absolute;
+  inset: 0;
+}
+
+.operative-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.char-telemetry-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 59, 78, 0.3);
+  border-radius: 2px;
+  padding: 4px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #ff3b4e;
+}
+
+.text-red {
+  color: #ff3b4e;
+}
+
+.movement-content {
+  /* Additional movement content styles if needed */
+}
+
+.scene-eyebrow-tag {
+  margin-bottom: 16px;
+}
+
+.scene-title-xl {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #f2f1ee;
+  margin: 0 0 16px;
+}
+
+.scene-desc-md {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #a8a8b0;
+  margin: 0;
+}
+
+.tactical-metrics-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.metric-box {
+  text-align: center;
+}
+
+.metric-box-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8a8b0;
+}
+
+.metric-box-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.metric-box-sub {
+  font-size: 12px;
+  color: #a8a8b0;
+}

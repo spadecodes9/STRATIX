@@ -1,0 +1,165 @@
+/* Button */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.2s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-full { width: 100%; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--red);
+  color: #14060a;
+  box-shadow: 0 0 0 rgba(255, 59, 78, 0);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--red-bright);
+  box-shadow: 0 0 28px var(--red-glow), 0 4px 14px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--charcoal);
+  color: var(--white);
+  border-color: var(--border);
+}
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--red);
+  color: var(--red-bright);
+  background: var(--red-glow-soft);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gray);
+  padding: 8px 12px;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--white);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  color: var(--gray);
+  background: var(--charcoal-2);
+}
+.badge-red { color: var(--red-bright); border-color: rgba(255, 59, 78, 0.35); background: var(--red-glow-soft); }
+.badge-success { color: var(--success); border-color: rgba(61, 220, 132, 0.3); background: rgba(61, 220, 132, 0.08); }
+.badge-warning { color: var(--warning); border-color: rgba(255, 182, 72, 0.3); background: rgba(255, 182, 72, 0.08); }
+
+/* ProgressBar */
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--charcoal-3);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  position: relative;
+  height: 100%;
+  background: linear-gradient(90deg, var(--red-dim), var(--red));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px var(--red-glow);
+}
+
+/* Panel - the base HUD surface used across dashboard/courses/guides */
+.panel {
+  position: relative;
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: border-color 0.2s ease;
+}
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+/* StatCard */
+.stat-card {
+  position: relative;
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  border-color: var(--red);
+  border-top-color: var(--red);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+.stat-card .stat-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--red-glow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+.stat-card .stat-icon {
+  color: var(--red);
+}
+.stat-card .stat-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  position: relative;
+}
+.stat-card .stat-label {
+  font-size: 13px;
+  color: var(--gray-dim);
+  position: relative;
+}
+
+/* Shared tactical utilities (used across Guides/Courses/Landing cards) */
+.tier-bar { width: 4px; height: 10px; background: var(--charcoal-3); border-radius: 1px; }
+.tier-bar-filled { background: var(--red); }
+
+.card-watermark {
+  position: absolute;
+  color: var(--red);
+  opacity: 0.07;
+  pointer-events: none;
+}

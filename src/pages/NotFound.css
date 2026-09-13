@@ -1,0 +1,13 @@
+.not-found-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 60px 20px;
+}
+.not-found-icon { color: var(--red); margin-bottom: 8px; }
+.not-found-shell h1 { font-size: 34px; margin: 6px 0; }
+.not-found-shell p { margin-bottom: 18px; }
