@@ -43,7 +43,7 @@ export default function Profile() {
       <div className="two-col-panels profile-command-row">
         <SkillRadar skills={skillMatrix} weakestSkill={weakestSkill} />
         {weakestSkill && (
-          <WeaknessPanel weakestSkill={weakestSkill} recommendedNext={user.recommendedNext} />
+          <WeaknessPanel weakestSkill={weakestSkill} />
         )}
       </div>
 
@@ -60,7 +60,7 @@ export default function Profile() {
         <RecentActivity activity={user.recentActivity || []} />
       </div>
 
-      <ProfileActions recommendedNext={user.recommendedNext} />
+      <ProfileActions />
     </div>
   )
 }

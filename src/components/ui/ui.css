@@ -88,6 +88,7 @@
 .badge-red { color: var(--red-bright); border-color: rgba(255, 59, 78, 0.35); background: var(--red-glow-soft); }
 .badge-success { color: var(--success); border-color: rgba(61, 220, 132, 0.3); background: rgba(61, 220, 132, 0.08); }
 .badge-warning { color: var(--warning); border-color: rgba(255, 182, 72, 0.3); background: rgba(255, 182, 72, 0.08); }
+.badge-gold { color: var(--gold); border-color: rgba(255, 182, 72, 0.35); background: rgba(255, 182, 72, 0.08); }
 
 /* ProgressBar */
 .progress-track {

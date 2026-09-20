@@ -37,6 +37,12 @@ export function PremiumProvider({ children }) {
         }
         setIsLoading(false)
       })
+      .catch((error) => {
+        if (!mounted) return
+        console.error('Failed to load STRATIX subscription state:', error)
+        setState(DEFAULT_STATE)
+        setIsLoading(false)
+      })
 
     return () => {
       mounted = false

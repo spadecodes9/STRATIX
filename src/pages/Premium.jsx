@@ -23,8 +23,12 @@ export default function Premium() {
         </p>
         {!isLoading && (
           isPremium
-            ? <Badge variant="red">Premium active</Badge>
-            : <Button variant="primary">Upgrade to Premium</Button>
+            ? <Badge variant="gold">Premium active</Badge>
+            : (
+              <Button variant="primary" disabled>
+                Upgrade to Premium <span className="coming-soon-badge">Coming soon</span>
+              </Button>
+            )
         )}
       </div>
 

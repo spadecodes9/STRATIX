@@ -65,7 +65,9 @@ export default function ProfileHeader({ user, joinDate, onSignOut }) {
             <>
               <div className="profile-plan-status profile-plan-status-premium">PREMIUM · ACTIVE</div>
               <span className="profile-plan-theme">Theme: {theme[0].toUpperCase() + theme.slice(1)}</span>
-              <Button variant="secondary" disabled>Manage Subscription</Button>
+              <Button variant="secondary" disabled>
+                Manage Subscription <span className="coming-soon-badge">Coming soon</span>
+              </Button>
             </>
           ) : (
             <>

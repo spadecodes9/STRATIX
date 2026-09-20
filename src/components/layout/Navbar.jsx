@@ -68,7 +68,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 <NavLink to="/profile" className="nav-link" onClick={() => setMenuOpen(false)}>
-                  <span className="nav-link-index">0{navLinks.length + 1}</span><span>Profile</span>
+                  <span className="nav-link-index">0{navLinks.length + 2}</span><span>Profile</span>
                 </NavLink>
                 <Button variant="secondary" onClick={handleSignOut} fullWidth>Sign Out</Button>
               </>

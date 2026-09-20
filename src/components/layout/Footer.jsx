@@ -11,6 +11,7 @@ const columns = [
       { to: '/guides', label: 'Guides' },
       { to: '/quizzes', label: 'Quizzes' },
       { to: '/ai-coach', label: 'AI Coach' },
+      { to: '/premium', label: 'Premium' },
       { to: '/teammates', label: 'Find Teammates' },
     ],
   },

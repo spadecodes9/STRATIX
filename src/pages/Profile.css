@@ -31,7 +31,7 @@
 
 .profile-hero-grid {
   display: grid;
-  grid-template-columns: 1fr minmax(230px, 310px);
+  grid-template-columns: 1fr minmax(230px, 310px) minmax(200px, 260px);
   gap: 24px;
   align-items: stretch;
 }

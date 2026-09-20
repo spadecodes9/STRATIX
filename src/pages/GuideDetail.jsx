@@ -49,6 +49,10 @@ export default function GuideDetail() {
 
   if (!guide) return <Navigate to="/guides" replace />
 
+  // Render-only gate: guide content is a static import, so it ships in the
+  // client bundle regardless of premium status. This is presentation-layer
+  // gating, not content protection — a real launch needs the guide body
+  // served from an API that checks entitlement server-side before responding.
   if (guide.premium && !isPremium) {
     return (
       <div className="page-shell guide-paywall">

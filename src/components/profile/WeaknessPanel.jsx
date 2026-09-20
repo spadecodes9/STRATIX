@@ -10,7 +10,7 @@ const ANALYSIS_BY_SKILL = {
   'Utility Usage': 'Utility thrown reactively instead of on setup timings.',
 }
 
-export default function WeaknessPanel({ weakestSkill, recommendedNext }) {
+export default function WeaknessPanel({ weakestSkill }) {
   if (!weakestSkill) return null
 
   const analysis = ANALYSIS_BY_SKILL[weakestSkill.skill]

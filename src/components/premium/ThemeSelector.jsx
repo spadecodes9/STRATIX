@@ -38,11 +38,13 @@ export default function ThemeSelector() {
             className={'theme-swatch' + (theme === t.id ? ' theme-swatch-selected' : '')}
             style={{ '--swatch-rgb': t.rgb }}
             onClick={() => handleSelect(t.id)}
+            aria-pressed={theme === t.id}
+            aria-label={`${t.label} theme${t.id !== 'red' && !isPremium ? ' (Premium required)' : ''}`}
           >
             <span className="theme-swatch-preview" />
             <span className="theme-swatch-label">
               {t.label}
-              {t.id !== 'red' && !isPremium && <Lock size={12} />}
+              {t.id !== 'red' && !isPremium && <Lock size={12} aria-hidden="true" />}
             </span>
             {theme === t.id && <Check size={14} className="theme-swatch-check" />}
           </button>
@@ -56,7 +58,9 @@ export default function ThemeSelector() {
             <strong>Premium Theme</strong>
             <p>Unlock exclusive STRATIX themes with Premium.</p>
           </div>
-          <Button variant="primary">Upgrade to Premium</Button>
+          <Button variant="primary" disabled>
+            Upgrade to Premium <span className="coming-soon-badge">Coming soon</span>
+          </Button>
         </div>
       )}
     </section>

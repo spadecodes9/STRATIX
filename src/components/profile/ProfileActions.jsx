@@ -1,7 +1,7 @@
 import { PlayCircle, BarChart3, UserPen, Settings2 } from 'lucide-react'
 import Button from '../ui/Button.jsx'
 
-export default function ProfileActions({ recommendedNext }) {
+export default function ProfileActions() {
   const lessonHref = '/guides'
 
   return (

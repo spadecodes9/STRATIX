@@ -18,17 +18,17 @@ const canned = [
   {
     keywords: ['crosshair', 'aim', 'flick'],
     reply:
-      "Your skill matrix shows Aim & Mechanics at 78 — solid, but crosshair discipline after peeking is usually a placement habit, not a reflex one. The Crosshair Placement Basics lesson in Aim Fundamentals covers pre-aiming common angles, which is the fix for losing your crosshair mid-peek.",
+      "Your skill matrix shows Aim & Mechanics at 78 — solid, but crosshair discipline after peeking is usually a placement habit, not a reflex one. Pre-aiming common angles instead of flicking to them is the fix for losing your crosshair mid-peek — check the Aim & Mechanics guides for drills on this.",
   },
   {
     keywords: ['retake', 'utility', 'smoke'],
     reply:
-      "With limited utility on a retake, prioritize information over damage — a single recon-style ability before you commit tells you where to trade, not just where to peek. Smoke Timings for Retakes in Advanced Utility Usage is your Recommended Next Lesson for exactly this.",
+      "With limited utility on a retake, prioritize information over damage — a single recon-style ability before you commit tells you where to trade, not just where to peek. Smoke timing on retakes is the highest-leverage Utility Usage skill to train next.",
   },
   {
     keywords: ['progress', 'next', 'study'],
     reply:
-      "Your lowest skill area is Positioning at 57. Smoke Timings for Retakes is a solid next focus for closing that gap.",
+      "Your lowest skill area is Positioning at 57. Rotation timing and holding less predictable angles are a solid next focus for closing that gap.",
   },
   {
     keywords: ['warmup', 'routine', 'ranked'],
