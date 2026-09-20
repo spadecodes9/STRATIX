@@ -55,6 +55,14 @@ export default function Navbar() {
               <span>{link.label}</span>
             </NavLink>
           ))}
+          <NavLink
+            to="/premium"
+            className={({ isActive }) => 'nav-link nav-link-premium' + (isActive ? ' nav-link-active' : '')}
+            onClick={() => setMenuOpen(false)}
+          >
+            <span className="nav-link-index">0{navLinks.length + 1}</span>
+            <span>Premium <i className="premium-star">✦</i></span>
+          </NavLink>
 
           <div className="nav-auth-mobile">
             {isAuthenticated ? (
@@ -74,6 +82,9 @@ export default function Navbar() {
         </nav>
 
         <div className="nav-auth-desktop">
+          <NavLink to="/premium" className="nav-link-premium nav-link-premium-desktop">
+            Premium <i className="premium-star">✦</i>
+          </NavLink>
           {isAuthenticated ? (
             <NavLink to="/profile" className="rank-pill">
               <span className="rank-pill-avatar">{user?.avatarInitials}</span>

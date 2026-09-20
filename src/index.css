@@ -23,6 +23,9 @@
 
   --success: #3ddc84;
   --warning: #ffb648;
+  --gold: #ffb648;
+  --gold-bright: #ffd280;
+  --gold-glow: rgba(255, 182, 72, 0.32);
 
   /* Type — three-role system */
   --font-display: 'Limelight', system-ui, sans-serif;

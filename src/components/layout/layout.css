@@ -37,6 +37,33 @@
 .nav-link-index { color: var(--red-dim); font: 600 10px var(--font-ui); letter-spacing: 0.03em; transition: color .2s ease; }.nav-link:hover .nav-link-index, .nav-link-active .nav-link-index { color: var(--red-bright); }
 .mobile-nav-status, .nav-auth-mobile { display: none; }
 .nav-auth-desktop { display: flex; align-items: center; gap: 7px; }.nav-auth-desktop .btn { padding-block: 9px; }
+.nav-link-premium {
+  color: var(--gold);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(255, 182, 72, 0.18), 0 0 14px var(--gold-glow);
+  border-radius: var(--radius);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+.nav-link-premium .premium-star {
+  font-style: normal;
+  color: var(--gold-bright);
+}
+.nav-link-premium:hover,
+.nav-link-premium:focus-visible {
+  color: var(--gold-bright);
+  box-shadow: 0 0 0 1px rgba(255, 182, 72, 0.32), 0 0 22px rgba(255, 182, 72, 0.45);
+  transform: translateY(-1px);
+}
+.nav-link-premium-desktop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  margin-right: 10px;
+}
 .rank-pill { display: flex; align-items: center; gap: 9px; padding: 5px 9px 5px 5px; color: var(--white); border: 1px solid var(--border); background: rgba(20,20,24,.7); transition: border-color .22s ease, background .22s ease, transform .22s ease, box-shadow .22s ease; }.rank-pill:hover { border-color: rgba(255,92,109,.65); background: rgba(255,59,78,.08); transform: translateY(-2px); box-shadow: 0 8px 17px rgba(0,0,0,.2); }.rank-pill > svg { color: var(--red-bright); }
 .rank-pill-avatar { width: 30px; height: 30px; display: grid; place-items: center; color: var(--red-bright); border: 1px solid rgba(255,59,78,.35); background: var(--red-glow-soft); font: 700 11px var(--font-display); }.rank-pill-copy { display: flex; flex-direction: column; line-height: 1.05; }.rank-pill-copy small { display: flex; align-items: center; gap: 4px; color: var(--gray-dim); font: 600 10px var(--font-ui); letter-spacing: .03em; }.rank-pill-copy small i { width: 4px; height: 4px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px rgba(61,220,132,.6); }.rank-pill-copy b { font: 600 14px var(--font-display); }
 .menu-toggle { display: none; padding: 0; color: var(--white); border: 0; background: transparent; }.menu-toggle-frame { width: 35px; height: 35px; display: grid; place-items: center; border: 1px solid var(--border); background: rgba(20,20,24,.8); transition: color .2s ease, border-color .2s ease, background .2s ease; }.menu-toggle:hover .menu-toggle-frame { color: var(--red-bright); border-color: var(--red); background: rgba(255,59,78,.08); }
