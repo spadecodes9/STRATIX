@@ -93,8 +93,10 @@ function mapUser(authUser, profile = null) {
     onboardingComplete:
       profile?.onboarding_complete ?? false,
 
-    preferences:
-      profile?.preferences ?? {},
+    preferences: {
+      ...(profile?.preferences ?? {}),
+      theme: profile?.theme ?? 'red',
+    },
 
     authProvider: authUser.app_metadata?.provider ?? 'google',
   }
