@@ -4,8 +4,18 @@ import ReactMarkdown from 'react-markdown'
 import { getCoachResponse } from '../services/ai/coachService.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { usePremium } from '../context/PremiumContext.jsx'
+import { useAICoachUsage } from '../hooks/useAICoachUsage.js'
 import Button from '../components/ui/Button.jsx'
 import './AICoach.css'
+
+function formatCountdown(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}
 
 const COMPOSER_MAX_HEIGHT = 160
 
@@ -33,16 +43,12 @@ const markdownComponents = { a: MarkdownLink }
 
 export default function AICoach() {
   const { user } = useAuth()
-  const { isPremium } = usePremium()
-  const FREE_CHAT_LIMIT = 3
-  // TEMPORARY: this counter is client-side React state only — it resets on
-  // reload and is not abuse-resistant. It exists to demonstrate the paywall
-  // UX. isPremium above is the real, server-verified entitlement check and
-  // is never affected by this counter. Real enforcement needs a
-  // server-persisted usage count checked by server/index.js before it calls
-  // OpenRouter — see docs/superpowers/specs/2026-09-20-premium-hub-and-theme-system-design.md §4.
-  const [freeChatCount, setFreeChatCount] = useState(0)
-  const chatLimitReached = !isPremium && freeChatCount >= FREE_CHAT_LIMIT
+  const { isPremium, isLoading: isPremiumLoading } = usePremium()
+  // Server-backed rate limit: the real gate is the check_and_consume RPC,
+  // called from sendMessage before any AI request goes out. This hook only
+  // reconstructs/displays that server state — it never grants access itself.
+  const usage = useAICoachUsage(user?.id, isPremium, isPremiumLoading)
+  const chatLimitReached = !isPremium && usage.status === 'locked'
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -68,12 +74,19 @@ export default function AICoach() {
     if (!trimmed || isTyping) return
     if (chatLimitReached) return
 
+    // Authoritative gate: Free users must clear the server-side atomic
+    // check BEFORE any AI request goes out. If it's not allowed, stop here
+    // — OpenRouter is never called, and no message is appended.
+    if (!isPremium) {
+      const result = await usage.checkAndConsume()
+      if (!result.allowed) return
+    }
+
     // Snapshot history before appending the new user message — this is what
     // gets sent to the backend as conversation context.
     const history = messages
 
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text: trimmed }])
-    if (!isPremium) setFreeChatCount((count) => count + 1)
     setInput('')
     setIsTyping(true)
 
@@ -81,6 +94,10 @@ export default function AICoach() {
       const reply = await getCoachResponse({ history, userText: trimmed, user })
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'coach', text: reply }])
     } catch (err) {
+      // The AI request failed before producing a response — refund the
+      // message this attempt consumed so a failed attempt doesn't cost the
+      // user one of their 3 free messages.
+      if (!isPremium) await usage.refund()
       setMessages((prev) => [
         ...prev,
         { id: crypto.randomUUID(), role: 'coach', text: err.message || 'Something went wrong. Try again.' },
@@ -103,6 +120,7 @@ export default function AICoach() {
         <span className="eyebrow">AI Coach</span>
         <h1>Ask your coach</h1>
         <p>Get personalized VALORANT coaching based on your gameplay, progress, and goals.</p>
+        {isPremium && <span className="ai-coach-unlimited-badge">Unlimited conversations · Premium</span>}
       </div>
 
       <div className="coach-conversation">
@@ -134,8 +152,12 @@ export default function AICoach() {
           <div className="ai-coach-limit-reached">
             <Lock size={16} />
             <div>
-              <strong>Free chat limit reached</strong>
-              <p>You've used your 3 free AI Coach chats. Upgrade to Premium for unlimited conversations.</p>
+              <strong>Free AI Coach limit reached</strong>
+              <p>You've used 3 of 3 free AI Coach messages.</p>
+              <div className="ai-coach-countdown">
+                <span className="ai-coach-countdown-label">Next messages available in</span>
+                <span className="ai-coach-countdown-value">{formatCountdown(usage.remainingMs)}</span>
+              </div>
             </div>
             <Button variant="primary" to="/premium">Upgrade to Premium</Button>
           </div>
@@ -154,7 +176,7 @@ export default function AICoach() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleComposerKeyDown}
-              disabled={isTyping}
+              disabled={isTyping || (!isPremium && usage.status === 'loading')}
               rows={1}
             />
             <div className="coach-composer-actions">
@@ -163,7 +185,7 @@ export default function AICoach() {
                 type="submit"
                 className="coach-send-btn"
                 aria-label="Send message"
-                disabled={isTyping || !input.trim()}
+                disabled={isTyping || !input.trim() || (!isPremium && usage.status === 'loading')}
               >
                 <Send size={17} />
               </button>
