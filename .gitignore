@@ -20,6 +20,9 @@ dist-ssr
 # Tool-generated scratch output
 .playwright-mcp/
 
+# Git worktrees for isolated subagent work
+.worktrees/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
