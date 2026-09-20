@@ -3,6 +3,7 @@ import { Check, Lock } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext.jsx'
 import { usePremium } from '../../context/PremiumContext.jsx'
 import Button from '../ui/Button.jsx'
+import PremiumUpgradeModal from './PremiumUpgradeModal.jsx'
 
 const THEMES = [
   { id: 'red', label: 'Red', rgb: '255 59 78' },
@@ -15,6 +16,7 @@ export default function ThemeSelector() {
   const { theme, setTheme } = useTheme()
   const { isPremium } = usePremium()
   const [lockedAttempt, setLockedAttempt] = useState(null)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
 
   const handleSelect = (themeId) => {
     if (themeId !== 'red' && !isPremium) {
@@ -58,11 +60,13 @@ export default function ThemeSelector() {
             <strong>Premium Theme</strong>
             <p>Unlock exclusive STRATIX themes with Premium.</p>
           </div>
-          <Button variant="primary" disabled>
-            Upgrade to Premium <span className="coming-soon-badge">Coming soon</span>
+          <Button variant="primary" onClick={() => setIsUpgradeModalOpen(true)}>
+            Upgrade to Premium
           </Button>
         </div>
       )}
+
+      <PremiumUpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} />
     </section>
   )
 }
