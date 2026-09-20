@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { usePremium } from '../context/PremiumContext.jsx'
 import { premiumFeatures } from '../data/premiumFeatures.js'
+import { CURRENT_VALORANT_PATCH } from '../data/patch.js'
 import PremiumFeatureCard from '../components/premium/PremiumFeatureCard.jsx'
 import ThemeSelector from '../components/premium/ThemeSelector.jsx'
 import PremiumQuizzes from '../components/premium/PremiumQuizzes.jsx'
@@ -12,7 +13,7 @@ import '../components/premium/premium.css'
 import './Premium.css'
 
 export default function Premium() {
-  const { isPremium, isLoading } = usePremium()
+  const { isPremium, isLoading, entitlementType } = usePremium()
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
 
   return (
@@ -26,12 +27,24 @@ export default function Premium() {
         </p>
         {!isLoading && (
           isPremium
-            ? <Badge variant="gold">Premium active</Badge>
+            ? (
+              <div className="premium-hero-status">
+                <Badge variant="gold">Premium active</Badge>
+                {entitlementType === 'patch' && (
+                  <span className="premium-hero-patch-note">Active for Patch {CURRENT_VALORANT_PATCH}</span>
+                )}
+              </div>
+            )
             : (
               <Button variant="primary" onClick={() => setIsUpgradeModalOpen(true)}>
                 Upgrade to Premium
               </Button>
             )
+        )}
+        {!isLoading && !isPremium && (
+          <p className="premium-hero-patch-note premium-hero-patch-note-free">
+            Premium access is sold per VALORANT patch — currently Patch {CURRENT_VALORANT_PATCH}.
+          </p>
         )}
       </div>
 

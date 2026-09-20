@@ -11,6 +11,15 @@
 .premium-hero-eyebrow { color: var(--gold); justify-content: center; margin-bottom: 12px; }
 .premium-hero h1 { font-size: 40px; margin-bottom: 12px; }
 .premium-hero p { color: var(--gray); font-size: 15px; line-height: 1.7; margin-bottom: 20px; }
+.premium-hero-status { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.premium-hero-patch-note {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--gray-dim);
+}
+.premium-hero-patch-note-free { margin: -8px 0 0; font-size: 12px; }
 
 .theme-selector-section { margin: 40px 0; }
 .theme-swatch-grid { display: flex; flex-wrap: wrap; gap: 14px; }
