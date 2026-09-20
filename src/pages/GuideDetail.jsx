@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Navigate, Link } from 'react-router-dom'
-import { ArrowLeft, Clock, BarChart2, Calendar } from 'lucide-react'
+import {
+  ArrowLeft,
+  Clock,
+  BarChart2,
+  Calendar,
+  Target,
+  Layers,
+  ListChecks,
+  Compass,
+  AlertTriangle,
+  Radar,
+  Dumbbell,
+  Sparkles,
+} from 'lucide-react'
 import { getGuideById, getRelatedGuides, guides } from '../data/guides.js'
 import GuideCard from '../components/guides/GuideCard.jsx'
 import AiCoachBridge from '../components/guides/AiCoachBridge.jsx'
@@ -34,7 +47,12 @@ export default function GuideDetail() {
 
   const related = getRelatedGuides(guide)
   const caseCode = String(guides.findIndex((g) => g.id === guide.id) + 1).padStart(4, '0')
-  const updatedLabel = new Date(guide.updated).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  const updatedLabel = new Date(guide.updated).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+  const { content } = guide
 
   return (
     <div className="page-shell guide-detail-shell">
@@ -57,20 +75,101 @@ export default function GuideDetail() {
           <span><Calendar size={14} /> Updated {updatedLabel}</span>
         </div>
         <div className="guide-tag-row">
+          {(guide.maps || []).map((m) => <Badge key={`map-${m}`} variant="red">{m}</Badge>)}
           {guide.tags.map((t) => <Badge key={t}>{t}</Badge>)}
         </div>
       </div>
 
-      <div className="guide-hero-visual" aria-hidden="true">
-        <div className="featured-guide-scanline" />
-      </div>
+      <div className="guide-detail-divider" aria-hidden="true" />
 
       <article ref={articleRef} className="guide-body">
         <span className="eyebrow guide-body-eyebrow">Tactical Briefing</span>
-        {guide.content.map((para, i) => (
-          <p key={i}>{para}</p>
-        ))}
+
+        <section className="guide-section guide-section-why">
+          <div className="guide-section-label">
+            <Target size={15} />
+            <span>Why This Matters</span>
+          </div>
+          <p>{content.whyItMatters}</p>
+        </section>
+
+        <section className="guide-section">
+          <div className="guide-section-label">
+            <Layers size={15} />
+            <span>Core Concept</span>
+          </div>
+          <p>{content.coreConcept}</p>
+        </section>
+
+        <section className="guide-section">
+          <div className="guide-section-label">
+            <ListChecks size={15} />
+            <span>Step-by-Step</span>
+          </div>
+          <ol className="guide-steps-list">
+            {content.steps.map((step, i) => (
+              <li key={i} className="guide-step">
+                <span className="guide-step-index">{String(i + 1).padStart(2, '0')}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="guide-section">
+          <div className="guide-section-label">
+            <Compass size={15} />
+            <span>When to Use It</span>
+          </div>
+          <p>{content.whenToUseIt}</p>
+        </section>
+
+        <section className="guide-section guide-section-mistakes">
+          <div className="guide-section-label">
+            <AlertTriangle size={15} />
+            <span>Common Mistakes</span>
+          </div>
+          <ul className="guide-mistakes-list">
+            {content.commonMistakes.map((mistake, i) => (
+              <li key={i} className="guide-mistake">{mistake}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="guide-section">
+          <div className="guide-section-label">
+            <Radar size={15} />
+            <span>In-Game Example</span>
+          </div>
+          <div className="guide-example-box">
+            <p>{content.example}</p>
+          </div>
+        </section>
+
+        {content.drill && (
+          <section className="guide-section">
+            <div className="guide-section-label">
+              <Dumbbell size={15} />
+              <span>Practice Drill</span>
+            </div>
+            <div className="guide-drill-box">
+              <p>{content.drill}</p>
+            </div>
+          </section>
+        )}
+
+        <section className="guide-section guide-section-takeaway">
+          <div className="guide-takeaway-box">
+            <Sparkles size={16} className="guide-takeaway-icon" />
+            <div>
+              <span className="guide-takeaway-label">Quick Takeaway</span>
+              <p>{content.takeaway}</p>
+            </div>
+          </div>
+        </section>
       </article>
+
+      <div className="guide-detail-divider" aria-hidden="true" />
 
       <AiCoachBridge
         label="Want this broken down for your specific games?"
@@ -78,12 +177,16 @@ export default function GuideDetail() {
       />
 
       {related.length > 0 && (
-        <div className="related-guides">
-          <h3>More in {guide.category}</h3>
-          <div className="guide-grid">
-            {related.map((g, i) => <GuideCard key={g.id} guide={g} index={i} />)}
+        <>
+          <div className="guide-detail-divider" aria-hidden="true" />
+          <div className="related-guides">
+            <span className="eyebrow">Related Guides</span>
+            <h3>More in {guide.category}</h3>
+            <div className="guide-grid guide-grid-related">
+              {related.map((g, i) => <GuideCard key={g.id} guide={g} index={i} />)}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   )

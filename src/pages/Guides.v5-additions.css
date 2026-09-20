@@ -1,0 +1,25 @@
+/* ==========================================================================
+   GUIDES v5 ADDITIONS — hero -> featured guide gap micro-fix only
+   --------------------------------------------------------------------------
+   Append this AFTER v2, v3, and v4. Confirmed against a screenshot of the
+   live /guides page: the empty area sits between .guides-hero-inner and the
+   Featured Guide panel. It is not a broken/empty element — it's two
+   pre-existing padding values on sibling elements stacking with nothing
+   visually between them:
+
+     .guides-hero-inner   padding-bottom: 56px  (part of the 3-value shorthand)
+     .guides-shell        padding-top:    44px
+
+   56 + 44 = 100px of blank tactical-grid background. Trimming both (rather
+   than zeroing one) keeps a real gap so the page doesn't feel cramped, just
+   brings it in line with the ~32-40px gaps used elsewhere on this same page
+   (.featured-guide margin-bottom, .control-deck margin-bottom, etc.) instead
+   of being roughly 2.5x larger than any other gap on the page.
+   ========================================================================== */
+
+.guides-hero-inner {
+  padding-bottom: 32px;
+}
+.guides-shell {
+  padding-top: 16px;
+}

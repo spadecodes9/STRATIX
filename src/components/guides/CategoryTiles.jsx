@@ -3,17 +3,14 @@ import { getCategoryMeta } from './categoryMeta.js'
 
 export default function CategoryTiles({ categories, active, onSelect }) {
   return (
-    <div className="category-tiles" role="group" aria-label="Filter guides by category">
+    <div className="category-chip-row" role="group" aria-label="Filter guides by category">
       <button
-        className={`category-tile ${active === 'All' ? 'category-tile-active' : ''}`}
+        className={`category-chip ${active === 'All' ? 'category-chip-active' : ''}`}
         onClick={() => onSelect('All')}
         aria-pressed={active === 'All'}
       >
-        <span className="category-tile-icon-wrap"><LayoutGrid size={18} /></span>
-        <span className="category-tile-text">
-          <span className="category-tile-label">All Guides</span>
-          <span className="category-tile-desc">Everything in the library.</span>
-        </span>
+        <LayoutGrid size={15} />
+        <span>All</span>
       </button>
 
       {categories.map(({ category, count }) => {
@@ -23,15 +20,14 @@ export default function CategoryTiles({ categories, active, onSelect }) {
         return (
           <button
             key={category}
-            className={`category-tile ${isActive ? 'category-tile-active' : ''}`}
+            className={`category-chip ${isActive ? 'category-chip-active' : ''}`}
             onClick={() => onSelect(category)}
             aria-pressed={isActive}
+            title={meta.description}
           >
-            <span className="category-tile-icon-wrap"><Icon size={18} /></span>
-            <span className="category-tile-text">
-              <span className="category-tile-label">{category}<span className="category-tile-count">{count}</span></span>
-              <span className="category-tile-desc">{meta.description}</span>
-            </span>
+            <Icon size={15} />
+            <span>{category}</span>
+            <span className="category-chip-count">{count}</span>
           </button>
         )
       })}

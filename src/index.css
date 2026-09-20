@@ -20,10 +20,10 @@
   --success: #3ddc84;
   --warning: #ffb648;
 
-  /* Type */
-  --font-display: 'Rajdhani', system-ui, sans-serif;
+  /* Type — three-role system */
+  --font-display: 'Limelight', system-ui, sans-serif;
+  --font-ui: 'Big Shoulders Inline', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
   --shadow-glow: 0 0 24px var(--red-glow);
   --radius: 2px;
@@ -35,12 +35,10 @@
 
 html {
   color-scheme: dark;
-  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  overflow-x: hidden;
   min-height: 100svh;
   background: var(--black);
   background-image:
@@ -91,6 +89,19 @@ input, select, textarea {
   font-family: var(--font-body);
 }
 
+/* UI / technical role — labels, HUD, metadata, status */
+.font-ui {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
 ul { list-style: none; margin: 0; padding: 0; }
 
 ::selection {
@@ -129,3 +140,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+.error-boundary-shell { display: flex; align-items: center; justify-content: center; flex: 1; }
+.error-boundary-panel { max-width: 460px; text-align: center; border-color: rgba(255, 59, 78, 0.35); }
+.error-boundary-panel .eyebrow { display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%; margin-bottom: 10px; }
+.error-boundary-panel h2 { margin-bottom: 8px; }
+.error-boundary-panel p { margin-bottom: 20px; }
+.error-boundary-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }

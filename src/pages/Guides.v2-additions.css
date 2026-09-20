@@ -1,0 +1,268 @@
+/* ==========================================================================
+   GUIDES v2 ADDITIONS
+   --------------------------------------------------------------------------
+   Everything below is NEW — append it to the end of the existing
+   src/pages/Guides.css. Nothing in the original file needs to be deleted;
+   a couple of old rules (.category-tile*) become unused since
+   CategoryTiles.jsx now renders .category-chip* instead, but leaving them
+   in place is harmless and keeps this a pure addition, not a rewrite.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Section heading above the control deck ("Guide Library")
+   -------------------------------------------------------------------------- */
+.guides-section-heading {
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   SIMPLIFIED CATEGORY CHIPS
+   Replaces the larger description tiles with a single compact row — same
+   icons and counts, far less visual weight competing with the search box
+   and the cards below it.
+   -------------------------------------------------------------------------- */
+.category-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--charcoal-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--gray);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.category-chip svg { color: var(--red); flex-shrink: 0; }
+.category-chip:hover { color: var(--white); transform: translateY(-1px); }
+.category-chip-active {
+  color: var(--red-bright);
+  border-color: var(--red);
+  background: var(--red-glow-soft);
+}
+.category-chip-count {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--gray-dim);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1px 7px;
+  margin-left: 2px;
+}
+.category-chip-active .category-chip-count {
+  color: var(--red-bright);
+  border-color: rgba(255, 59, 78, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   FIX THE EMPTY SPACE — tighten the gap between the guide library / training
+   path and the AI Coach band so there's no dead zone. Scoped to the Guides
+   page only via the combined selector, so .page-shell elsewhere is untouched.
+   -------------------------------------------------------------------------- */
+.page-shell.guides-shell {
+  padding-bottom: 8px;
+}
+.recommended-guides {
+  margin-bottom: 0;
+}
+.coach-bridge-band {
+  padding-top: 40px;
+  padding-bottom: 48px;
+}
+
+/* --------------------------------------------------------------------------
+   TRAINING PATH — numbered rows + empty state on the recommendation panel
+   -------------------------------------------------------------------------- */
+.recommended-guide-row {
+  gap: 14px;
+}
+.recommended-guide-number {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--red-bright);
+  opacity: 0.7;
+  flex-shrink: 0;
+  width: 20px;
+}
+.recommended-guide-gap-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--red-bright);
+  margin-bottom: 2px;
+}
+.recommended-guides-clear {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--gray-dim);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.recommended-guides-clear svg { color: var(--success); flex-shrink: 0; }
+
+/* --------------------------------------------------------------------------
+   GUIDE DETAIL — structured briefing sections
+   -------------------------------------------------------------------------- */
+.guide-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--red-bright);
+}
+.guide-section-label svg { color: var(--red); flex-shrink: 0; }
+
+.guide-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  counter-reset: none;
+  padding: 0;
+  margin: 0;
+}
+.guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--red);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+.guide-step-index {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--red-bright);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.guide-step span:last-child {
+  font-size: 15px;
+  color: var(--white);
+  line-height: 1.6;
+}
+
+.guide-mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+.guide-mistake {
+  position: relative;
+  padding: 10px 16px 10px 34px;
+  background: rgba(255, 59, 78, 0.06);
+  border: 1px solid rgba(255, 59, 78, 0.2);
+  border-radius: var(--radius);
+  font-size: 14.5px;
+  color: var(--white);
+  line-height: 1.6;
+}
+.guide-mistake::before {
+  content: '×';
+  position: absolute;
+  left: 12px;
+  top: 9px;
+  color: var(--red-bright);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.guide-example-box,
+.guide-drill-box {
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.guide-example-box p,
+.guide-drill-box p {
+  font-size: 15px;
+  color: var(--white);
+  line-height: 1.7;
+  margin: 0;
+  max-width: none;
+}
+
+.guide-takeaway-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(160deg, var(--charcoal), var(--charcoal-2));
+  border: 1px solid rgba(255, 59, 78, 0.3);
+  border-left: 2px solid var(--red);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-top: 4px;
+}
+.guide-takeaway-icon { color: var(--red-bright); flex-shrink: 0; margin-top: 2px; }
+.guide-takeaway-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--red-bright);
+  margin-bottom: 4px;
+}
+.guide-takeaway-box p {
+  font-size: 15.5px;
+  color: var(--white);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 62ch;
+}
+
+.related-guides .eyebrow { display: block; margin-bottom: 4px; }
+.guide-grid-related { margin-bottom: 8px; }
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE — extends the existing breakpoints, no new ones introduced
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .category-chip-row { gap: 6px; }
+  .category-chip { padding: 8px 12px; font-size: 13px; }
+}
+
+@media (max-width: 600px) {
+  .category-chip-row { flex-direction: column; align-items: stretch; }
+  .category-chip { justify-content: flex-start; }
+  .recommended-guide-row { align-items: flex-start; }
+  .recommended-guide-number { display: none; }
+  .guide-step { flex-direction: row; }
+}
+
+/* --------------------------------------------------------------------------
+   REDUCED MOTION — nothing new animates in this addition, included for
+   completeness in case category-chip hover transforms need neutralizing
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .category-chip:hover { transform: none; }
+}

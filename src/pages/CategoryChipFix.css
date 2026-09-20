@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Category filter chips (Guide Library, /guides landing page only)
+   --------------------------------------------------------------------------
+   Explicitly imported by Guides.jsx (see the import statement added next to
+   `import './Guides.css'`) rather than pasted into the end of an existing
+   file. That's the actual fix: DevTools confirmed zero `.category-chip`
+   rules were reaching the live button — not an override, an absence — so
+   the previous three CSS-only attempts (v2, v6, the ID+!important "fix")
+   never had a chance to run regardless of how they were written. An
+   explicit import is mechanically guaranteed to be bundled by Vite, and
+   shows up as its own tagged <style data-vite-dev-id=".../CategoryChipFix.css">
+   block in the page head — a clear, checkable signal that it's actually
+   loaded this time.
+
+   No !important and no #control-deck ID-qualification here — those were a
+   defensive response to a suspected specificity conflict that the DevTools
+   evidence ruled out. Plain, ordinary specificity is enough once the file
+   is actually loaded, and it's the cleaner, more maintainable rule to keep
+   long-term.
+   ========================================================================== */
+
+.category-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  row-gap: 8px;
+  max-width: 100%;
+}
+
+.category-chip-row .category-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-height: 32px;
+  background: var(--charcoal-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1;
+  color: var(--gray);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.category-chip-row .category-chip span {
+  display: inline-block;
+  line-height: 1;
+}
+.category-chip-row .category-chip svg {
+  color: var(--red);
+  flex-shrink: 0;
+}
+.category-chip-row .category-chip:hover {
+  color: var(--white);
+  transform: translateY(-1px);
+}
+.category-chip-row .category-chip-active {
+  color: var(--red-bright);
+  border-color: var(--red);
+  background: var(--red-glow-soft);
+}
+
+.category-chip-row .category-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--gray-dim);
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 7px;
+  margin-left: 4px;
+}
+.category-chip-row .category-chip-active .category-chip-count {
+  color: var(--red-bright);
+  border-color: rgba(255, 59, 78, 0.35);
+}
+
+@media (max-width: 900px) {
+  .category-chip-row { gap: 6px; row-gap: 6px; }
+  .category-chip-row .category-chip { padding: 7px 12px; font-size: 13px; }
+}
+@media (max-width: 600px) {
+  .category-chip-row { flex-direction: column; align-items: stretch; }
+  .category-chip-row .category-chip { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .category-chip-row .category-chip:hover { transform: none; }
+}

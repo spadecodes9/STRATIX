@@ -1,94 +1,106 @@
-import { Link } from 'react-router-dom'
-import { Crosshair, MessageSquare, Shield, ExternalLink } from 'lucide-react'
+import { Crosshair } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+import { DISCORD_INVITE_URL } from '../../data/contact.js'
 import './layout.css'
+
+const columns = [
+  {
+    heading: 'Platform',
+    links: [
+      { to: '/dashboard', label: 'Dashboard' },
+      { to: '/courses', label: 'Courses' },
+      { to: '/guides', label: 'Guides' },
+      { to: '/quizzes', label: 'Quizzes' },
+      { to: '/ai-coach', label: 'AI Coach' },
+      { to: '/teammates', label: 'Find Teammates' },
+    ],
+  },
+  {
+    heading: 'Resources',
+    links: [
+      { to: '/create-account', label: 'Getting Started' },
+      { to: '/', label: 'Training System' },
+      { to: '/', label: 'Skill Matrix' },
+      { to: '/contact', label: 'FAQ' },
+      { to: '/contact', label: 'Help Center' },
+    ],
+  },
+  {
+    heading: 'Community',
+    links: [
+      { href: DISCORD_INVITE_URL, label: 'Discord', external: true },
+      { href: DISCORD_INVITE_URL, label: 'Community', external: true },
+      { to: '/teammates', label: 'Find Teammates' },
+    ],
+  },
+  {
+    heading: 'Legal',
+    links: [
+      { to: '/terms', label: 'Terms of Service' },
+      { to: '/privacy', label: 'Privacy Policy' },
+      { to: '/cookies', label: 'Cookie Policy' },
+      { to: '/license', label: 'License' },
+      { to: '/disclaimer', label: 'Disclaimer' },
+    ],
+  },
+  {
+    heading: 'Support',
+    links: [
+      { to: '/contact', label: 'Contact Us' },
+      { to: '/contact', label: 'Help' },
+    ],
+  },
+]
 
 export default function Footer() {
   return (
-    <footer className="footer" role="contentinfo">
+    <footer className="footer">
+      <div className="footer-grid" aria-hidden="true" />
       <div className="footer-inner">
-        {/* Brand & Mission Column */}
-        <div className="footer-col footer-col-brand">
-          <Link to="/" className="footer-brand">
-            <div className="footer-brand-icon">
-              <Crosshair size={22} strokeWidth={2.4} className="text-red" />
-            </div>
-            <div className="footer-brand-text">
-              <span className="brand-title">STRATIX</span>
-              <span className="brand-sub">COMPETITIVE TRAINING SYSTEM</span>
-            </div>
-          </Link>
-          <p className="footer-mission">
-            A precision esports intelligence platform designed to systematically isolate and resolve
-            mechanical and tactical bottlenecks for competitive VALORANT players.
-          </p>
-          <div className="footer-status-pill">
-            <span className="hud-dot-pulse" />
-            <span>ALL TRAINING ENGINES OPERATIONAL</span>
+        <div className="footer-top">
+          <div className="footer-brand-block">
+            <NavLink to="/" className="footer-brand">
+              <span className="footer-brand-mark"><Crosshair size={16} strokeWidth={2.2} /></span>
+              <span>STRATIX</span>
+              <i className="footer-brand-status" aria-hidden="true" />
+            </NavLink>
+            <p className="footer-note">
+              Independent training platform for VALORANT players. Not affiliated with or endorsed by Riot Games.
+            </p>
+            {/* TODO: Replace with the real STRATIX Discord invite URL once the server exists. */}
+            <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className="footer-discord-link">
+              <span className="footer-discord-pulse" aria-hidden="true" />
+              Join the Discord (placeholder)
+            </a>
           </div>
+
+          <nav className="footer-columns" aria-label="Footer navigation">
+            {columns.map((column) => (
+              <div key={column.heading} className="footer-column">
+                <span className="footer-column-heading">{column.heading}</span>
+                <ul>
+                  {column.links.map((link, index) => (
+                    <li key={column.heading + link.label + index}>
+                      {link.external ? (
+                        <a href={link.href} target="_blank" rel="noreferrer" className="footer-link">
+                          {link.label}
+                        </a>
+                      ) : (
+                        <NavLink to={link.to} className="footer-link">{link.label}</NavLink>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
 
-        {/* Column 1: PLATFORM */}
-        <div className="footer-col">
-          <h4 className="footer-col-title">PLATFORM</h4>
-          <ul className="footer-links-list">
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/courses">Courses</Link></li>
-            <li><Link to="/guides">Guides</Link></li>
-            <li><Link to="/courses#quizzes">Quizzes &amp; Scenarios</Link></li>
-            <li><Link to="/ai-coach">AI Coach</Link></li>
-            <li><Link to="/#scene-15">Community</Link></li>
-          </ul>
-        </div>
-
-        {/* Column 2: COMMUNITY */}
-        <div className="footer-col">
-          <h4 className="footer-col-title">COMMUNITY</h4>
-          <ul className="footer-links-list">
-            <li>
-              <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" className="external-link">
-                <span>Discord Network</span>
-                <ExternalLink size={12} />
-              </a>
-            </li>
-            <li><Link to="/#scene-15">Weekly Challenges</Link></li>
-            <li><Link to="/#scene-15">Scrim Lobbies</Link></li>
-            <li><Link to="/#scene-15">VOD Review Queue</Link></li>
-          </ul>
-        </div>
-
-        {/* Column 3: PLAYER */}
-        <div className="footer-col">
-          <h4 className="footer-col-title">PLAYER</h4>
-          <ul className="footer-links-list">
-            <li><Link to="/profile">Profile Console</Link></li>
-            <li><Link to="/dashboard">Skill Progression</Link></li>
-            <li><Link to="/#scene-16">Premium Tier</Link></li>
-            <li><Link to="/profile">Settings &amp; DPI</Link></li>
-          </ul>
-        </div>
-
-        {/* Column 4: LEGAL */}
-        <div className="footer-col">
-          <h4 className="footer-col-title">LEGAL</h4>
-          <ul className="footer-links-list">
-            <li><a href="#privacy">Privacy Policy</a></li>
-            <li><a href="#terms">Terms of Service</a></li>
-            <li><a href="#cookies">Cookie Preferences</a></li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Bottom Disclaimer */}
-      <div className="footer-bottom-bar">
-        <div className="footer-bottom-inner">
-          <span className="footer-copy">
-            &copy; {new Date().getFullYear()} STRATIX // ALL RIGHTS RESERVED.
+        <div className="footer-bottom">
+          <span>© 2026 STRATIX. All rights reserved.</span>
+          <span className="footer-bottom-disclaimer">
+            Independent training platform for VALORANT players. Not affiliated with or endorsed by Riot Games.
           </span>
-          <p className="footer-disclaimer">
-            STRATIX is an independent tactical training platform for VALORANT players.
-            Not affiliated with, endorsed by, or sponsored by Riot Games, Inc. VALORANT and all
-            related properties are trademarks of Riot Games.
-          </p>
         </div>
       </div>
     </footer>

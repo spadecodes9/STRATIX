@@ -1,9 +1,32 @@
-﻿node_modules/
-dist/
-.env
-.env.*
-!.env.example
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-.claude/settings.local.json
-dev.log
-preview.log
+node_modules
+dist
+dist-ssr
+*.local
+
+# Env files (keep .env.example tracked as the template)
+.env
+.env.local
+.env.*.local
+
+# Tool-generated scratch output
+.playwright-mcp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

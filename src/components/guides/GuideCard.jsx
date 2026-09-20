@@ -11,6 +11,9 @@ export default function GuideCard({ guide, index = 0 }) {
   const meta = getCategoryMeta(guide.category)
   const WatermarkIcon = meta.icon
   const tier = TIER_BY_DIFFICULTY[guide.difficulty] || 1
+  // Prefer the specific map/topic tag over a generic first tag, so map
+  // guides read "BIND" on the card instead of a less useful chip.
+  const displayTag = guide.maps?.[0] || guide.tags[0]
 
   return (
     <Link
@@ -23,7 +26,7 @@ export default function GuideCard({ guide, index = 0 }) {
 
       <div className="guide-card-top">
         <Badge variant="red">{guide.category}</Badge>
-        {guide.tags[0] && <span className="guide-card-tag">{guide.tags[0]}</span>}
+        {displayTag && <span className="guide-card-tag">{displayTag}</span>}
       </div>
       <h3>{guide.title}</h3>
       <p>{guide.excerpt}</p>

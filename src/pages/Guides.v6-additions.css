@@ -1,0 +1,102 @@
+/* ==========================================================================
+   GUIDES v6 ADDITIONS — category filter chip micro-fix only
+   --------------------------------------------------------------------------
+   Append this LAST, after v2/v3/v4/v5. Scope: .category-chip-row,
+   .category-chip, .category-chip-count and their states. Nothing else.
+
+   This is a COMPLETE, self-contained redefinition of the category chip
+   styling (not just new properties layered on v2's version) — deliberately,
+   because the reported symptom (icons/labels/counts running together with
+   no space, e.g. "Maps9") is what you'd see if these buttons had no
+   flex/gap/padding/border/background at all, which is what CategoryTiles.jsx
+   would render if `Guides.v2-additions.css` (the only place this styling
+   exists) wasn't fully appended to the live Guides.css. This file works
+   either way: if v2's rules are present, this cleanly re-affirms/refines
+   them; if they're missing, this alone is sufficient. The 900px/600px
+   breakpoints below mirror v2's own responsive rules for these exact
+   selectors, so appending this after v2 can't regress small-screen layout.
+   ========================================================================== */
+
+.category-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  row-gap: 8px;
+  max-width: 100%;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-height: 36px;
+  background: var(--charcoal-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1;
+  color: var(--gray);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.category-chip span {
+  display: inline-block;
+  line-height: 1;
+}
+.category-chip svg {
+  color: var(--red);
+  flex-shrink: 0;
+}
+.category-chip:hover {
+  color: var(--white);
+  transform: translateY(-1px);
+}
+.category-chip-active {
+  color: var(--red-bright);
+  border-color: var(--red);
+  background: var(--red-glow-soft);
+}
+
+.category-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--gray-dim);
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 7px;
+  margin-left: 4px;
+}
+.category-chip-active .category-chip-count {
+  color: var(--red-bright);
+  border-color: rgba(255, 59, 78, 0.35);
+}
+
+/* Mirrors v2's own breakpoints for these selectors — chips shrink slightly
+   at 900px, then stack to a single column at 600px, wrapping (never
+   overflowing) at every width in between since flex-shrink is 0 and the
+   row wraps. */
+@media (max-width: 900px) {
+  .category-chip-row { gap: 6px; row-gap: 6px; }
+  .category-chip { padding: 8px 12px; font-size: 13px; }
+}
+@media (max-width: 600px) {
+  .category-chip-row { flex-direction: column; align-items: stretch; }
+  .category-chip { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .category-chip:hover { transform: none; }
+}

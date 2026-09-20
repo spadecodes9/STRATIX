@@ -76,10 +76,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
   color: var(--gray-dim);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
   animation: fade-in 0.4s ease both;
 }
 .status-dot {
@@ -187,7 +188,7 @@
 .featured-guide-corner-br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
 .featured-guide-code {
   position: relative;
-  font-family: var(--font-mono);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
   font-size: 12px;
   color: var(--red-bright);
   letter-spacing: 0.08em;
@@ -213,7 +214,9 @@
 }
 .featured-guide-meta span { display: flex; align-items: center; gap: 5px; }
 .featured-guide-tag {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 2px 8px;
@@ -250,9 +253,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
   color: var(--gray-dim);
   margin-bottom: 18px;
   padding-bottom: 14px;
@@ -342,8 +346,9 @@
   color: var(--white);
 }
 .category-tile-count {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
   color: var(--gray-dim);
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -415,8 +420,9 @@
 }
 .guide-card-top { display: flex; align-items: center; justify-content: space-between; position: relative; }
 .guide-card-tag {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
   color: var(--gray-dim);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -542,9 +548,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
   color: var(--gray-dim);
 }
 .coach-bridge-flow {
@@ -599,9 +606,10 @@
 }
 .system-activation-content { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .system-ticker {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--red-bright);
   animation: ticker-blink 2.4s ease-in-out infinite;
@@ -634,7 +642,7 @@
 
 .guide-case-code {
   display: block;
-  font-family: var(--font-mono);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
   font-size: 12px;
   color: var(--red-bright);
   letter-spacing: 0.08em;

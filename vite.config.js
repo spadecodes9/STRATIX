@@ -5,6 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5178
-  }
+    proxy: {
+      // Forwards AI Coach requests to the local Express backend during dev,
+      // so the frontend can call a same-origin `/api/ai-coach` path.
+      '/api': {
+        target: 'http://localhost:8787',
+        changeOrigin: true,
+      },
+    },
+  },
 })

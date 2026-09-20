@@ -13,6 +13,14 @@ import Guides from './pages/Guides.jsx'
 import GuideDetail from './pages/GuideDetail.jsx'
 import AICoach from './pages/AICoach.jsx'
 import Profile from './pages/Profile.jsx'
+import Quizzes from './pages/Quizzes.jsx'
+import FindTeammates from './pages/FindTeammates.jsx'
+import Terms from './pages/Terms.jsx'
+import Privacy from './pages/Privacy.jsx'
+import Cookies from './pages/Cookies.jsx'
+import License from './pages/License.jsx'
+import Disclaimer from './pages/Disclaimer.jsx'
+import Contact from './pages/Contact.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
@@ -26,7 +34,10 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="Dashboard"
+              description="Sign in to access your personal STRATIX dashboard."
+            >
               <Dashboard />
             </ProtectedRoute>
           }
@@ -37,7 +48,10 @@ function App() {
         <Route
           path="/courses/:courseId/lessons/:lessonId"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="Course Lesson"
+              description="Sign in to continue this lesson and track your training progress."
+            >
               <LessonView />
             </ProtectedRoute>
           }
@@ -49,7 +63,10 @@ function App() {
         <Route
           path="/ai-coach"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="AI Coach"
+              description="Sign in to use AI Coach and get personalized VALORANT coaching."
+            >
               <AICoach />
             </ProtectedRoute>
           }
@@ -58,11 +75,24 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="Profile"
+              description="Sign in to access and manage your STRATIX profile."
+            >
               <Profile />
             </ProtectedRoute>
           }
         />
+
+        <Route path="/quizzes" element={<Quizzes />} />
+        <Route path="/teammates" element={<FindTeammates />} />
+
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/license" element={<License />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

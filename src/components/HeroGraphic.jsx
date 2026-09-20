@@ -1,57 +1,97 @@
+const nodes = [
+  {
+    id: 'signal',
+    x: 146, y: 168,
+    path: 'M146 168 V240 L280 280',
+    bend: { x: 146, y: 240 },
+    label: 'SIGNAL DETECTED',
+    labelX: 130, labelY: 146, anchor: 'end',
+  },
+  {
+    id: 'pattern',
+    x: 412, y: 158,
+    path: 'M412 158 V232 L280 280',
+    bend: { x: 412, y: 232 },
+    label: 'PATTERN',
+    labelX: 428, labelY: 146, anchor: 'start',
+    waveform: { x: 430, y: 182 },
+  },
+  {
+    id: 'weakness',
+    x: 128, y: 372,
+    path: 'M128 372 H200 L280 280',
+    bend: { x: 200, y: 372 },
+    label: 'WEAKNESS',
+    labelX: 112, labelY: 396, anchor: 'end',
+    weak: true,
+  },
+  {
+    id: 'confidence',
+    x: 404, y: 388,
+    path: 'M404 388 H340 L280 280',
+    bend: { x: 340, y: 388 },
+    label: 'CONFIDENCE',
+    labelX: 420, labelY: 396, anchor: 'start',
+    value: '94%',
+    waveform: { x: 422, y: 370 },
+  },
+  {
+    id: 'action',
+    x: 280, y: 452,
+    path: 'M280 280 V452',
+    label: 'ACTION',
+    labelX: 280, labelY: 480, anchor: 'middle',
+  },
+]
+
 export default function HeroGraphic() {
   return (
-    <svg viewBox="0 0 420 420" className="hero-graphic" role="presentation" aria-hidden="true">
+    <svg viewBox="0 0 560 560" className="hero-graphic" role="presentation" aria-hidden="true">
       <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ff3b4e" stopOpacity="0.22" />
+        <radialGradient id="hero-core-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ff5c6d" stopOpacity="0.3" />
+          <stop offset="45%" stopColor="#ff3b4e" stopOpacity="0.08" />
           <stop offset="100%" stopColor="#ff3b4e" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      <circle cx="210" cy="210" r="200" fill="url(#glow)" />
+      <circle cx="280" cy="280" r="250" fill="url(#hero-core-glow)" />
 
-      {/* Outer rotating rings */}
-      <circle cx="210" cy="210" r="160" fill="none" stroke="#2a2a32" strokeWidth="1" />
-      <circle cx="210" cy="210" r="120" fill="none" stroke="#2a2a32" strokeWidth="1" strokeDasharray="4 8" />
-      <circle cx="210" cy="210" r="86" fill="none" stroke="#ff3b4e" strokeWidth="1.5" opacity="0.6" />
-
-      {/* Corner brackets */}
-      {[
-        [50, 50, 1, 1],
-        [370, 50, -1, 1],
-        [50, 370, 1, -1],
-        [370, 370, -1, -1],
-      ].map(([x, y, dx, dy], i) => (
-        <g key={i} stroke="#ff3b4e" strokeWidth="3" strokeLinecap="square">
-          <line x1={x} y1={y} x2={x + dx * 26} y2={y} />
-          <line x1={x} y1={y} x2={x} y2={y + dy * 26} />
-        </g>
-      ))}
-
-      {/* Crosshair */}
-      <g stroke="#f2f1ee" strokeWidth="2">
-        <line x1="210" y1="130" x2="210" y2="172" />
-        <line x1="210" y1="248" x2="210" y2="290" />
-        <line x1="130" y1="210" x2="172" y2="210" />
-        <line x1="248" y1="210" x2="290" y2="210" />
+      <g className="hero-graphic-brackets">
+        <path d="M70 113V70h43M447 70h43v43M70 447v43h43M490 447v43h-43" />
       </g>
-      <circle cx="210" cy="210" r="3" fill="#ff3b4e" />
 
-      {/* Tick marks around inner ring */}
-      {Array.from({ length: 24 }).map((_, i) => {
-        const angle = (i / 24) * Math.PI * 2
-        const inner = 86
-        const outer = i % 6 === 0 ? 96 : 91
-        const x1 = 210 + inner * Math.cos(angle)
-        const y1 = 210 + inner * Math.sin(angle)
-        const x2 = 210 + outer * Math.cos(angle)
-        const y2 = 210 + outer * Math.sin(angle)
-        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#616169" strokeWidth="1" />
-      })}
+      <rect className="signal-scan" x="76" y="86" width="408" height="1" />
 
-      {/* Data readouts */}
-      <text x="60" y="330" fill="#8d8d96" fontFamily="ui-monospace, monospace" fontSize="11">RANK · DIAMOND II</text>
-      <text x="240" y="100" fill="#8d8d96" fontFamily="ui-monospace, monospace" fontSize="11">RR · 47</text>
+      <g className="signal-network">
+        {nodes.map((node) => (
+          <g key={node.id} className={'signal-branch' + (node.weak ? ' is-weak' : '')}>
+            <path className="signal-line" d={node.path} />
+            <path className="signal-pulse-line" d={node.path} />
+            {node.bend && <circle className="relay-node" cx={node.bend.x} cy={node.bend.y} r="1.8" />}
+            {node.waveform && (
+              <path
+                className="signal-waveform"
+                transform={`translate(${node.waveform.x} ${node.waveform.y})`}
+                d="M-9 0 L-6 -3 L-3 3 L0 -4 L3 2 L6 -2 L9 3"
+              />
+            )}
+            <circle className="signal-node-ring" cx={node.x} cy={node.y} r={node.weak ? 7 : 5} />
+            <circle className="signal-node-dot" cx={node.x} cy={node.y} r={node.weak ? 2.8 : 2} />
+            <text className="signal-label" x={node.labelX} y={node.labelY} textAnchor={node.anchor}>{node.label}</text>
+            {node.value && (
+              <text className="signal-value" x={node.labelX} y={node.labelY + 13} textAnchor={node.anchor}>{node.value}</text>
+            )}
+          </g>
+        ))}
+      </g>
+
+      <g className="core-node">
+        <circle className="core-ring-pulse" cx="280" cy="280" r="20" />
+        <circle className="core-ring" cx="280" cy="280" r="24" />
+        <rect className="core-diamond" x="271" y="271" width="18" height="18" transform="rotate(45 280 280)" />
+        <text className="core-label" x="280" y="240" textAnchor="middle">ANALYSIS</text>
+      </g>
     </svg>
   )
 }
