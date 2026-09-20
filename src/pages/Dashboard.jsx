@@ -1,7 +1,6 @@
-import { Flame, GraduationCap, BookOpen, Clock } from 'lucide-react'
+import { Flame, BookOpen, Clock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import WelcomeHeader from '../components/dashboard/WelcomeHeader.jsx'
-import ContinueLearning from '../components/dashboard/ContinueLearning.jsx'
 import SkillMatrix from '../components/dashboard/SkillMatrix.jsx'
 import RecentActivity from '../components/dashboard/RecentActivity.jsx'
 import StatCard from '../components/ui/StatCard.jsx'
@@ -24,11 +23,9 @@ export default function Dashboard() {
         <div className="stat-row">
           <StatCard icon={Flame} value={`${user.stats.streakDays} days`} label="Training streak" />
           <StatCard icon={Clock} value={`${user.stats.hoursTrained}h`} label="Hours trained" />
-          <StatCard icon={GraduationCap} value={user.stats.coursesCompleted} label="Courses completed" />
           <StatCard icon={BookOpen} value={user.stats.guidesRead} label="Guides read" />
         </div>
       </section>
-      <ContinueLearning courseProgress={user.courseProgress} recommendedNext={user.recommendedNext} recentActivity={user.recentActivity} weakestSkill={weakestSkill} />
       <div className="two-col-panels dashboard-detail-grid">
         <SkillMatrix skills={user.skillMatrix} weakestSkill={weakestSkill} />
         <RecentActivity activity={user.recentActivity} />

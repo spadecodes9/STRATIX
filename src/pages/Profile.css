@@ -407,21 +407,6 @@
 .rank-ladder-progress-row { display: flex; justify-content: space-between; font-size: 13px; font-family: var(--font-ui); font-weight: 600; color: var(--gray); margin-bottom: 7px; }
 .rank-ladder-caption { display: block; margin-top: 7px; color: var(--gray-dim); font-size: 11px; }
 
-/* ---------- Course Progress ---------- */
-.course-progress-panel .profile-course-progress-list { gap: 12px; }
-.profile-course-progress-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.profile-progress-row-top {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--white);
-  margin-bottom: 5px;
-}
-
 /* ---------- Profile Actions ---------- */
 .profile-actions-body { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
 .profile-actions-row {

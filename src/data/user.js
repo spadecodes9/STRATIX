@@ -18,7 +18,6 @@ export const currentUser = {
     peak: 'Immortal 1',
   },
   stats: {
-    coursesCompleted: 3,
     lessonsCompleted: 41,
     guidesRead: 27,
     streakDays: 12,
@@ -48,7 +47,7 @@ export const currentUser = {
     { id: 'm5', map: 'Icebox', result: 'loss', kills: 14, deaths: 18, assists: 3, acs: 188, rrChange: -12, time: '2d' },
   ],
   // The player's current focused training objective, tracked separately
-  // from course/lesson progress — see TrainingProgress component.
+  // from lesson progress — see TrainingProgress component.
   trainingObjective: {
     title: 'Improve positioning during retakes',
     progressPercent: 68,
@@ -67,11 +66,6 @@ export const currentUser = {
     { skill: 'Communication', score: 69 },
     { skill: 'Economy Mgmt', score: 74 },
   ],
-  courseProgress: {
-    'aim-fundamentals': 100,
-    'advanced-utility-usage': 60,
-    'map-control-mastery': 25,
-  },
   recentActivity: [
     {
       id: 'a1',
@@ -103,16 +97,14 @@ export const currentUser = {
     },
     {
       id: 'a5',
-      type: 'course_start',
-      title: 'Started "Map Control Mastery"',
-      meta: 'New Course',
+      type: 'session_start',
+      title: 'Started reviewing "Map Control Fundamentals"',
+      meta: 'Training Session',
       time: '4 days ago',
     },
   ],
   recommendedNext: {
-    courseId: 'advanced-utility-usage',
-    lessonId: 'l_smoke_timings',
     title: 'Smoke Timings for Retakes',
-    reason: 'Continues your current course · matches your weakest skill area',
+    reason: 'Matches your weakest skill area',
   },
 }

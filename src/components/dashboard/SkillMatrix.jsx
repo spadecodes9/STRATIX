@@ -13,7 +13,7 @@ export default function SkillMatrix({ skills, weakestSkill }) {
         <div className="weak-skill-callout">
           <AlertTriangle size={18} />
           <div><span>Priority improvement</span><strong>{weakestSkill.skill} <em>{weakestSkill.score}/100</em></strong></div>
-          <Button to="/courses/map-control-mastery" variant="ghost" icon={ArrowRight}>Train</Button>
+          <Button to="/guides" variant="ghost" icon={ArrowRight}>Train</Button>
         </div>
       )}
       <div className="skill-matrix-list">

@@ -11,7 +11,7 @@ export default function License() {
         {
           heading: '1. Ownership',
           body: [
-            'The STRATIX platform, including its courses, guides, and design, is owned by STRATIX unless otherwise noted.',
+            'The STRATIX platform, including its guides and design, is owned by STRATIX unless otherwise noted.',
           ],
         },
         {

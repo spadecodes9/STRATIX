@@ -115,7 +115,7 @@ export default function SignIn() {
         </p>
 
         <p className="auth-footnote">
-          One STRATIX account — sync your courses, progress, and AI Coach across every device.
+          One STRATIX account — sync your progress and AI Coach across every device.
         </p>
       </div>
     </div>

@@ -23,23 +23,12 @@ import {
   Zap,
 } from 'lucide-react'
 import Button from '../components/ui/Button.jsx'
-import Badge from '../components/ui/Badge.jsx'
 import HeroGraphic from '../components/HeroGraphic.jsx'
 import PlatformShowcase from '../components/landing/PlatformShowcase.jsx'
-import { courses } from '../data/courses.js'
 import { currentUser } from '../data/user.js'
 import './Landing.css'
 
 const platformModules = [
-  {
-    id: 'courses',
-    icon: GraduationCap,
-    label: 'Courses',
-    title: 'Structured reps with a purpose.',
-    body: 'Follow a focused training path instead of collecting disconnected advice.',
-    to: '/courses',
-    action: 'Explore courses',
-  },
   {
     id: 'guides',
     icon: BookOpen,
@@ -63,7 +52,7 @@ const platformModules = [
     icon: TrendingUp,
     label: 'Progression',
     title: 'Make the pattern visible.',
-    body: 'Use skill signals, course progress, and recent effort to decide what comes next.',
+    body: 'Use skill signals and recent effort to decide what comes next.',
     to: '/create-account',
     action: 'Build your system',
   },
@@ -152,7 +141,6 @@ export default function Landing() {
   const [activeModule, setActiveModule] = useState('coach')
   const [systemBooted, setSystemBooted] = useState(false)
   const heroRef = useRef(null)
-  const featured = courses.slice(0, 3)
   const weakestSkill = currentUser.skillMatrix.reduce((lowest, skill) => (
     skill.score < lowest.score ? skill : lowest
   ))
@@ -225,11 +213,11 @@ export default function Landing() {
             </p>
             <div className="command-hero-actions hero-intro hero-intro-4">
               <Button variant="primary" to="/create-account" icon={ArrowRight}>Initialize training</Button>
-              <Button variant="secondary" to="/courses" icon={ChevronRight}>Explore the system</Button>
+              <Button variant="secondary" to="/guides" icon={ChevronRight}>Explore the system</Button>
             </div>
             <div className="hero-live-signal hero-intro hero-intro-5">
               <span><i /> SYSTEM ONLINE</span>
-              <span>COURSES / GUIDES / AI / PROGRESSION</span>
+              <span>GUIDES / AI / PROGRESSION</span>
             </div>
           </div>
 
@@ -293,14 +281,13 @@ export default function Landing() {
             <div className={'is-active-' + activeModule}>
               <div className="system-wires" aria-hidden="true">
                 <svg className="sw-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* outer training loop: courses -> guides -> progress -> coach -> courses */}
+                  {/* outer training loop: guides -> progress -> coach -> guides */}
                   <path id="sw-loop-top" className="sw-path sw-loop" d="M9.3,15.5 L40,15.5 L40,13 L60,13 L60,15.5 L90.7,15.5" />
                   <path id="sw-loop-right" className="sw-path sw-loop" d="M90.7,15.5 L90.7,40 L94.5,40 L94.5,50 L90.7,50 L90.7,75.1" />
                   <path id="sw-loop-bottom" className="sw-path sw-loop" d="M90.7,75.1 L60,75.1 L60,78 L40,78 L40,75.1 L9.3,75.1" />
                   <path id="sw-loop-left" className="sw-path sw-loop" d="M9.3,75.1 L9.3,50 L6,50 L6,40 L9.3,40 L9.3,15.5" />
 
                   {/* direct hub connections */}
-                  <path id="sw-spoke-courses" className="sw-path sw-spoke" d="M41,26 L29.3,26 L29.3,36.5" />
                   <path id="sw-spoke-guides" className="sw-path sw-spoke" d="M59,26 L70.7,26 L70.7,36.5" />
                   <path id="sw-spoke-coach" className="sw-path sw-spoke" d="M41,50 L29.3,50 L29.3,54.1" />
                   <path id="sw-spoke-progress" className="sw-path sw-spoke" d="M59,50 L70.7,50 L70.7,54.1" />
@@ -320,9 +307,6 @@ export default function Landing() {
                   </circle>
 
                   {/* signal pulses on the active hub connection */}
-                  <circle id="sw-pulse-spoke-courses" className="sw-spoke-pulse" r="0.65">
-                    <animateMotion dur="1s" repeatCount="indefinite"><mpath href="#sw-spoke-courses" /></animateMotion>
-                  </circle>
                   <circle id="sw-pulse-spoke-guides" className="sw-spoke-pulse" r="0.65">
                     <animateMotion dur="1s" repeatCount="indefinite"><mpath href="#sw-spoke-guides" /></animateMotion>
                   </circle>
@@ -341,17 +325,14 @@ export default function Landing() {
                 <i className="sw-dot sw-dot-dim" style={{ left: '94.5%', top: '45%' }} />
 
                 {/* hub ports */}
-                <i id="sw-hub-courses" className="sw-dot sw-dot-hub" style={{ left: '41%', top: '26%' }} />
                 <i id="sw-hub-guides" className="sw-dot sw-dot-hub" style={{ left: '59%', top: '26%' }} />
                 <i id="sw-hub-coach" className="sw-dot sw-dot-hub" style={{ left: '41%', top: '50%' }} />
                 <i id="sw-hub-progress" className="sw-dot sw-dot-hub" style={{ left: '59%', top: '50%' }} />
 
                 {/* card ports: inner (hub-facing) + outer (loop) */}
-                <i id="sw-port-courses-in" className="sw-dot sw-dot-port" style={{ left: '29.3%', top: '36.5%' }} />
                 <i id="sw-port-guides-in" className="sw-dot sw-dot-port" style={{ left: '70.7%', top: '36.5%' }} />
                 <i id="sw-port-coach-in" className="sw-dot sw-dot-port" style={{ left: '29.3%', top: '54.1%' }} />
                 <i id="sw-port-progress-in" className="sw-dot sw-dot-port" style={{ left: '70.7%', top: '54.1%' }} />
-                <i id="sw-port-courses-out" className="sw-dot sw-dot-port" style={{ left: '9.3%', top: '15.5%' }} />
                 <i id="sw-port-guides-out" className="sw-dot sw-dot-port" style={{ left: '90.7%', top: '15.5%' }} />
                 <i id="sw-port-progress-out" className="sw-dot sw-dot-port" style={{ left: '90.7%', top: '75.1%' }} />
                 <i id="sw-port-coach-out" className="sw-dot sw-dot-port" style={{ left: '9.3%', top: '75.1%' }} />
@@ -475,51 +456,10 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="landing-section course-command-section">
-        <div className="page-shell cinematic-shell">
-          <div className="section-split-heading landing-reveal">
-            <div>
-              <span className="eyebrow">03 // TRAINING LIBRARY</span>
-              <h2>Choose a path.<br /><span>Train the decision.</span></h2>
-            </div>
-            <Button variant="ghost" to="/courses" icon={ArrowRight}>View all training</Button>
-          </div>
-          <div className="course-command-grid">
-            {featured.map((course, index) => {
-              const lessonCount = course.modules.reduce((total, module) => total + module.lessons.length, 0)
-              const progressWidth = Math.min(100, 35 + lessonCount * 7)
-              return (
-                <Link
-                  key={course.id}
-                  to={'/courses/' + course.id}
-                  className={'course-command-card course-command-card-' + index + ' landing-reveal reveal-delay-' + (index + 1)}
-                >
-                  <div className="course-command-top">
-                    <Badge variant="red">{course.category}</Badge>
-                    <span>PATH 0{index + 1}</span>
-                  </div>
-                  <span className="course-command-number">0{index + 1}</span>
-                  <h3>{course.title}</h3>
-                  <p>{course.tagline}</p>
-                  <div className="course-command-spec">
-                    <span>{course.difficulty}</span><i /><span>{lessonCount} lessons</span><i /><span>{course.duration}</span>
-                  </div>
-                  <div className="course-command-progress">
-                    <div><span>TRAINING DENSITY</span><span>{lessonCount} modules</span></div>
-                    <i><b style={{ width: progressWidth + '%' }} /></i>
-                  </div>
-                  <span className="course-command-cta">Open training path <ArrowRight size={16} /></span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
       <section className="landing-section ai-analysis-section">
         <div className="page-shell cinematic-shell ai-shell">
           <div className="ai-copy landing-reveal">
-            <span className="eyebrow"><BrainCircuit size={14} /> 04 // STRATIX AI COACH</span>
+            <span className="eyebrow"><BrainCircuit size={14} /> 03 // STRATIX AI COACH</span>
             <h2>Ask what went wrong.<br /><span>Leave with a next move.</span></h2>
             <p>STRATIX AI turns a specific in-game question into a focused training direction, without sending you into another endless tab spiral.</p>
             <div className="ai-signal-legend">
@@ -542,14 +482,14 @@ export default function Landing() {
                 <span className="ai-step-label">02 // STRATIX AI ANALYSIS</span>
                 <div className="ai-analysis-window">
                   <div className="ai-analysis-top"><BrainCircuit size={16} /><span>ANALYZING RECENT PATTERNS</span><i><b /><b /><b /></i></div>
-                  <p className="ai-typing-text">Cross-referencing course momentum with the priority skill signal...</p>
+                  <p className="ai-typing-text">Cross-referencing recent signal with the priority skill gap...</p>
                   <div className="ai-analysis-scan" aria-hidden="true" />
                 </div>
               </div>
               <div className="ai-connector ai-connector-two"><i /><span>SIGNAL CONFIRMED</span></div>
               <div className="ai-sequence-output">
                 <div className="ai-output-gap"><span><TriangleAlert size={13} /> WEAKNESS DETECTED</span><strong>{weakestSkill.skill}</strong><b>{weakestSkill.score}<small>/100</small></b></div>
-                <div className="ai-output-action"><span><Sparkles size={13} /> RECOMMENDED TRAINING</span><strong>{currentUser.recommendedNext.title}</strong><Link to={'/courses/' + currentUser.recommendedNext.courseId}>Deploy training <ArrowRight size={14} /></Link></div>
+                <div className="ai-output-action"><span><Sparkles size={13} /> RECOMMENDED TRAINING</span><strong>{currentUser.recommendedNext.title}</strong><Link to="/guides">Deploy training <ArrowRight size={14} /></Link></div>
               </div>
             </div>
           </div>
@@ -559,7 +499,7 @@ export default function Landing() {
       <section className="landing-section progression-command-section">
         <div className="page-shell cinematic-shell progression-command-shell">
           <div className="progression-command-visual landing-reveal">
-            <div className="progression-command-heading"><span><Shield size={15} /> 05 // PLAYER PROGRESSION</span><span>DEMO SIGNAL</span></div>
+            <div className="progression-command-heading"><span><Shield size={15} /> 04 // PLAYER PROGRESSION</span><span>DEMO SIGNAL</span></div>
             <div className="progression-rank-display">
               <div><span>CURRENT RANK</span><strong>{currentUser.rank.tier} <em>{currentUser.rank.division}</em></strong></div>
               <div className="progression-rr"><b>{currentUser.rank.rr}</b><span>RR</span></div>
@@ -581,7 +521,7 @@ export default function Landing() {
           <div className="progression-command-copy landing-reveal reveal-delay-2">
             <span className="eyebrow">A dashboard that tells you what to do</span>
             <h2>Progress should feel<br /><span>less like a guess.</span></h2>
-            <p>Rank goals, course momentum, recent activity, and skill signals become one command view -- so the next useful practice block is always in reach.</p>
+            <p>Rank goals, recent activity, and skill signals become one command view -- so the next useful practice block is always in reach.</p>
             <Button variant="secondary" to="/create-account" icon={ArrowRight}>Build your command center</Button>
           </div>
         </div>
@@ -590,7 +530,7 @@ export default function Landing() {
       <section className="landing-section skill-matrix-section">
         <div className="page-shell cinematic-shell skill-matrix-shell">
           <div className="skill-matrix-copy landing-reveal">
-            <span className="eyebrow"><Waypoints size={14} /> 06 // SKILL MATRIX</span>
+            <span className="eyebrow"><Waypoints size={14} /> 05 // SKILL MATRIX</span>
             <h2>See the shape<br /><span>of your game.</span></h2>
             <p>Skill signals bring contrast to your training. Find the strong foundations, isolate the gap, and point your next session at the work that matters.</p>
             <div className="skill-matrix-key">
@@ -609,7 +549,7 @@ export default function Landing() {
       <section className="landing-section platform-showcase-section">
         <div className="page-shell cinematic-shell">
           <div className="showcase-header landing-reveal">
-            <span className="eyebrow">07 // THE STRATIX PLATFORM</span>
+            <span className="eyebrow">06 // THE STRATIX PLATFORM</span>
             <h2>Everything you need<br /><span>to improve with intent.</span></h2>
             <p>STRATIX connects training, analysis, knowledge, coaching, assessment, and teammates into one system &mdash; not just an AI coach.</p>
           </div>

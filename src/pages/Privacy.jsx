@@ -11,7 +11,7 @@ export default function Privacy() {
         {
           heading: '1. Information We Collect',
           body: [
-            'Account details such as your email and display name, and training data you generate on STRATIX, like course progress, skill signals, and AI Coach conversations.',
+            'Account details such as your email and display name, and training data you generate on STRATIX, like skill signals and AI Coach conversations.',
           ],
         },
         {

@@ -7,7 +7,6 @@ import './layout.css'
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
-  { to: '/courses', label: 'Courses' },
   { to: '/guides', label: 'Guides' },
   { to: '/quizzes', label: 'Quizzes' },
   { to: '/ai-coach', label: 'AI Coach' },

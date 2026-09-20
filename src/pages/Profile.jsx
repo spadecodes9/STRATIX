@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
-import { getCourseById } from '../data/courses.js'
 import ProfileHeader from '../components/profile/ProfileHeader.jsx'
 import QuickStatsStrip from '../components/profile/QuickStatsStrip.jsx'
 import PerformanceStats from '../components/profile/PerformanceStats.jsx'
@@ -11,7 +10,6 @@ import TrainingProgress from '../components/profile/TrainingProgress.jsx'
 import RankProgression from '../components/profile/RankProgression.jsx'
 import RecentActivity from '../components/dashboard/RecentActivity.jsx'
 import ProfileActions from '../components/profile/ProfileActions.jsx'
-import ProgressBar from '../components/ui/ProgressBar.jsx'
 import '../pages/Dashboard.css'
 import './Profile.css'
 
@@ -28,16 +26,11 @@ export default function Profile() {
     ? new Date(user.joinDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
     : '—'
 
-  const courseProgress = user.courseProgress || {}
   const skillMatrix = user.skillMatrix || []
 
   const weakestSkill = skillMatrix.length > 0
     ? skillMatrix.reduce((lowest, skill) => (skill.score < lowest.score ? skill : lowest))
     : null
-
-  const activeCourses = Object.entries(courseProgress)
-    .map(([id, pct]) => ({ course: getCourseById(id), pct }))
-    .filter((c) => c.course)
 
   return (
     <div className="page-shell dashboard profile-page">
@@ -66,25 +59,6 @@ export default function Profile() {
         <RankProgression rank={user.rank} />
         <RecentActivity activity={user.recentActivity || []} />
       </div>
-
-      {activeCourses.length > 0 && (
-        <div className="panel course-progress-panel">
-          <div className="panel-title-row">
-            <h3>Course Progress</h3>
-          </div>
-          <div className="profile-course-progress-list">
-            {activeCourses.map(({ course, pct }) => (
-              <div key={course.id} className="profile-progress-row">
-                <div className="profile-progress-row-top">
-                  <span>{course.title}</span>
-                  <span>{pct}%</span>
-                </div>
-                <ProgressBar percent={pct} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <ProfileActions recommendedNext={user.recommendedNext} />
     </div>

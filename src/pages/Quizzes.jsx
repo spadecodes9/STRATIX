@@ -38,10 +38,9 @@ export default function Quizzes() {
         </div>
 
         <div className="quizzes-footer-note">
-          <p>Quizzes are still in active development and aren't live yet. In the meantime, Courses and Guides cover the same ground.</p>
+          <p>Quizzes are still in active development and aren't live yet. In the meantime, Guides cover the same ground.</p>
           <div className="quizzes-footer-actions">
-            <Button variant="primary" to="/courses">Explore courses</Button>
-            <Button variant="ghost" to="/guides">Browse guides</Button>
+            <Button variant="primary" to="/guides">Browse guides</Button>
           </div>
         </div>
       </div>

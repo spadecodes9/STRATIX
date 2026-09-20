@@ -4,7 +4,7 @@ const iconByType = {
   lesson_complete: CheckCircle2,
   guide_read: BookOpen,
   ai_session: Bot,
-  course_start: GraduationCap,
+  session_start: GraduationCap,
 }
 
 export default function RecentActivity({ activity }) {

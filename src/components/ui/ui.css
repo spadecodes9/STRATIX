@@ -104,7 +104,7 @@
   transition: width 0.4s ease;
 }
 
-/* Panel - the base HUD surface used across dashboard/courses/guides */
+/* Panel - the base HUD surface used across dashboard/guides */
 .panel {
   background: var(--charcoal);
   border: 1px solid var(--border);

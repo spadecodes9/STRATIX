@@ -2,9 +2,7 @@ import { PlayCircle, BarChart3, UserPen, Settings2 } from 'lucide-react'
 import Button from '../ui/Button.jsx'
 
 export default function ProfileActions({ recommendedNext }) {
-  const lessonHref = recommendedNext?.courseId && recommendedNext?.lessonId
-    ? `/courses/${recommendedNext.courseId}/lessons/${recommendedNext.lessonId}`
-    : '/courses'
+  const lessonHref = '/guides'
 
   return (
     <div className="panel profile-actions-panel">

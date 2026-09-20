@@ -1,7 +1,7 @@
 export const suggestedPrompts = [
   'Why do I keep losing my crosshair after a peek?',
   'How should I play retakes with only 2 utility?',
-  'Review my last course progress and suggest what to study next',
+  'Review my recent training activity and suggest what to study next',
   'Give me a warmup routine before ranked queue',
 ]
 
@@ -9,7 +9,7 @@ export const seedConversation = [
   {
     id: 'm1',
     role: 'coach',
-    text: "I'm your AI Coach — a mock preview for now, so responses are pre-written rather than generated live. Ask about aim, utility, positioning, or your recent course progress and I'll point you somewhere useful.",
+    text: "I'm your AI Coach — a mock preview for now, so responses are pre-written rather than generated live. Ask about aim, utility, positioning, or your recent training activity and I'll point you somewhere useful.",
   },
 ]
 
@@ -26,9 +26,9 @@ const canned = [
       "With limited utility on a retake, prioritize information over damage — a single recon-style ability before you commit tells you where to trade, not just where to peek. Smoke Timings for Retakes in Advanced Utility Usage is your Recommended Next Lesson for exactly this.",
   },
   {
-    keywords: ['progress', 'course', 'next', 'study'],
+    keywords: ['progress', 'next', 'study'],
     reply:
-      "You're 60% through Advanced Utility Usage and your lowest skill area is Positioning at 57. Once you finish your current course, Map Control Mastery lines up well with closing that gap.",
+      "Your lowest skill area is Positioning at 57. Smoke Timings for Retakes is a solid next focus for closing that gap.",
   },
   {
     keywords: ['warmup', 'routine', 'ranked'],
@@ -38,7 +38,7 @@ const canned = [
 ]
 
 const fallback =
-  "That's outside my mock preview scope for now — try asking about aim, utility usage, retakes, or your course progress."
+  "That's outside my mock preview scope for now — try asking about aim, utility usage, retakes, or your recent training activity."
 
 export function getMockCoachReply(userText) {
   const lower = userText.toLowerCase()

@@ -8,7 +8,6 @@ import {
   ChevronRight,
   Compass,
   Gauge,
-  GraduationCap,
   LifeBuoy,
   MessageSquare,
   Radar,
@@ -23,11 +22,10 @@ import './platformShowcase.css'
 
 const CORE_FEATURES = [
   { id: 'dashboard', num: '01', label: 'Dashboard', to: '/dashboard', icon: Gauge },
-  { id: 'courses', num: '02', label: 'Courses', to: '/courses', icon: GraduationCap },
-  { id: 'guides', num: '03', label: 'Guides', to: '/guides', icon: BookOpen },
-  { id: 'quizzes', num: '04', label: 'Quizzes', to: '/quizzes', icon: Radar, tag: 'IN DEV' },
-  { id: 'aicoach', num: '05', label: 'AI Coach', to: '/ai-coach', icon: BrainCircuit },
-  { id: 'teammates', num: '06', label: 'Find Teammates', to: '/teammates', icon: Users, tag: 'IN DEV' },
+  { id: 'guides', num: '02', label: 'Guides', to: '/guides', icon: BookOpen },
+  { id: 'quizzes', num: '03', label: 'Quizzes', to: '/quizzes', icon: Radar, tag: 'IN DEV' },
+  { id: 'aicoach', num: '04', label: 'AI Coach', to: '/ai-coach', icon: BrainCircuit },
+  { id: 'teammates', num: '05', label: 'Find Teammates', to: '/teammates', icon: Users, tag: 'IN DEV' },
 ]
 
 const ECOSYSTEM_ITEMS = [
@@ -65,18 +63,6 @@ function CorePreview({ feature }) {
             <div className="mp-xp-bar"><i style={{ width: Math.round((currentUser.xp / currentUser.xpToNextLevel) * 100) + '%' }} /></div>
           </div>
           <div className="mp-activity"><Gauge size={12} /> Next up: {currentUser.recommendedNext.title}</div>
-        </div>
-      )
-    case 'courses':
-      return (
-        <div className="monitor-preview monitor-preview-courses">
-          <span className="mp-label">ADVANCED UTILITY USAGE</span>
-          <strong>Lesson 3 of 8 &mdash; Smoke Timings for Retakes</strong>
-          <div className="mp-segments">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <i key={i} className={i < 3 ? 'is-filled' : ''} />
-            ))}
-          </div>
         </div>
       )
     case 'guides':

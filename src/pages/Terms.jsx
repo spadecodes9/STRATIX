@@ -11,7 +11,7 @@ export default function Terms() {
         {
           heading: '1. Using STRATIX',
           body: [
-            'STRATIX is an independent training platform for VALORANT players, providing courses, guides, and coaching tools to help players train with more direction.',
+            'STRATIX is an independent training platform for VALORANT players, providing guides and coaching tools to help players train with more direction.',
           ],
         },
         {

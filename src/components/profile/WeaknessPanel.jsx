@@ -16,11 +16,7 @@ export default function WeaknessPanel({ weakestSkill, recommendedNext }) {
   const analysis = ANALYSIS_BY_SKILL[weakestSkill.skill]
     || 'This skill is trailing the rest of your profile and is the highest-leverage area to train next.'
 
-  const lessonHref = recommendedNext?.courseId && recommendedNext?.lessonId
-    ? `/courses/${recommendedNext.courseId}/lessons/${recommendedNext.lessonId}`
-    : recommendedNext?.courseId
-      ? `/courses/${recommendedNext.courseId}`
-      : '/courses'
+  const lessonHref = '/guides'
 
   return (
     <div className="panel weakness-panel">

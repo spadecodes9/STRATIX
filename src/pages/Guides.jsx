@@ -180,9 +180,9 @@ export default function Guides() {
             <div className="system-activation-scanline" aria-hidden="true" />
             <div className="system-activation-content">
               <span className="system-ticker">System ready // awaiting input</span>
-              <h2>Guides tell you what to do.<br />Courses build the habit.</h2>
-              <p>Pair what you just read with a structured course built around the same fundamentals.</p>
-              <Button to="/courses" variant="primary">Explore Courses</Button>
+              <h2>Guides tell you what to do.<br />AI Coach tells you why.</h2>
+              <p>Bring what you just read into a live session and turn it into a plan built around your fundamentals.</p>
+              <Button to="/ai-coach" variant="primary">Talk to AI Coach</Button>
             </div>
           </div>
         </div>

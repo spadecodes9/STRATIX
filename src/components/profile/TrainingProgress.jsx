@@ -9,9 +9,7 @@ export default function TrainingProgress({ trainingObjective, recommendedNext })
   const dashOffset = RING_CIRCUMFERENCE * (1 - progressPercent / 100)
   const checklist = trainingObjective?.checklist ?? []
 
-  const lessonHref = recommendedNext?.courseId && recommendedNext?.lessonId
-    ? `/courses/${recommendedNext.courseId}/lessons/${recommendedNext.lessonId}`
-    : '/courses'
+  const lessonHref = '/guides'
 
   return (
     <div className="panel training-progress-panel">

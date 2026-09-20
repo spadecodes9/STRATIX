@@ -6,9 +6,6 @@ import Landing from './pages/Landing.jsx'
 import SignIn from './pages/SignIn.jsx'
 import CreateAccount from './pages/CreateAccount.jsx'
 import Dashboard from './pages/Dashboard.jsx'
-import Courses from './pages/Courses.jsx'
-import CourseDetail from './pages/CourseDetail.jsx'
-import LessonView from './pages/LessonView.jsx'
 import Guides from './pages/Guides.jsx'
 import GuideDetail from './pages/GuideDetail.jsx'
 import AICoach from './pages/AICoach.jsx'
@@ -39,20 +36,6 @@ function App() {
               description="Sign in to access your personal STRATIX dashboard."
             >
               <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId" element={<CourseDetail />} />
-        <Route
-          path="/courses/:courseId/lessons/:lessonId"
-          element={
-            <ProtectedRoute
-              feature="Course Lesson"
-              description="Sign in to continue this lesson and track your training progress."
-            >
-              <LessonView />
             </ProtectedRoute>
           }
         />

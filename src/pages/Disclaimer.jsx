@@ -17,7 +17,7 @@ export default function Disclaimer() {
         {
           heading: '2. No Guaranteed Results',
           body: [
-            'Courses, guides, skill signals, and AI Coach feedback on STRATIX are training aids, not a guarantee of rank, performance, or outcome. Improvement depends on the player.',
+            'Guides, skill signals, and AI Coach feedback on STRATIX are training aids, not a guarantee of rank, performance, or outcome. Improvement depends on the player.',
           ],
         },
         {
