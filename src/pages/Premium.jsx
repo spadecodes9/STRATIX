@@ -3,6 +3,7 @@ import { usePremium } from '../context/PremiumContext.jsx'
 import { premiumFeatures } from '../data/premiumFeatures.js'
 import PremiumFeatureCard from '../components/premium/PremiumFeatureCard.jsx'
 import ThemeSelector from '../components/premium/ThemeSelector.jsx'
+import PremiumQuizzes from '../components/premium/PremiumQuizzes.jsx'
 import Badge from '../components/ui/Badge.jsx'
 import Button from '../components/ui/Button.jsx'
 import '../components/premium/premium.css'
@@ -34,6 +35,7 @@ export default function Premium() {
       </div>
 
       <ThemeSelector />
+      <PremiumQuizzes />
     </div>
   )
 }

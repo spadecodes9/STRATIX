@@ -66,3 +66,16 @@
 .theme-locked-panel strong { display: block; margin-bottom: 3px; }
 .theme-locked-panel p { color: var(--gray); font-size: 13px; margin: 0; }
 .theme-locked-panel .btn { margin-left: auto; flex-shrink: 0; }
+
+.premium-quizzes-section { margin: 40px 0; }
+.premium-quizzes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.premium-quiz-card {
+  padding: 16px;
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--gray);
+}
+.premium-quiz-card svg { color: var(--gold); margin-bottom: 8px; }
+.premium-quiz-card strong { display: block; color: var(--white); margin-bottom: 6px; font-size: 14px; }
+.premium-quiz-card p { font-size: 12.5px; line-height: 1.5; margin: 0; }
