@@ -1,16 +1,19 @@
 import { Link } from 'react-router-dom'
-import { Clock, ArrowRight } from 'lucide-react'
+import { Clock, ArrowRight, Lock } from 'lucide-react'
 import Badge from '../ui/Badge.jsx'
 import { useScrollReveal } from '../../hooks/useScrollReveal.js'
+import { usePremium } from '../../context/PremiumContext.jsx'
 import { getCategoryMeta } from './categoryMeta.js'
 
 const TIER_BY_DIFFICULTY = { Beginner: 1, Intermediate: 2, Advanced: 3 }
 
 export default function GuideCard({ guide, index = 0 }) {
   const [ref, isVisible] = useScrollReveal()
+  const { isPremium } = usePremium()
   const meta = getCategoryMeta(guide.category)
   const WatermarkIcon = meta.icon
   const tier = TIER_BY_DIFFICULTY[guide.difficulty] || 1
+  const isLocked = guide.premium && !isPremium
   // Prefer the specific map/topic tag over a generic first tag, so map
   // guides read "BIND" on the card instead of a less useful chip.
   const displayTag = guide.maps?.[0] || guide.tags[0]
@@ -26,6 +29,7 @@ export default function GuideCard({ guide, index = 0 }) {
 
       <div className="guide-card-top">
         <Badge variant="red">{guide.category}</Badge>
+        {isLocked && <span className="guide-card-lock"><Lock size={12} /> Premium</span>}
         {displayTag && <span className="guide-card-tag">{displayTag}</span>}
       </div>
       <h3>{guide.title}</h3>

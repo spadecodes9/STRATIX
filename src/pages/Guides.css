@@ -419,6 +419,14 @@
   pointer-events: none;
 }
 .guide-card-top { display: flex; align-items: center; justify-content: space-between; position: relative; }
+.guide-card-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+}
 .guide-card-tag {
   font-family: var(--font-ui);
   font-weight: 600;
@@ -697,6 +705,22 @@
   .recommended-guide-row { flex-wrap: wrap; }
   .guides-results-row { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
+
+/* ==========================================================================
+   GUIDE PAYWALL
+   ========================================================================== */
+.guide-paywall { display: flex; justify-content: center; padding: 80px 20px; }
+.guide-paywall-panel {
+  max-width: 420px;
+  text-align: center;
+  padding: 36px 28px;
+  background: var(--charcoal);
+  border: 1px solid rgba(255, 182, 72, 0.25);
+  border-radius: var(--radius);
+}
+.guide-paywall-panel svg { color: var(--gold); margin-bottom: 14px; }
+.guide-paywall-panel h1 { font-size: 24px; margin-bottom: 10px; }
+.guide-paywall-panel p { color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
 
 /* ==========================================================================
    REDUCED MOTION

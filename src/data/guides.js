@@ -45,6 +45,7 @@ export const guides = [
     excerpt: "The two post-plant crossfires that hold up against Bind's narrow retake paths.",
     readTime: '6 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-12',
     tags: ['Bind', 'Post-plant', 'Site Hold'],
     maps: ['Bind'],
@@ -82,6 +83,7 @@ export const guides = [
     excerpt: "Ascent is decided by who controls mid — here's how to take it and what to do once you have it.",
     readTime: '6 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-16',
     tags: ['Ascent', 'Map Control', 'Mid'],
     maps: ['Ascent'],
@@ -120,6 +122,7 @@ export const guides = [
     excerpt: "Haven's extra site stretches every defense thin — here's how to defend efficiently without overcommitting.",
     readTime: '7 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-05',
     tags: ['Haven', 'Defense', 'Rotations'],
     maps: ['Haven'],
@@ -158,6 +161,7 @@ export const guides = [
     excerpt: "Split's mid decides rotations for the entire round — control it and both sites open up.",
     readTime: '6 min',
     difficulty: 'Advanced',
+    premium: true,
     updated: '2026-08-19',
     tags: ['Split', 'Mid', 'Vertical Play'],
     maps: ['Split'],
@@ -195,6 +199,7 @@ export const guides = [
     excerpt: 'Icebox punishes players who only think in two dimensions — here\'s how to use height to your advantage.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-22',
     tags: ['Icebox', 'Verticality', 'Off-angles'],
     maps: ['Icebox'],
@@ -232,6 +237,7 @@ export const guides = [
     excerpt: "Breeze's open sightlines reward precision over speed — here's how to win the long fights.",
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-15',
     tags: ['Breeze', 'Aim', 'Long Range'],
     maps: ['Breeze'],
@@ -269,6 +275,7 @@ export const guides = [
     excerpt: "Pearl's mid connects both sites through multiple paths — control it to pressure either site at will.",
     readTime: '6 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-02',
     tags: ['Pearl', 'Mid', 'Map Control'],
     maps: ['Pearl'],
@@ -306,6 +313,7 @@ export const guides = [
     excerpt: "Lotus's destructible, rotating doors change every fight they touch — here's how to play around them.",
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-28',
     tags: ['Lotus', 'Utility', 'Site Control'],
     maps: ['Lotus'],
@@ -343,6 +351,7 @@ export const guides = [
     excerpt: "Sunset's tight corners reward fast reactions over long-range precision — here's how to adapt.",
     readTime: '5 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-07-10',
     tags: ['Sunset', 'Close Range', 'Aim'],
     maps: ['Sunset'],
@@ -382,6 +391,7 @@ export const guides = [
     excerpt: 'Most crosshair guides optimize for looks. This one optimizes for information.',
     readTime: '4 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-07-30',
     tags: ['Settings', 'Crosshair', 'Beginner'],
     content: {
@@ -418,6 +428,7 @@ export const guides = [
     excerpt: 'The single habit that separates players who win duels before they start from players who react to them.',
     readTime: '5 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-08-09',
     tags: ['Crosshair Placement', 'Pre-aim', 'Fundamentals'],
     content: {
@@ -454,6 +465,7 @@ export const guides = [
     excerpt: "VALORANT's weapons are built around a precise first shot — spraying from the hip gives that advantage away for free.",
     readTime: '4 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-08-14',
     tags: ['Accuracy', 'Spray Control', 'Fundamentals'],
     content: {
@@ -490,6 +502,7 @@ export const guides = [
     excerpt: 'Tapping and spraying solve different problems — using the wrong one at the wrong range costs duels.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-20',
     tags: ['Spray Control', 'Rifles', 'Technique'],
     content: {
@@ -526,6 +539,7 @@ export const guides = [
     excerpt: 'Both rifles kill in the same number of hits — the real difference is in the tradeoffs, not the raw power.',
     readTime: '5 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-08-06',
     tags: ['Rifles', 'Loadout', 'Decision Making'],
     content: {
@@ -562,6 +576,7 @@ export const guides = [
     excerpt: 'The Sheriff can one-shot headshot on a pistol round — but only if your aim can cash the check.',
     readTime: '4 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-25',
     tags: ['Sheriff', 'Pistols', 'Economy'],
     content: {
@@ -598,6 +613,7 @@ export const guides = [
     excerpt: 'The Operator wins any duel at any range — but only if you\'re not the one getting flanked while scoped in.',
     readTime: '6 min',
     difficulty: 'Advanced',
+    premium: true,
     updated: '2026-08-24',
     tags: ['Operator', 'Positioning', 'Advanced'],
     content: {
@@ -637,6 +653,7 @@ export const guides = [
     excerpt: 'Footsteps, defuse voice lines, and ability sounds tell you where the enemy is going before your teammates do.',
     readTime: '7 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-01',
     tags: ['Game Sense', 'Audio', 'Rotations'],
     content: {
@@ -673,6 +690,7 @@ export const guides = [
     excerpt: "You can't force your team into a full buy, but you can control your own economy well enough to never be the reason it collapses.",
     readTime: '5 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-06-18',
     tags: ['Economy', 'Solo Queue'],
     content: {
@@ -709,6 +727,7 @@ export const guides = [
     excerpt: 'The first duel of a fight matters less than who wins the trade that follows it.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-11',
     tags: ['Trading', 'Teamwork', 'Positioning'],
     content: {
@@ -745,6 +764,7 @@ export const guides = [
     excerpt: "Being a player up changes what a 'good' decision looks like — here's how to actually convert the advantage.",
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-04',
     tags: ['Man Advantage', 'Decision Making', 'Strategy'],
     content: {
@@ -781,6 +801,7 @@ export const guides = [
     excerpt: "Being a player down doesn't mean the round is lost — but it does mean your decisions need to change.",
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-08',
     tags: ['Man Disadvantage', 'Decision Making', 'Strategy'],
     content: {
@@ -817,6 +838,7 @@ export const guides = [
     excerpt: "The plan you made at round start rarely survives contact — here's how to adapt without falling apart.",
     readTime: '6 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-17',
     tags: ['Decision Making', 'Rotations', 'Strategy'],
     topics: ['rotation'],
@@ -854,6 +876,7 @@ export const guides = [
     excerpt: 'A well-executed entry at the wrong moment still loses the fight — timing matters as much as technique.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-18',
     tags: ['Entry', 'Timing', 'Utility'],
     content: {
@@ -890,6 +913,7 @@ export const guides = [
     excerpt: 'Every defense has a default setup — learning to recognize and break it turns a predictable round into a free site.',
     readTime: '6 min',
     difficulty: 'Advanced',
+    premium: true,
     updated: '2026-08-21',
     tags: ['Default', 'Reads', 'Strategy'],
     content: {
@@ -926,6 +950,7 @@ export const guides = [
     excerpt: "Retaking a site isn't about winning a gunfight — it's about controlling information before you commit.",
     readTime: '6 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-13',
     tags: ['Retake', 'Utility', 'Strategy'],
     content: {
@@ -964,6 +989,7 @@ export const guides = [
     excerpt: 'Fast, repeatable lineups for both sites that do not require a controller-main memory bank.',
     readTime: '6 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-07-05',
     tags: ['Ascent', 'Smokes', 'Lineups'],
     maps: ['Ascent'],
@@ -1001,6 +1027,7 @@ export const guides = [
     excerpt: "A smoke's real job is to control what the enemy knows, not just what they can see.",
     readTime: '5 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-07-20',
     tags: ['Smokes', 'Utility', 'Fundamentals'],
     content: {
@@ -1037,6 +1064,7 @@ export const guides = [
     excerpt: 'A perfectly aimed flash that pops too early or too late is functionally the same as no flash at all.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-03',
     tags: ['Flashes', 'Utility', 'Timing'],
     content: {
@@ -1073,6 +1101,7 @@ export const guides = [
     excerpt: "Initiator utility is most valuable spent early, gathering information you can act on — not saved until it's too late.",
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-15',
     tags: ['Initiator', 'Recon', 'Utility'],
     content: {
@@ -1109,6 +1138,7 @@ export const guides = [
     excerpt: "Sentinel utility works best when it actively denies the enemy a route, not when it's placed and forgotten.",
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-12',
     tags: ['Sentinel', 'Flank Watch', 'Utility'],
     content: {
@@ -1145,6 +1175,7 @@ export const guides = [
     excerpt: 'The utility you save for after the plant often matters more than what you used to get there.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-18',
     tags: ['Post-plant', 'Utility', 'Strategy'],
     content: {
@@ -1183,6 +1214,7 @@ export const guides = [
     excerpt: 'The players who climb consistently are not the ones who never tilt — they are the ones whose tilt does not change their decision-making.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-22',
     tags: ['Mindset', 'Tilt'],
     content: {
@@ -1219,6 +1251,7 @@ export const guides = [
     excerpt: 'How you play the round immediately after a loss says more about your rank ceiling than how you play after a win.',
     readTime: '4 min',
     difficulty: 'Beginner',
+    premium: false,
     updated: '2026-07-08',
     tags: ['Mindset', 'Consistency'],
     content: {
@@ -1255,6 +1288,7 @@ export const guides = [
     excerpt: "The rounds you lose to inattention rarely feel like a mechanical failure — they feel like nothing happened at all.",
     readTime: '4 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-08-10',
     tags: ['Focus', 'Consistency', 'Mindset'],
     content: {
@@ -1291,6 +1325,7 @@ export const guides = [
     excerpt: 'Your best round and your worst round in the same session are usually closer in skill than they feel — consistency is a mental skill, not a talent gap.',
     readTime: '5 min',
     difficulty: 'Intermediate',
+    premium: false,
     updated: '2026-07-27',
     tags: ['Consistency', 'Mindset', 'Routine'],
     content: {
@@ -1327,6 +1362,7 @@ export const guides = [
     excerpt: "Clutch situations don't require different mechanics — they require the same decisions made without the extra noise pressure adds.",
     readTime: '5 min',
     difficulty: 'Advanced',
+    premium: true,
     updated: '2026-08-23',
     tags: ['Clutch', 'Mindset', 'Decision Making'],
     content: {

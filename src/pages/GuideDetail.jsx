@@ -13,16 +13,20 @@ import {
   Radar,
   Dumbbell,
   Sparkles,
+  Lock,
 } from 'lucide-react'
 import { getGuideById, getRelatedGuides, guides } from '../data/guides.js'
 import GuideCard from '../components/guides/GuideCard.jsx'
 import AiCoachBridge from '../components/guides/AiCoachBridge.jsx'
 import Badge from '../components/ui/Badge.jsx'
+import Button from '../components/ui/Button.jsx'
+import { usePremium } from '../context/PremiumContext.jsx'
 import './Guides.css'
 
 export default function GuideDetail() {
   const { guideId } = useParams()
   const guide = getGuideById(guideId)
+  const { isPremium } = usePremium()
   const articleRef = useRef(null)
   const [readProgress, setReadProgress] = useState(0)
 
@@ -44,6 +48,19 @@ export default function GuideDetail() {
   }, [guide])
 
   if (!guide) return <Navigate to="/guides" replace />
+
+  if (guide.premium && !isPremium) {
+    return (
+      <div className="page-shell guide-paywall">
+        <div className="guide-paywall-panel">
+          <Lock size={20} />
+          <h1>Premium Guide</h1>
+          <p>"{guide.title}" is part of the full STRATIX Guides Library. Upgrade to Premium to unlock it.</p>
+          <Button variant="primary" to="/premium">Upgrade to Premium</Button>
+        </div>
+      </div>
+    )
+  }
 
   const related = getRelatedGuides(guide)
   const caseCode = String(guides.findIndex((g) => g.id === guide.id) + 1).padStart(4, '0')
