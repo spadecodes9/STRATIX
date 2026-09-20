@@ -134,6 +134,26 @@
 .profile-rank-card-rr { font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: var(--red-bright); letter-spacing: 0.03em; }
 .profile-rank-card-caption { position: relative; z-index: 1; font-size: 10px; color: var(--gray-dim); }
 
+.profile-plan-card {
+  padding: 14px 16px;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-plan-card-top { display: flex; }
+.profile-plan-status {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--gray);
+}
+.profile-plan-status-premium { color: var(--gold); }
+.profile-plan-theme { font-size: 11px; color: var(--gray-dim); }
+
 /* ---------- Quick Stats Strip ---------- */
 .quick-stats-strip {
   display: grid;

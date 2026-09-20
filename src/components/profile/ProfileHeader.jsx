@@ -1,11 +1,15 @@
 import { Calendar, LogOut, UserPen, Diamond } from 'lucide-react'
 import ProgressBar from '../ui/ProgressBar.jsx'
 import Button from '../ui/Button.jsx'
+import { usePremium } from '../../context/PremiumContext.jsx'
+import { useTheme } from '../../context/ThemeContext.jsx'
 
 export default function ProfileHeader({ user, joinDate, onSignOut }) {
   const rr = Number(user.rank?.rr) || 0
   const rrToNext = Math.max(0, 100 - rr)
   const nextDivision = user.rank?.division ? Number(user.rank.division) + 1 : null
+  const { isPremium } = usePremium()
+  const { theme } = useTheme()
 
   return (
     <div className="profile-hero panel">
@@ -51,6 +55,24 @@ export default function ProfileHeader({ user, joinDate, onSignOut }) {
           <span className="profile-rank-card-caption">
             {rrToNext} RR to {user.rank?.tier || ''} {nextDivision || 'next rank'}
           </span>
+        </div>
+
+        <div className="profile-plan-card">
+          <div className="profile-plan-card-top">
+            <span className="eyebrow">Plan</span>
+          </div>
+          {isPremium ? (
+            <>
+              <div className="profile-plan-status profile-plan-status-premium">PREMIUM · ACTIVE</div>
+              <span className="profile-plan-theme">Theme: {theme[0].toUpperCase() + theme.slice(1)}</span>
+              <Button variant="secondary" disabled>Manage Subscription</Button>
+            </>
+          ) : (
+            <>
+              <div className="profile-plan-status">FREE PLAN</div>
+              <Button variant="primary" to="/premium">Upgrade to Premium</Button>
+            </>
+          )}
         </div>
       </div>
     </div>
