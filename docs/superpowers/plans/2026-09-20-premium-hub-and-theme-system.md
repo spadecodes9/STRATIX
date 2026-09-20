@@ -157,7 +157,7 @@ becomes:
 ```jsx
 const lessonHref = '/guides'
 ```
-(after Step 12 strips `courseId`/`lessonId` from `recommendedNext`, the conditional branch is always false — simplify directly rather than leaving dead conditional code).
+(Step 12 of this same task strips `courseId`/`lessonId` from `recommendedNext` in `data/user.js`, making the original conditional always false regardless of step order — replace it directly with the constant rather than leaving dead conditional code.)
 
 In `src/components/profile/TrainingProgress.jsx`, same fix (check the surrounding lines for the exact variable name at that call site, apply the same simplification).
 
