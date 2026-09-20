@@ -163,6 +163,17 @@ ul { list-style: none; margin: 0; padding: 0; }
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition:
+      background-color 0.4s ease,
+      border-color 0.4s ease,
+      box-shadow 0.4s ease,
+      color 0.4s ease !important;
+  }
+}
+
 .error-boundary-shell { display: flex; align-items: center; justify-content: center; flex: 1; }
 .error-boundary-panel { max-width: 460px; text-align: center; border-color: rgba(255, 59, 78, 0.35); }
 .error-boundary-panel .eyebrow { display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%; margin-bottom: 10px; }
