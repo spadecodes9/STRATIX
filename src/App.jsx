@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Guides from './pages/Guides.jsx'
 import GuideDetail from './pages/GuideDetail.jsx'
 import AICoach from './pages/AICoach.jsx'
+import Premium from './pages/Premium.jsx'
 import Profile from './pages/Profile.jsx'
 import Quizzes from './pages/Quizzes.jsx'
 import FindTeammates from './pages/FindTeammates.jsx'
@@ -68,6 +69,7 @@ function App() {
         />
 
         <Route path="/quizzes" element={<Quizzes />} />
+        <Route path="/premium" element={<Premium />} />
         <Route path="/teammates" element={<FindTeammates />} />
 
         <Route path="/terms" element={<Terms />} />

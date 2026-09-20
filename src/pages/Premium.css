@@ -1,0 +1,13 @@
+.premium-page { padding-top: 48px; padding-bottom: 80px; }
+.premium-hero {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 24px;
+  padding: 40px 24px;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 182, 72, 0.12), transparent 65%);
+  border: 1px solid rgba(255, 182, 72, 0.18);
+  border-radius: var(--radius);
+}
+.premium-hero-eyebrow { color: var(--gold); justify-content: center; margin-bottom: 12px; }
+.premium-hero h1 { font-size: 40px; margin-bottom: 12px; }
+.premium-hero p { color: var(--gray); font-size: 15px; line-height: 1.7; margin-bottom: 20px; }
