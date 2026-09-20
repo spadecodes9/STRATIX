@@ -288,9 +288,9 @@ export default function Landing() {
                   <path id="sw-loop-left" className="sw-path sw-loop" d="M9.3,75.1 L9.3,50 L6,50 L6,40 L9.3,40 L9.3,15.5" />
 
                   {/* direct hub connections */}
-                  <path id="sw-spoke-guides" className="sw-path sw-spoke" d="M59,26 L70.7,26 L70.7,36.5" />
+                  <path id="sw-spoke-guides" className="sw-path sw-spoke" d="M41,26 L29.3,26 L29.3,36.5" />
                   <path id="sw-spoke-coach" className="sw-path sw-spoke" d="M41,50 L29.3,50 L29.3,54.1" />
-                  <path id="sw-spoke-progress" className="sw-path sw-spoke" d="M59,50 L70.7,50 L70.7,54.1" />
+                  <path id="sw-spoke-progress" className="sw-path sw-spoke" d="M59,38 L70.7,38" />
 
                   {/* ambient signal pulses travelling the outer loop */}
                   <circle className="sw-loop-pulse" r="0.55">
@@ -325,16 +325,16 @@ export default function Landing() {
                 <i className="sw-dot sw-dot-dim" style={{ left: '94.5%', top: '45%' }} />
 
                 {/* hub ports */}
-                <i id="sw-hub-guides" className="sw-dot sw-dot-hub" style={{ left: '59%', top: '26%' }} />
+                <i id="sw-hub-guides" className="sw-dot sw-dot-hub" style={{ left: '41%', top: '26%' }} />
                 <i id="sw-hub-coach" className="sw-dot sw-dot-hub" style={{ left: '41%', top: '50%' }} />
-                <i id="sw-hub-progress" className="sw-dot sw-dot-hub" style={{ left: '59%', top: '50%' }} />
+                <i id="sw-hub-progress" className="sw-dot sw-dot-hub" style={{ left: '59%', top: '38%' }} />
 
                 {/* card ports: inner (hub-facing) + outer (loop) */}
-                <i id="sw-port-guides-in" className="sw-dot sw-dot-port" style={{ left: '70.7%', top: '36.5%' }} />
+                <i id="sw-port-guides-in" className="sw-dot sw-dot-port" style={{ left: '29.3%', top: '36.5%' }} />
                 <i id="sw-port-coach-in" className="sw-dot sw-dot-port" style={{ left: '29.3%', top: '54.1%' }} />
-                <i id="sw-port-progress-in" className="sw-dot sw-dot-port" style={{ left: '70.7%', top: '54.1%' }} />
-                <i id="sw-port-guides-out" className="sw-dot sw-dot-port" style={{ left: '90.7%', top: '15.5%' }} />
-                <i id="sw-port-progress-out" className="sw-dot sw-dot-port" style={{ left: '90.7%', top: '75.1%' }} />
+                <i id="sw-port-progress-in" className="sw-dot sw-dot-port" style={{ left: '70.7%', top: '38%' }} />
+                <i id="sw-port-guides-out" className="sw-dot sw-dot-port" style={{ left: '9.3%', top: '15.5%' }} />
+                <i id="sw-port-progress-out" className="sw-dot sw-dot-port" style={{ left: '94.5%', top: '45%' }} />
                 <i id="sw-port-coach-out" className="sw-dot sw-dot-port" style={{ left: '9.3%', top: '75.1%' }} />
 
                 <i className="wire-core-pulse" />

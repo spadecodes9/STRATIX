@@ -162,6 +162,7 @@
 .system-core > * { transform: rotate(-45deg); }
 .system-core svg { color: var(--red-bright); }.system-core span { font: 700 20px var(--font-display); letter-spacing: .07em; }.system-core small { color: var(--gray-dim); font: 600 9px var(--font-ui); letter-spacing: .03em; }
 .system-module-grid { position: absolute; z-index: 2; inset: 67px 8% 123px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 52px 46%; }
+.system-module-progress { grid-column: 2; grid-row: 1 / span 2; }
 .system-module { position: relative; width: 180px; min-height: 127px; justify-self: center; align-self: center; padding: 17px; color: var(--gray); text-align: left; background: rgba(16,16,21,.88); border: 1px solid var(--border); cursor: pointer; pointer-events: auto; transition: transform .3s cubic-bezier(.2,.75,.25,1), border-color .3s ease, background .3s ease, box-shadow .3s ease; }
 .system-module:hover, .system-module:focus-visible, .system-module.is-selected { color: var(--white); border-color: rgba(255,92,109,.72); background: linear-gradient(135deg, rgba(255,59,78,.14), rgba(20,20,24,.94)); box-shadow: 0 15px 27px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04); transform: translateY(-5px) scale(1.025); outline: none; }
 .system-module svg { display: block; margin-bottom: 11px; color: var(--red-bright); transition: transform .3s ease; }
@@ -179,9 +180,9 @@
 .sw-spoke-pulse { fill: var(--red-bright); opacity: 0; filter: drop-shadow(0 0 3px var(--red)); transition: opacity .25s ease; }
 .is-active-guides #sw-spoke-guides, .is-active-coach #sw-spoke-coach, .is-active-progress #sw-spoke-progress,
 .is-active-guides #sw-loop-top,
-.is-active-guides #sw-loop-right, .is-active-progress #sw-loop-right,
-.is-active-progress #sw-loop-bottom, .is-active-coach #sw-loop-bottom,
-.is-active-coach #sw-loop-left {
+.is-active-guides #sw-loop-left, .is-active-coach #sw-loop-left,
+.is-active-coach #sw-loop-bottom,
+.is-active-progress #sw-loop-right {
   opacity: 1; stroke: var(--red-bright); filter: drop-shadow(0 0 4px var(--red)); animation: sw-dash 1s linear infinite;
 }
 .is-active-guides #sw-hub-guides, .is-active-guides #sw-port-guides-in, .is-active-guides #sw-port-guides-out,
