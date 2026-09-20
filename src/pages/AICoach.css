@@ -263,3 +263,17 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.ai-coach-limit-reached {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255, 182, 72, 0.06);
+  border: 1px solid rgba(255, 182, 72, 0.25);
+  border-radius: var(--radius);
+}
+.ai-coach-limit-reached svg { color: var(--gold); flex-shrink: 0; }
+.ai-coach-limit-reached strong { display: block; margin-bottom: 3px; }
+.ai-coach-limit-reached p { color: var(--gray); font-size: 13px; margin: 0; }
+.ai-coach-limit-reached .btn { margin-left: auto; flex-shrink: 0; }

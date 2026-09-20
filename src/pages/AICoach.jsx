@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Bot, Send } from 'lucide-react'
+import { Bot, Lock, Send } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { getCoachResponse } from '../services/ai/coachService.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { usePremium } from '../context/PremiumContext.jsx'
+import Button from '../components/ui/Button.jsx'
 import './AICoach.css'
 
 const COMPOSER_MAX_HEIGHT = 160
@@ -31,6 +33,16 @@ const markdownComponents = { a: MarkdownLink }
 
 export default function AICoach() {
   const { user } = useAuth()
+  const { isPremium } = usePremium()
+  const FREE_CHAT_LIMIT = 3
+  // TEMPORARY: this counter is client-side React state only — it resets on
+  // reload and is not abuse-resistant. It exists to demonstrate the paywall
+  // UX. isPremium above is the real, server-verified entitlement check and
+  // is never affected by this counter. Real enforcement needs a
+  // server-persisted usage count checked by server/index.js before it calls
+  // OpenRouter — see docs/superpowers/specs/2026-09-20-premium-hub-and-theme-system-design.md §4.
+  const [freeChatCount, setFreeChatCount] = useState(0)
+  const chatLimitReached = !isPremium && freeChatCount >= FREE_CHAT_LIMIT
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -54,12 +66,14 @@ export default function AICoach() {
   const sendMessage = async (text) => {
     const trimmed = text.trim()
     if (!trimmed || isTyping) return
+    if (chatLimitReached) return
 
     // Snapshot history before appending the new user message — this is what
     // gets sent to the backend as conversation context.
     const history = messages
 
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text: trimmed }])
+    if (!isPremium) setFreeChatCount((count) => count + 1)
     setInput('')
     setIsTyping(true)
 
@@ -116,35 +130,46 @@ export default function AICoach() {
       </div>
 
       <div className="coach-composer-wrap">
-        <form
-          className="coach-composer"
-          onSubmit={(e) => {
-            e.preventDefault()
-            sendMessage(input)
-          }}
-        >
-          <textarea
-            ref={textareaRef}
-            className="coach-composer-textarea"
-            placeholder="Ask about aim, utility, positioning…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleComposerKeyDown}
-            disabled={isTyping}
-            rows={1}
-          />
-          <div className="coach-composer-actions">
-            <span className="coach-composer-hint">Enter to send · Shift+Enter for a new line</span>
-            <button
-              type="submit"
-              className="coach-send-btn"
-              aria-label="Send message"
-              disabled={isTyping || !input.trim()}
-            >
-              <Send size={17} />
-            </button>
+        {chatLimitReached ? (
+          <div className="ai-coach-limit-reached">
+            <Lock size={16} />
+            <div>
+              <strong>Free chat limit reached</strong>
+              <p>You've used your 3 free AI Coach chats. Upgrade to Premium for unlimited conversations.</p>
+            </div>
+            <Button variant="primary" to="/premium">Upgrade to Premium</Button>
           </div>
-        </form>
+        ) : (
+          <form
+            className="coach-composer"
+            onSubmit={(e) => {
+              e.preventDefault()
+              sendMessage(input)
+            }}
+          >
+            <textarea
+              ref={textareaRef}
+              className="coach-composer-textarea"
+              placeholder="Ask about aim, utility, positioning…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleComposerKeyDown}
+              disabled={isTyping}
+              rows={1}
+            />
+            <div className="coach-composer-actions">
+              <span className="coach-composer-hint">Enter to send · Shift+Enter for a new line</span>
+              <button
+                type="submit"
+                className="coach-send-btn"
+                aria-label="Send message"
+                disabled={isTyping || !input.trim()}
+              >
+                <Send size={17} />
+              </button>
+            </div>
+          </form>
+        )}
 
         <p className="ai-coach-footnote">
           STRATIX AI Coach can make mistakes. Confirm high-stakes calls with a coach or teammate.
