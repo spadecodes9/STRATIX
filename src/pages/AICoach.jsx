@@ -48,7 +48,18 @@ export default function AICoach() {
   // called from sendMessage before any AI request goes out. This hook only
   // reconstructs/displays that server state — it never grants access itself.
   const usage = useAICoachUsage(user?.id, isPremium, isPremiumLoading)
-  const chatLimitReached = !isPremium && usage.status === 'locked'
+  // Explicit states, not a single generic `disabled` condition — a
+  // disabled composer must always have a matching, visible reason.
+  // 'premium' and 'unlocked' both render the normal composer; 'loading'
+  // and 'locked' each get their own explicit panel below.
+  const usageDisplayState = isPremium
+    ? 'premium'
+    : usage.status === 'locked'
+      ? 'locked'
+      : usage.status === 'loading'
+        ? 'loading'
+        : 'unlocked'
+  const chatLimitReached = usageDisplayState === 'locked'
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -148,7 +159,7 @@ export default function AICoach() {
       </div>
 
       <div className="coach-composer-wrap">
-        {chatLimitReached ? (
+        {usageDisplayState === 'locked' && (
           <div className="ai-coach-limit-reached">
             <Lock size={16} />
             <div>
@@ -161,7 +172,15 @@ export default function AICoach() {
             </div>
             <Button variant="primary" to="/premium">Upgrade to Premium</Button>
           </div>
-        ) : (
+        )}
+
+        {usageDisplayState === 'loading' && (
+          <div className="ai-coach-usage-loading">
+            Checking your AI Coach usage…
+          </div>
+        )}
+
+        {(usageDisplayState === 'unlocked' || usageDisplayState === 'premium') && (
           <form
             className="coach-composer"
             onSubmit={(e) => {
@@ -176,7 +195,7 @@ export default function AICoach() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleComposerKeyDown}
-              disabled={isTyping || (!isPremium && usage.status === 'loading')}
+              disabled={isTyping}
               rows={1}
             />
             <div className="coach-composer-actions">
@@ -185,7 +204,7 @@ export default function AICoach() {
                 type="submit"
                 className="coach-send-btn"
                 aria-label="Send message"
-                disabled={isTyping || !input.trim() || (!isPremium && usage.status === 'loading')}
+                disabled={isTyping || !input.trim()}
               >
                 <Send size={17} />
               </button>

@@ -19,7 +19,19 @@ export function useAICoachUsage(userId, isPremium, isPremiumLoading) {
   const [remainingMs, setRemainingMs] = useState(0)
   const mountedRef = useRef(true)
 
-  useEffect(() => () => { mountedRef.current = false }, [])
+  // Reset on every (re-)mount, not just on the initial useRef() value — under
+  // React 18 StrictMode's dev-mode mount/cleanup/remount cycle, the synthetic
+  // cleanup below flips this to false once; without resetting it here on the
+  // remount, it stays false forever and every subsequent loadUsage() result
+  // gets silently discarded, leaving `state` stuck at its initial 'loading'
+  // value. This is what caused the composer to disable without the cooldown
+  // panel ever rendering.
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   const loadUsage = useCallback(() => {
     if (!userId) return
