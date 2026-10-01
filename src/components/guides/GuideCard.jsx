@@ -1,22 +1,16 @@
 import { Link } from 'react-router-dom'
-import { Clock, ArrowRight, Lock } from 'lucide-react'
-import Badge from '../ui/Badge.jsx'
+import { ArrowRight, Lock, Sparkles } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal.js'
 import { usePremium } from '../../context/PremiumContext.jsx'
+import { getCategoryLabel, getDifficulty } from '../../data/guides.js'
 import { getCategoryMeta } from './categoryMeta.js'
-
-const TIER_BY_DIFFICULTY = { Beginner: 1, Intermediate: 2, Advanced: 3 }
 
 export default function GuideCard({ guide, index = 0 }) {
   const [ref, isVisible] = useScrollReveal()
-  const { isPremium } = usePremium()
-  const meta = getCategoryMeta(guide.category)
-  const WatermarkIcon = meta.icon
-  const tier = TIER_BY_DIFFICULTY[guide.difficulty] || 1
-  const isLocked = guide.premium && !isPremium
-  // Prefer the specific map/topic tag over a generic first tag, so map
-  // guides read "BIND" on the card instead of a less useful chip.
-  const displayTag = guide.maps?.[0] || guide.tags[0]
+  const { canAccess } = usePremium()
+  const Icon = getCategoryMeta(guide.category).icon
+  const difficulty = getDifficulty(guide.difficulty)
+  const isLocked = guide.premium && !canAccess('premium-guides')
 
   return (
     <Link
@@ -25,25 +19,33 @@ export default function GuideCard({ guide, index = 0 }) {
       className={`guide-card ${isVisible ? 'is-visible' : ''}`}
       style={{ transitionDelay: isVisible ? `${Math.min(index, 6) * 60}ms` : '0ms' }}
     >
-      <WatermarkIcon className="guide-card-watermark" strokeWidth={1} aria-hidden="true" />
+      <Icon className="guide-card-watermark" strokeWidth={1} aria-hidden="true" />
+      <span className="guide-card-corner" aria-hidden="true" />
 
       <div className="guide-card-top">
-        <Badge variant="red">{guide.category}</Badge>
-        {isLocked && <span className="guide-card-lock"><Lock size={12} /> Premium</span>}
-        {displayTag && <span className="guide-card-tag">{displayTag}</span>}
+        <span className="guide-card-category">
+          <Icon size={13} aria-hidden="true" />
+          {getCategoryLabel(guide.category)}
+        </span>
+        {guide.premium && (
+          <span className="guide-card-lock">
+            {isLocked ? <Lock size={12} aria-label="Locked" /> : <Sparkles size={12} aria-hidden="true" />} Premium
+          </span>
+        )}
       </div>
+
       <h3>{guide.title}</h3>
       <p>{guide.excerpt}</p>
+
       <div className="guide-card-footer">
-        <span className="guide-card-difficulty" aria-label={`Difficulty: ${guide.difficulty}`}>
+        <span className={`guide-card-difficulty tier-${difficulty.tier}`} aria-label={`Difficulty: ${difficulty.label}`}>
           {[1, 2, 3].map((n) => (
-            <span key={n} className={`tier-bar ${n <= tier ? 'tier-bar-filled' : ''}`} />
+            <span key={n} className={`tier-bar ${n <= difficulty.tier ? 'tier-bar-filled' : ''}`} />
           ))}
-          {guide.difficulty}
+          {difficulty.label}
         </span>
-        <span><Clock size={13} /> {guide.readTime}</span>
+        <span className="guide-card-cta">Read guide <ArrowRight size={14} /></span>
       </div>
-      <span className="guide-card-cta">Read guide <ArrowRight size={14} /></span>
     </Link>
   )
 }

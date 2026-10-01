@@ -1,13 +1,11 @@
-import { Calendar, LogOut, UserPen, Diamond } from 'lucide-react'
-import ProgressBar from '../ui/ProgressBar.jsx'
+import { Calendar, LogOut, UserPen } from 'lucide-react'
 import Button from '../ui/Button.jsx'
+import { RiotStatusBlock } from '../riot/Riot.jsx'
+import { PremiumBadge, UpgradeButton } from '../premium/PremiumGate.jsx'
 import { usePremium } from '../../context/PremiumContext.jsx'
 import { useTheme } from '../../context/ThemeContext.jsx'
 
 export default function ProfileHeader({ user, joinDate, onSignOut }) {
-  const rr = Number(user.rank?.rr) || 0
-  const rrToNext = Math.max(0, 100 - rr)
-  const nextDivision = user.rank?.division ? Number(user.rank.division) + 1 : null
   const { isPremium } = usePremium()
   const { theme } = useTheme()
 
@@ -26,16 +24,11 @@ export default function ProfileHeader({ user, joinDate, onSignOut }) {
             <i className="profile-status-dot" aria-hidden="true" />
           </div>
           <div className="profile-identity-copy">
-            <h1>
-              {user.username}
-              <span className="profile-tag">{user.tag}</span>
-            </h1>
+            <h1>{user.username}</h1>
             <div className="profile-meta-row">
               <span className="profile-status-label"><i /> Online / Active</span>
               <span><Calendar size={13} /> Joined {joinDate}</span>
-              <span>Peak rank: {user.rank?.peak || '—'}</span>
             </div>
-            {user.tacticalQuote && <p className="profile-quote">&ldquo;{user.tacticalQuote}&rdquo;</p>}
             <Button variant="secondary" icon={UserPen} disabled className="profile-edit-btn">
               Edit Profile <span className="coming-soon-badge">Coming soon</span>
             </Button>
@@ -43,18 +36,7 @@ export default function ProfileHeader({ user, joinDate, onSignOut }) {
         </div>
 
         <div className="profile-rank-card">
-          <div className="profile-rank-card-top">
-            <span className="eyebrow">Current Rank</span>
-            <span className="profile-rank-emblem"><Diamond size={16} strokeWidth={2.4} /></span>
-          </div>
-          <div className="profile-rank-card-tier">{user.rank?.tier || 'Unranked'} {user.rank?.division ?? ''}</div>
-          <div className="profile-rank-card-rr-row">
-            <span className="profile-rank-card-rr">{rr} RR</span>
-          </div>
-          <ProgressBar percent={rr} />
-          <span className="profile-rank-card-caption">
-            {rrToNext} RR to {user.rank?.tier || ''} {nextDivision || 'next rank'}
-          </span>
+          <RiotStatusBlock />
         </div>
 
         <div className="profile-plan-card">
@@ -63,7 +45,7 @@ export default function ProfileHeader({ user, joinDate, onSignOut }) {
           </div>
           {isPremium ? (
             <>
-              <div className="profile-plan-status profile-plan-status-premium">PREMIUM · ACTIVE</div>
+              <PremiumBadge>Premium · Active</PremiumBadge>
               <span className="profile-plan-theme">Theme: {theme[0].toUpperCase() + theme.slice(1)}</span>
               <Button variant="secondary" disabled>
                 Manage Subscription <span className="coming-soon-badge">Coming soon</span>
@@ -72,7 +54,7 @@ export default function ProfileHeader({ user, joinDate, onSignOut }) {
           ) : (
             <>
               <div className="profile-plan-status">FREE PLAN</div>
-              <Button variant="primary" to="/premium">Upgrade to Premium</Button>
+              <UpgradeButton />
             </>
           )}
         </div>

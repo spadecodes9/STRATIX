@@ -1,15 +1,18 @@
-// Shared "Continue with Google / Discord" buttons for the STRATIX auth
+import { RiotIcon } from '../riot/Riot.jsx'
+
+// Shared "Continue with Google / Discord / Riot" buttons for the STRATIX auth
 // pages. Deliberately minimal: no analytics, no fake behavior — each button
 // calls its OAuth trigger directly and reflects real pending/disabled state
 // passed down from the page.
 
-export default function OAuthButtons({ onGoogle, onDiscord, pendingProvider, disabled }) {
+export default function OAuthButtons({ onGoogle, onDiscord, onRiot, pendingProvider, disabled }) {
   // Each button disables for its OWN pending state (so a double-click on
   // the same button can't fire twice) plus the shared `disabled` (e.g. the
   // email/password form is submitting) — but NOT for the other provider's
   // pending state, so clicking Google doesn't lock out Discord.
   const googleDisabled = disabled || pendingProvider === 'google'
   const discordDisabled = disabled || pendingProvider === 'discord'
+  const riotDisabled = disabled || pendingProvider === 'riot'
 
   return (
     <div className="auth-oauth-group">
@@ -31,6 +34,22 @@ export default function OAuthButtons({ onGoogle, onDiscord, pendingProvider, dis
         <DiscordIcon />
         <span>{pendingProvider === 'discord' ? 'Redirecting…' : 'Continue with Discord'}</span>
       </button>
+      {onRiot && (
+        <button
+          type="button"
+          className="oauth-btn oauth-btn-riot"
+          onClick={onRiot}
+          disabled={riotDisabled}
+        >
+          <RiotIcon />
+          <span>{pendingProvider === 'riot' ? 'Redirecting…' : 'Continue with Riot'}</span>
+        </button>
+      )}
+      {onRiot && (
+        <p className="oauth-riot-note">
+          Already have a STRATIX account? Sign in with it, then connect Riot from your Profile to keep one account.
+        </p>
+      )}
     </div>
   )
 }

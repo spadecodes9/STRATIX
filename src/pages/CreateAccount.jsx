@@ -5,10 +5,12 @@ import { toast } from 'sonner'
 import { useAuth, getAuthErrorMessage } from '../context/AuthContext.jsx'
 import Button from '../components/ui/Button.jsx'
 import OAuthButtons from '../components/auth/OAuthButtons.jsx'
+import { useRiotRedirectToast } from '../context/RiotContext.jsx'
 import './Auth.css'
 
 export default function CreateAccount() {
-  const { signUp, signInWithGoogle, signInWithDiscord } = useAuth()
+  const { signUp, signInWithGoogle, signInWithDiscord, signInWithRiot } = useAuth()
+  useRiotRedirectToast()
   const navigate = useNavigate()
   const location = useLocation()
   const [form, setForm] = useState({ email: '', password: '' })
@@ -51,14 +53,17 @@ export default function CreateAccount() {
     try {
       if (provider === 'google') {
         await signInWithGoogle(redirectTo)
-      } else {
+      } else if (provider === 'discord') {
         await signInWithDiscord(redirectTo)
+      } else {
+        await signInWithRiot()
       }
       // On success Supabase redirects the browser away to the provider, so
       // there's nothing further to render here — only the failure path
       // below needs to reset local state.
     } catch (error) {
-      toast.error(getAuthErrorMessage(error))
+      // Riot errors come from STRATIX's own backend and are already user-facing.
+      toast.error(provider === 'riot' ? error.message : getAuthErrorMessage(error))
       setOauthProvider(null)
     }
   }
@@ -104,6 +109,7 @@ export default function CreateAccount() {
         <OAuthButtons
           onGoogle={() => handleOAuth('google')}
           onDiscord={() => handleOAuth('discord')}
+          onRiot={() => handleOAuth('riot')}
           pendingProvider={oauthProvider}
           disabled={submitting}
         />

@@ -16,7 +16,7 @@ import {
   Users,
   Waypoints,
 } from 'lucide-react'
-import { currentUser } from '../../data/user.js'
+import { SAMPLE_PLAYER } from '../../demo/samplePlayer.js'
 import { DISCORD_INVITE_URL } from '../../data/contact.js'
 import './platformShowcase.css'
 
@@ -54,15 +54,15 @@ function CorePreview({ feature }) {
       return (
         <div className="monitor-preview monitor-preview-dashboard">
           <div className="mp-rank">
-            <span>CURRENT RANK</span>
-            <strong>{currentUser.rank.tier} {currentUser.rank.division}</strong>
-            <b>{currentUser.rank.rr} <small>RR</small></b>
+            <span>SAMPLE PLAYER · DEMO DATA</span>
+            <strong>{SAMPLE_PLAYER.rank.tier} {SAMPLE_PLAYER.rank.division}</strong>
+            <b>{SAMPLE_PLAYER.rank.rr} <small>RR</small></b>
           </div>
           <div className="mp-xp">
-            <div className="mp-xp-row"><span>SEASON XP</span><span>{currentUser.xp}/{currentUser.xpToNextLevel}</span></div>
-            <div className="mp-xp-bar"><i style={{ width: Math.round((currentUser.xp / currentUser.xpToNextLevel) * 100) + '%' }} /></div>
+            <div className="mp-xp-row"><span>SEASON XP</span><span>{SAMPLE_PLAYER.xp}/{SAMPLE_PLAYER.xpToNextLevel}</span></div>
+            <div className="mp-xp-bar"><i style={{ width: Math.round((SAMPLE_PLAYER.xp / SAMPLE_PLAYER.xpToNextLevel) * 100) + '%' }} /></div>
           </div>
-          <div className="mp-activity"><Gauge size={12} /> Next up: {currentUser.recommendedNext.title}</div>
+          <div className="mp-activity"><Gauge size={12} /> Next up: {SAMPLE_PLAYER.recommendedNext.title}</div>
         </div>
       )
     case 'guides':

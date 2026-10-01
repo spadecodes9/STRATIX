@@ -5,6 +5,7 @@ import ProtectedRoute from './components/layout/ProtectedRoute.jsx'
 import Landing from './pages/Landing.jsx'
 import SignIn from './pages/SignIn.jsx'
 import CreateAccount from './pages/CreateAccount.jsx'
+import RiotAuthComplete from './pages/RiotAuthComplete.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Guides from './pages/Guides.jsx'
 import GuideDetail from './pages/GuideDetail.jsx'
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/auth/riot" element={<RiotAuthComplete />} />
 
         <Route
           path="/dashboard"

@@ -10,7 +10,7 @@
 .showcase-tab-dots i.is-active { background: var(--red-bright); transform: scale(1.3); box-shadow: 0 0 6px var(--red); }
 .showcase-tab-arrows { display: flex; gap: 6px; margin-left: auto; }
 .showcase-tab-arrows button { width: 28px; height: 28px; display: grid; place-items: center; color: var(--gray); border: 1px solid var(--border); background: rgba(16,16,21,.6); transition: color .2s ease, border-color .2s ease, background .2s ease; }
-.showcase-tab-arrows button:hover { color: var(--white); border-color: rgba(255,92,109,.45); background: rgba(255,59,78,.07); }
+.showcase-tab-arrows button:hover { color: var(--white); border-color: rgb(var(--accent-bright-rgb) / .45); background: rgb(var(--accent-rgb) / .07); }
 
 /* ---- stage layout ---- */
 .showcase-stage { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: stretch; }
@@ -18,7 +18,7 @@
 
 /* ---- monitor (central focus) ---- */
 .showcase-monitor { position: relative; overflow: hidden; min-height: 300px; padding: 18px 20px 22px; display: flex; flex-direction: column; border: 1px solid var(--border); background: linear-gradient(155deg, #131318, #0d0d10 60%, #121014); box-shadow: 0 20px 44px rgba(0,0,0,.26); }
-.monitor-scan { position: absolute; inset: -20% -10%; opacity: .5; background: linear-gradient(115deg, transparent 40%, rgba(255,59,78,.08) 48%, rgba(255,59,78,.14) 50%, rgba(255,59,78,.08) 52%, transparent 60%); animation: monitor-scan-sweep 6.5s ease-in-out infinite; pointer-events: none; }
+.monitor-scan { position: absolute; inset: -20% -10%; opacity: .5; background: linear-gradient(115deg, transparent 40%, rgb(var(--accent-rgb) / .08) 48%, rgb(var(--accent-rgb) / .14) 50%, rgb(var(--accent-rgb) / .08) 52%, transparent 60%); animation: monitor-scan-sweep 6.5s ease-in-out infinite; pointer-events: none; }
 .monitor-header { position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border-soft); color: var(--gray-dim); font: 600 10px var(--font-ui); letter-spacing: .08em; }
 .monitor-status { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px rgba(61,220,132,.6); animation: indicator-pulse 2s infinite; }
 .monitor-body { position: relative; display: flex; flex-direction: column; flex: 1; animation: monitor-body-in .45s cubic-bezier(.2,.75,.25,1) both; }
@@ -59,7 +59,7 @@
 
 .mp-bubble { max-width: 88%; padding: 9px 12px; margin-bottom: 8px; font-size: 12.5px; }
 .mp-bubble-player { color: var(--white); border: 1px solid var(--border); background: #1c1c22; }
-.mp-bubble-ai { position: relative; margin-left: auto; color: var(--white); border: 1px solid rgba(255,92,109,.32); background: rgba(255,59,78,.1); }
+.mp-bubble-ai { position: relative; margin-left: auto; color: var(--white); border: 1px solid rgb(var(--accent-bright-rgb) / .32); background: rgb(var(--accent-rgb) / .1); }
 .mp-cursor { display: inline-block; width: 5px; height: 11px; margin-left: 4px; background: var(--red-bright); vertical-align: middle; animation: mp-cursor-blink .8s step-end infinite; }
 
 .mp-chips { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -72,7 +72,7 @@
 .showcase-channels { display: flex; flex-direction: column; }
 .channel-list { display: flex; flex-direction: column; gap: 6px; width: 100%; animation: monitor-body-in .45s cubic-bezier(.2,.75,.25,1) both; }
 .channel-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 13px; color: var(--gray); border: 1px solid var(--border-soft); background: rgba(16,16,21,.45); transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }
-.channel-item:hover, .channel-item:focus-visible, .channel-item.is-active { color: var(--white); border-color: rgba(255,92,109,.4); background: rgba(255,59,78,.06); transform: translateX(3px); }
+.channel-item:hover, .channel-item:focus-visible, .channel-item.is-active { color: var(--white); border-color: rgb(var(--accent-bright-rgb) / .4); background: rgb(var(--accent-rgb) / .06); transform: translateX(3px); }
 .channel-item:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 .channel-item svg { color: var(--red-bright); flex-shrink: 0; }
 .channel-num { color: var(--red-dim); font: 600 10px var(--font-ui); }

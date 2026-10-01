@@ -1,4 +1,5 @@
 import { Radar as RadarIcon, AlertTriangle } from 'lucide-react'
+import '../riot/riot.css'
 
 // Static competitive benchmark line — not user data, used only as a
 // reference overlay on the radar so the player can see relative standing.
@@ -39,7 +40,17 @@ function polygonPath(values, total) {
 }
 
 export default function SkillRadar({ skills, weakestSkill }) {
-  if (!skills || skills.length === 0) return null
+  if (!skills || skills.length === 0) {
+    return (
+      <div className="panel skill-radar-panel">
+        <div className="panel-title-row">
+          <div><span className="eyebrow">Skill analysis</span><h3>Skill Matrix</h3></div>
+          <RadarIcon size={20} className="panel-icon" />
+        </div>
+        <div className="riot-empty"><strong>No skill scores yet</strong><p>Skill scoring isn&apos;t live yet. STRATIX shows nothing here rather than estimated scores.</p></div>
+      </div>
+    )
+  }
 
   const total = skills.length
   const userValues = skills.map((s) => s.score)

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, Navigate, Link } from 'react-router-dom'
 import {
   ArrowLeft,
-  Clock,
   BarChart2,
   Calendar,
   Target,
@@ -13,22 +12,41 @@ import {
   Radar,
   Dumbbell,
   Sparkles,
-  Lock,
+  RefreshCw,
 } from 'lucide-react'
-import { getGuideById, getRelatedGuides, guides } from '../data/guides.js'
+import { getGuideById, getRelatedGuides, getCategoryLabel, getDifficulty, guides } from '../data/guides.js'
 import GuideCard from '../components/guides/GuideCard.jsx'
 import AiCoachBridge from '../components/guides/AiCoachBridge.jsx'
 import Badge from '../components/ui/Badge.jsx'
 import Button from '../components/ui/Button.jsx'
 import { usePremium } from '../context/PremiumContext.jsx'
+import { PremiumBadge, PremiumLock } from '../components/premium/PremiumGate.jsx'
+import { fetchPremiumGuideContent } from '../services/premiumApi.js'
 import './Guides.css'
 
 export default function GuideDetail() {
   const { guideId } = useParams()
   const guide = getGuideById(guideId)
-  const { isPremium } = usePremium()
+  const { canAccess, isLoading: isEntitlementLoading } = usePremium()
   const articleRef = useRef(null)
   const [readProgress, setReadProgress] = useState(0)
+  // Premium guide bodies are never in the bundle: they're fetched from the
+  // server, which checks entitlement before responding.
+  const isPremiumGuide = Boolean(guide?.premium)
+  const mayRead = !isPremiumGuide || canAccess('premium-guides')
+  const [remote, setRemote] = useState({ status: 'idle', content: null, attempt: 0 })
+
+  useEffect(() => {
+    if (!isPremiumGuide || isEntitlementLoading || !mayRead) return
+    let alive = true
+    setRemote((prev) => ({ ...prev, status: 'loading', content: null }))
+    fetchPremiumGuideContent(guide.id)
+      .then((content) => alive && setRemote((prev) => ({ ...prev, status: 'ready', content })))
+      .catch((err) => alive && setRemote((prev) => ({ ...prev, status: err.code === 'premium_required' || err.code === 'sign_in_required' ? 'locked' : 'error' })))
+    return () => {
+      alive = false
+    }
+  }, [guide?.id, isPremiumGuide, isEntitlementLoading, mayRead, remote.attempt])
 
   useEffect(() => {
     if (!guide) return
@@ -45,22 +63,38 @@ export default function GuideDetail() {
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [guide])
+  }, [guide, remote.status])
 
   if (!guide) return <Navigate to="/guides" replace />
 
-  // Render-only gate: guide content is a static import, so it ships in the
-  // client bundle regardless of premium status. This is presentation-layer
-  // gating, not content protection — a real launch needs the guide body
-  // served from an API that checks entitlement server-side before responding.
-  if (guide.premium && !isPremium) {
+  if (isPremiumGuide && !isEntitlementLoading && (!mayRead || remote.status === 'locked')) {
     return (
       <div className="page-shell guide-paywall">
-        <div className="guide-paywall-panel">
-          <Lock size={20} />
-          <h1>Premium Guide</h1>
-          <p>"{guide.title}" is part of the full STRATIX Guides Library. Upgrade to Premium to unlock it.</p>
-          <Button variant="primary" to="/premium">Upgrade to Premium</Button>
+        <PremiumLock
+          layout="page"
+          headingLevel={1}
+          title="Premium Guide"
+          description={`"${guide.title}" is part of the full STRATIX Guides Library. Upgrade to Premium to unlock it.`}
+        />
+      </div>
+    )
+  }
+
+  if (isPremiumGuide && remote.status !== 'ready') {
+    return (
+      <div className="page-shell guide-paywall">
+        <div className="guide-paywall-panel" role="status">
+          {remote.status === 'error' ? (
+            <>
+              <h1>Couldn&apos;t load this guide</h1>
+              <p>Check your connection and try again.</p>
+              <Button variant="secondary" icon={RefreshCw} onClick={() => setRemote((prev) => ({ ...prev, attempt: prev.attempt + 1 }))}>
+                Retry
+              </Button>
+            </>
+          ) : (
+            <p>Loading guide…</p>
+          )}
         </div>
       </div>
     )
@@ -73,7 +107,7 @@ export default function GuideDetail() {
     month: 'short',
     day: 'numeric',
   })
-  const { content } = guide
+  const content = isPremiumGuide ? remote.content : guide.content
 
   return (
     <div className="page-shell guide-detail-shell">
@@ -87,12 +121,12 @@ export default function GuideDetail() {
 
       <div className="guide-detail-header">
         <span className="guide-case-code">Guide // {caseCode}</span>
-        <Badge variant="red">{guide.category}</Badge>
+        <Badge variant="red">{getCategoryLabel(guide.category)}</Badge>
+        {isPremiumGuide && <PremiumBadge />}
         <h1>{guide.title}</h1>
         <p className="guide-detail-excerpt">{guide.excerpt}</p>
         <div className="guide-detail-meta">
-          <span><Clock size={14} /> {guide.readTime} read</span>
-          <span><BarChart2 size={14} /> {guide.difficulty}</span>
+          <span><BarChart2 size={14} /> {getDifficulty(guide.difficulty).label}</span>
           <span><Calendar size={14} /> Updated {updatedLabel}</span>
         </div>
         <div className="guide-tag-row">
@@ -202,7 +236,7 @@ export default function GuideDetail() {
           <div className="guide-detail-divider" aria-hidden="true" />
           <div className="related-guides">
             <span className="eyebrow">Related Guides</span>
-            <h3>More in {guide.category}</h3>
+            <h3>More in {getCategoryLabel(guide.category)}</h3>
             <div className="guide-grid guide-grid-related">
               {related.map((g, i) => <GuideCard key={g.id} guide={g} index={i} />)}
             </div>

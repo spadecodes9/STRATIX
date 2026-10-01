@@ -1,6 +1,7 @@
 import { AlertTriangle, ArrowRight, BarChart3 } from 'lucide-react'
 import Button from '../ui/Button.jsx'
 import ProgressBar from '../ui/ProgressBar.jsx'
+import '../riot/riot.css'
 
 export default function SkillMatrix({ skills, weakestSkill }) {
   return (
@@ -16,6 +17,7 @@ export default function SkillMatrix({ skills, weakestSkill }) {
           <Button to="/guides" variant="ghost" icon={ArrowRight}>Train</Button>
         </div>
       )}
+      {skills.length === 0 && <div className="riot-empty"><strong>No skill scores yet</strong><p>Skill scoring isn&apos;t live yet. STRATIX shows nothing here rather than estimated scores.</p></div>}
       <div className="skill-matrix-list">
         {skills.map((skill) => {
           const isWeakest = weakestSkill && skill.skill === weakestSkill.skill

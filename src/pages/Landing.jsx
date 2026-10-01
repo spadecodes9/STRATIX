@@ -9,6 +9,7 @@ import {
   Check,
   ChevronRight,
   CircleDot,
+  ClipboardCheck,
   Crosshair,
   Gauge,
   GraduationCap,
@@ -25,8 +26,22 @@ import {
 import Button from '../components/ui/Button.jsx'
 import HeroGraphic from '../components/HeroGraphic.jsx'
 import PlatformShowcase from '../components/landing/PlatformShowcase.jsx'
-import { currentUser } from '../data/user.js'
+// DEMO DATA: the hero/progression/skill showcases below render a labeled
+// sample player for marketing only — never a real user's data.
+import { SAMPLE_PLAYER } from '../demo/samplePlayer.js'
 import './Landing.css'
+
+// System-map geometry, in % of the .platform-system panel. Cards sit clockwise
+// around the command core (01 TL -> 02 TR -> 03 BR -> 04 BL) so the outer loop
+// pulses read as one training cycle. `lane` is the y of the spoke that joins a
+// card to the core; `loops` are the outer-loop segments it lights when active.
+const SYSTEM_CORE_Y = 45.3
+const SYSTEM_LOOPS = {
+  top: 'M19.3,26.1 L19.3,9 L42,9 L42,7 L58,7 L58,9 L80.7,9 L80.7,26.1',
+  right: 'M80.7,22 L96,22 L96,68.7 L80.7,68.7',
+  bottom: 'M80.7,64.6 L80.7,80 L58,80 L58,81.5 L42,81.5 L42,80 L19.3,80 L19.3,64.6',
+  left: 'M19.3,68.7 L4,68.7 L4,22 L19.3,22',
+}
 
 const platformModules = [
   {
@@ -37,6 +52,7 @@ const platformModules = [
     body: 'Open the map, matchup, or setup you need before the next queue begins.',
     to: '/guides',
     action: 'Browse guides',
+    map: { x: 19.3, y: 26.1, lane: 22, loops: ['top', 'left'] },
   },
   {
     id: 'coach',
@@ -46,6 +62,7 @@ const platformModules = [
     body: 'Connect a mistake or decision to the lesson that can help you fix it.',
     to: '/ai-coach',
     action: 'Meet the coach',
+    map: { x: 80.7, y: 26.1, lane: 22, loops: ['top', 'right'] },
   },
   {
     id: 'progress',
@@ -55,6 +72,17 @@ const platformModules = [
     body: 'Use skill signals and recent effort to decide what comes next.',
     to: '/create-account',
     action: 'Build your system',
+    map: { x: 80.7, y: 64.6, lane: 68.7, loops: ['right', 'bottom'] },
+  },
+  {
+    id: 'quizzes',
+    icon: ClipboardCheck,
+    label: 'Quizzes',
+    title: 'Prove the read under pressure.',
+    body: 'Test the calls you just studied and see which decisions still need reps.',
+    to: '/quizzes',
+    action: 'Take a quiz',
+    map: { x: 19.3, y: 64.6, lane: 68.7, loops: ['bottom', 'left'] },
   },
 ]
 
@@ -141,11 +169,11 @@ export default function Landing() {
   const [activeModule, setActiveModule] = useState('coach')
   const [systemBooted, setSystemBooted] = useState(false)
   const heroRef = useRef(null)
-  const weakestSkill = currentUser.skillMatrix.reduce((lowest, skill) => (
+  const weakestSkill = SAMPLE_PLAYER.skillMatrix.reduce((lowest, skill) => (
     skill.score < lowest.score ? skill : lowest
   ))
-  const xpPercent = Math.round((currentUser.xp / currentUser.xpToNextLevel) * 100)
-  const rrDisplay = useCountUp(currentUser.rank.rr, systemBooted)
+  const xpPercent = Math.round((SAMPLE_PLAYER.xp / SAMPLE_PLAYER.xpToNextLevel) * 100)
+  const rrDisplay = useCountUp(SAMPLE_PLAYER.rank.rr, systemBooted)
   const activePlatformModule = platformModules.find((module) => module.id === activeModule)
 
   useEffect(() => {
@@ -223,7 +251,7 @@ export default function Landing() {
 
           <div className={'hero-analysis-stage hero-intro hero-intro-3 ' + (systemBooted ? 'is-booted' : '')}>
             <div className="hero-stage-header">
-              <span><CircleDot size={13} /> LIVE TRAINING ANALYSIS</span>
+              <span><CircleDot size={13} /> SAMPLE PLAYER // DEMO DATA</span>
               <span>SECTOR 01 / 04</span>
             </div>
             <div className="hero-stage-frame" aria-hidden="true" />
@@ -239,13 +267,13 @@ export default function Landing() {
               <circle className="flow-ping flow-ping-four" cx="384" cy="390" r="4" />
             </svg>
             <div className="hero-data-card hero-player-card">
-              <span>PLAYER SIGNAL</span>
-              <strong>{currentUser.username}</strong>
-              <small><i /> SESSION PROFILE READY</small>
+              <span>SAMPLE PLAYER</span>
+              <strong>{SAMPLE_PLAYER.username}</strong>
+              <small><i /> DEMO DATA</small>
             </div>
             <div className="hero-data-card hero-rank-card">
               <span>CURRENT RANK</span>
-              <strong>{currentUser.rank.tier} {currentUser.rank.division}</strong>
+              <strong>{SAMPLE_PLAYER.rank.tier} {SAMPLE_PLAYER.rank.division}</strong>
               <b>{rrDisplay}<em> RR</em></b>
             </div>
             <div className="hero-data-card hero-gap-card">
@@ -256,7 +284,7 @@ export default function Landing() {
             </div>
             <div className="hero-data-card hero-next-card">
               <span><Sparkles size={13} /> NEXT BEST ACTION</span>
-              <strong>{currentUser.recommendedNext.title}</strong>
+              <strong>{SAMPLE_PLAYER.recommendedNext.title}</strong>
               <small><Zap size={12} /> READY TO DEPLOY</small>
             </div>
             <div className="hero-stage-footer">
@@ -278,64 +306,64 @@ export default function Landing() {
           </div>
 
           <div className="platform-system landing-reveal">
-            <div className={'is-active-' + activeModule}>
+            <div>
               <div className="system-wires" aria-hidden="true">
                 <svg className="sw-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* outer training loop: guides -> progress -> coach -> guides */}
-                  <path id="sw-loop-top" className="sw-path sw-loop" d="M9.3,15.5 L40,15.5 L40,13 L60,13 L60,15.5 L90.7,15.5" />
-                  <path id="sw-loop-right" className="sw-path sw-loop" d="M90.7,15.5 L90.7,40 L94.5,40 L94.5,50 L90.7,50 L90.7,75.1" />
-                  <path id="sw-loop-bottom" className="sw-path sw-loop" d="M90.7,75.1 L60,75.1 L60,78 L40,78 L40,75.1 L9.3,75.1" />
-                  <path id="sw-loop-left" className="sw-path sw-loop" d="M9.3,75.1 L9.3,50 L6,50 L6,40 L9.3,40 L9.3,15.5" />
+                  {/* core bus: diamond side vertices out to the loop junctions */}
+                  <path className="sw-path sw-bus" d={`M43.5,${SYSTEM_CORE_Y} L4,${SYSTEM_CORE_Y} M56.5,${SYSTEM_CORE_Y} L96,${SYSTEM_CORE_Y}`} />
 
-                  {/* direct hub connections */}
-                  <path id="sw-spoke-guides" className="sw-path sw-spoke" d="M41,26 L29.3,26 L29.3,36.5" />
-                  <path id="sw-spoke-coach" className="sw-path sw-spoke" d="M41,50 L29.3,50 L29.3,54.1" />
-                  <path id="sw-spoke-progress" className="sw-path sw-spoke" d="M59,38 L70.7,38" />
+                  {/* outer training loop, clockwise: 01 -> 02 -> 03 -> 04 -> 01 */}
+                  {Object.entries(SYSTEM_LOOPS).map(([side, d]) => (
+                    <path key={side} id={'sw-loop-' + side} d={d}
+                      className={'sw-path sw-loop' + (activePlatformModule.map.loops.includes(side) ? ' is-lit' : '')} />
+                  ))}
 
-                  {/* ambient signal pulses travelling the outer loop */}
-                  <circle className="sw-loop-pulse" r="0.55">
-                    <animateMotion dur="3.2s" begin="0s" repeatCount="indefinite"><mpath href="#sw-loop-top" /></animateMotion>
-                  </circle>
-                  <circle className="sw-loop-pulse" r="0.55">
-                    <animateMotion dur="3.2s" begin="0.8s" repeatCount="indefinite"><mpath href="#sw-loop-right" /></animateMotion>
-                  </circle>
-                  <circle className="sw-loop-pulse" r="0.55">
-                    <animateMotion dur="3.2s" begin="1.6s" repeatCount="indefinite"><mpath href="#sw-loop-bottom" /></animateMotion>
-                  </circle>
-                  <circle className="sw-loop-pulse" r="0.55">
-                    <animateMotion dur="3.2s" begin="2.4s" repeatCount="indefinite"><mpath href="#sw-loop-left" /></animateMotion>
-                  </circle>
+                  {/* direct hub connections: core vertex -> lane -> card */}
+                  {platformModules.map(({ id, map }) => (
+                    <path key={id} id={'sw-spoke-' + id}
+                      className={'sw-path sw-spoke' + (id === activeModule ? ' is-lit' : '')}
+                      d={`M50,${map.lane < SYSTEM_CORE_Y ? 29.3 : 61.3} L50,${map.lane} L${map.x},${map.lane}`} />
+                  ))}
 
-                  {/* signal pulses on the active hub connection */}
-                  <circle id="sw-pulse-spoke-guides" className="sw-spoke-pulse" r="0.65">
-                    <animateMotion dur="1s" repeatCount="indefinite"><mpath href="#sw-spoke-guides" /></animateMotion>
-                  </circle>
-                  <circle id="sw-pulse-spoke-coach" className="sw-spoke-pulse" r="0.65">
-                    <animateMotion dur="1s" repeatCount="indefinite"><mpath href="#sw-spoke-coach" /></animateMotion>
-                  </circle>
-                  <circle id="sw-pulse-spoke-progress" className="sw-spoke-pulse" r="0.65">
-                    <animateMotion dur="1s" repeatCount="indefinite"><mpath href="#sw-spoke-progress" /></animateMotion>
-                  </circle>
+                  {/* ambient signal pulses travelling the outer loop (ellipse radii offset the panel's ~2:1 stretch) */}
+                  {Object.keys(SYSTEM_LOOPS).map((side, i) => (
+                    <ellipse key={side} className="sw-loop-pulse" rx="0.28" ry="0.55">
+                      <animateMotion dur="3.2s" begin={i * 0.8 + 's'} repeatCount="indefinite"><mpath href={'#sw-loop-' + side} /></animateMotion>
+                    </ellipse>
+                  ))}
+
+                  {/* signal pulse on the active hub connection */}
+                  {platformModules.map(({ id }) => (
+                    <ellipse key={id} className={'sw-spoke-pulse' + (id === activeModule ? ' is-lit' : '')} rx="0.33" ry="0.65">
+                      <animateMotion dur="1s" repeatCount="indefinite"><mpath href={'#sw-spoke-' + id} /></animateMotion>
+                    </ellipse>
+                  ))}
                 </svg>
 
                 {/* routing junctions (plain dots: stay perfectly round regardless of panel aspect ratio) */}
-                <i className="sw-dot sw-dot-dim" style={{ left: '50%', top: '13%' }} />
-                <i className="sw-dot sw-dot-dim" style={{ left: '50%', top: '78%' }} />
-                <i className="sw-dot sw-dot-dim" style={{ left: '6%', top: '45%' }} />
-                <i className="sw-dot sw-dot-dim" style={{ left: '94.5%', top: '45%' }} />
+                <i className="sw-dot sw-dot-dim" style={{ left: '50%', top: '7%' }} />
+                <i className="sw-dot sw-dot-dim" style={{ left: '50%', top: '81.5%' }} />
+                <i className="sw-dot sw-dot-dim" style={{ left: '4%', top: SYSTEM_CORE_Y + '%' }} />
+                <i className="sw-dot sw-dot-dim" style={{ left: '96%', top: SYSTEM_CORE_Y + '%' }} />
 
-                {/* hub ports */}
-                <i id="sw-hub-guides" className="sw-dot sw-dot-hub" style={{ left: '41%', top: '26%' }} />
-                <i id="sw-hub-coach" className="sw-dot sw-dot-hub" style={{ left: '41%', top: '50%' }} />
-                <i id="sw-hub-progress" className="sw-dot sw-dot-hub" style={{ left: '59%', top: '38%' }} />
-
-                {/* card ports: inner (hub-facing) + outer (loop) */}
-                <i id="sw-port-guides-in" className="sw-dot sw-dot-port" style={{ left: '29.3%', top: '36.5%' }} />
-                <i id="sw-port-coach-in" className="sw-dot sw-dot-port" style={{ left: '29.3%', top: '54.1%' }} />
-                <i id="sw-port-progress-in" className="sw-dot sw-dot-port" style={{ left: '70.7%', top: '38%' }} />
-                <i id="sw-port-guides-out" className="sw-dot sw-dot-port" style={{ left: '9.3%', top: '15.5%' }} />
-                <i id="sw-port-progress-out" className="sw-dot sw-dot-port" style={{ left: '94.5%', top: '45%' }} />
-                <i id="sw-port-coach-out" className="sw-dot sw-dot-port" style={{ left: '9.3%', top: '75.1%' }} />
+                {/* hub ports on the core vertices + card ports (inner spoke, outer side, outer edge).
+                    Card half-size is 90px x 63.5px, hence the calc offsets. */}
+                {platformModules.map(({ id, map }) => {
+                  const lit = id === activeModule ? ' is-lit' : ''
+                  const inward = map.x < 50 ? '+' : '-'
+                  const outward = map.x < 50 ? '-' : '+'
+                  const top = map.y < SYSTEM_CORE_Y
+                  return [
+                    <i key={id + '-hub'} className={'sw-dot sw-dot-hub' + lit}
+                      style={{ left: '50%', top: `calc(${SYSTEM_CORE_Y}% ${top ? '-' : '+'} 96px)` }} />,
+                    <i key={id + '-in'} className={'sw-dot sw-dot-port' + lit}
+                      style={{ left: `calc(${map.x}% ${inward} 90px)`, top: map.lane + '%' }} />,
+                    <i key={id + '-side'} className={'sw-dot sw-dot-port' + lit}
+                      style={{ left: `calc(${map.x}% ${outward} 90px)`, top: map.lane + '%' }} />,
+                    <i key={id + '-edge'} className={'sw-dot sw-dot-port' + lit}
+                      style={{ left: map.x + '%', top: `calc(${map.y}% ${top ? '-' : '+'} 63.5px)` }} />,
+                  ]
+                })}
 
                 <i className="wire-core-pulse" />
               </div>
@@ -353,6 +381,7 @@ export default function Landing() {
                       type="button"
                       key={module.id}
                       className={'system-module system-module-' + module.id + (isActive ? ' is-selected' : '')}
+                      style={{ '--sm-x': module.map.x + '%', '--sm-y': module.map.y + '%' }}
                       onMouseEnter={() => setActiveModule(module.id)}
                       onFocus={() => setActiveModule(module.id)}
                       onClick={() => setActiveModule(module.id)}
@@ -471,7 +500,7 @@ export default function Landing() {
           </div>
 
           <div className="ai-sequence landing-reveal reveal-delay-2">
-            <div className="ai-sequence-header"><span><i /> STRATIX AI // ANALYSIS PIPELINE</span><span>LIVE</span></div>
+            <div className="ai-sequence-header"><span><i /> STRATIX AI // ANALYSIS PIPELINE</span><span>SAMPLE PLAYER</span></div>
             <div className="ai-sequence-body">
               <div className="ai-sequence-step ai-input-step">
                 <span className="ai-step-label">01 // PLAYER INPUT</span>
@@ -489,7 +518,7 @@ export default function Landing() {
               <div className="ai-connector ai-connector-two"><i /><span>SIGNAL CONFIRMED</span></div>
               <div className="ai-sequence-output">
                 <div className="ai-output-gap"><span><TriangleAlert size={13} /> WEAKNESS DETECTED</span><strong>{weakestSkill.skill}</strong><b>{weakestSkill.score}<small>/100</small></b></div>
-                <div className="ai-output-action"><span><Sparkles size={13} /> RECOMMENDED TRAINING</span><strong>{currentUser.recommendedNext.title}</strong><Link to="/guides">Deploy training <ArrowRight size={14} /></Link></div>
+                <div className="ai-output-action"><span><Sparkles size={13} /> RECOMMENDED TRAINING</span><strong>{SAMPLE_PLAYER.recommendedNext.title}</strong><Link to="/guides">Deploy training <ArrowRight size={14} /></Link></div>
               </div>
             </div>
           </div>
@@ -499,24 +528,24 @@ export default function Landing() {
       <section className="landing-section progression-command-section">
         <div className="page-shell cinematic-shell progression-command-shell">
           <div className="progression-command-visual landing-reveal">
-            <div className="progression-command-heading"><span><Shield size={15} /> 04 // PLAYER PROGRESSION</span><span>DEMO SIGNAL</span></div>
+            <div className="progression-command-heading"><span><Shield size={15} /> 04 // PLAYER PROGRESSION</span><span>DEMO DATA</span></div>
             <div className="progression-rank-display">
-              <div><span>CURRENT RANK</span><strong>{currentUser.rank.tier} <em>{currentUser.rank.division}</em></strong></div>
-              <div className="progression-rr"><b>{currentUser.rank.rr}</b><span>RR</span></div>
+              <div><span>CURRENT RANK</span><strong>{SAMPLE_PLAYER.rank.tier} <em>{SAMPLE_PLAYER.rank.division}</em></strong></div>
+              <div className="progression-rr"><b>{SAMPLE_PLAYER.rank.rr}</b><span>RR</span></div>
             </div>
-            <div className="progression-xp-row"><span>LEVEL {currentUser.level}</span><span>{currentUser.xp.toLocaleString()} / {currentUser.xpToNextLevel.toLocaleString()} XP</span></div>
+            <div className="progression-xp-row"><span>LEVEL {SAMPLE_PLAYER.level}</span><span>{SAMPLE_PLAYER.xp.toLocaleString()} / {SAMPLE_PLAYER.xpToNextLevel.toLocaleString()} XP</span></div>
             <div className="progression-xp-bar"><i style={{ width: xpPercent + '%' }} /></div>
             <div className="progression-channel">
               <span>RANK SIGNAL</span><i /><span>SKILL ANALYSIS</span><i /><span>TRAINING ACTION</span><i /><span>NEXT MILESTONE</span>
             </div>
             <div className="progression-mini-skills">
-              {currentUser.skillMatrix.slice(0, 4).map((skill, index) => (
+              {SAMPLE_PLAYER.skillMatrix.slice(0, 4).map((skill, index) => (
                 <div key={skill.skill} className={'mini-skill mini-skill-' + index}>
                   <span>{skill.skill}</span><b>{skill.score}</b><i><em style={{ width: skill.score + '%' }} /></i>
                 </div>
               ))}
             </div>
-            <div className="progression-command-footer"><span><Sparkles size={14} /> NEXT ACTION</span><strong>{currentUser.recommendedNext.title}</strong></div>
+            <div className="progression-command-footer"><span><Sparkles size={14} /> NEXT ACTION</span><strong>{SAMPLE_PLAYER.recommendedNext.title}</strong></div>
           </div>
           <div className="progression-command-copy landing-reveal reveal-delay-2">
             <span className="eyebrow">A dashboard that tells you what to do</span>
@@ -539,8 +568,8 @@ export default function Landing() {
             </div>
           </div>
           <div className="radar-console landing-reveal reveal-delay-2">
-            <div className="radar-console-header"><span>SKILL SIGNAL MAP</span><span><i /> SCANNING</span></div>
-            <SkillInstrumentField skills={currentUser.skillMatrix} priority={weakestSkill} />
+            <div className="radar-console-header"><span>SKILL SIGNAL MAP</span><span><i /> DEMO DATA</span></div>
+            <SkillInstrumentField skills={SAMPLE_PLAYER.skillMatrix} priority={weakestSkill} />
             <div className="radar-console-footer"><span>PRIORITY FOCUS</span><strong>{weakestSkill.skill}</strong><b>{weakestSkill.score} / 100</b></div>
           </div>
         </div>

@@ -1,34 +1,23 @@
-import { Flame, BookOpen, Clock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import WelcomeHeader from '../components/dashboard/WelcomeHeader.jsx'
 import SkillMatrix from '../components/dashboard/SkillMatrix.jsx'
-import RecentActivity from '../components/dashboard/RecentActivity.jsx'
-import StatCard from '../components/ui/StatCard.jsx'
+import PerformanceStats from '../components/profile/PerformanceStats.jsx'
+import RecentMatches from '../components/profile/RecentMatches.jsx'
 import './Dashboard.css'
+import './Profile.css'
 
+// Player-specific panels read only real data: Riot stats/matches from
+// RiotContext, and STRATIX skill scores (none tracked yet -> empty state).
 export default function Dashboard() {
   const { user } = useAuth()
-  const weakestSkill = user.skillMatrix.reduce((lowest, skill) => (
-    skill.score < lowest.score ? skill : lowest
-  ))
 
   return (
     <div className="page-shell dashboard">
       <WelcomeHeader user={user} />
-      <section className="dashboard-overview" aria-label="Training overview">
-        <div className="section-heading">
-          <span className="eyebrow">Season command center</span>
-          <p>Turn your next session into measurable rank progress.</p>
-        </div>
-        <div className="stat-row">
-          <StatCard icon={Flame} value={`${user.stats.streakDays} days`} label="Training streak" />
-          <StatCard icon={Clock} value={`${user.stats.hoursTrained}h`} label="Hours trained" />
-          <StatCard icon={BookOpen} value={user.stats.guidesRead} label="Guides read" />
-        </div>
-      </section>
+      <PerformanceStats />
       <div className="two-col-panels dashboard-detail-grid">
-        <SkillMatrix skills={user.skillMatrix} weakestSkill={weakestSkill} />
-        <RecentActivity activity={user.recentActivity} />
+        <RecentMatches />
+        <SkillMatrix skills={[]} weakestSkill={null} />
       </div>
     </div>
   )

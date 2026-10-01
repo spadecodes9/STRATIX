@@ -35,7 +35,7 @@
    small and content-width, not "giant", per the redesign brief. */
 .coach-message > p {
   background: var(--red-glow-soft);
-  border: 1px solid rgba(255, 59, 78, 0.3);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
   border-radius: var(--radius);
   padding: 12px 16px;
   font-size: 14.5px;
@@ -245,12 +245,12 @@
 
 .coach-message-error > p,
 .coach-message-error > .md-content {
-  background: rgba(255, 59, 78, 0.12);
-  border: 1px solid rgba(255, 59, 78, 0.35);
+  background: rgb(var(--danger-rgb) / 0.12);
+  border: 1px solid rgb(var(--danger-rgb) / 0.35);
   border-radius: var(--radius);
   padding: 12px 16px;
   max-width: 640px;
-  color: var(--red-bright, #ff3b4e);
+  color: var(--danger-text);
 }
 
 .coach-input-row input:disabled,
@@ -306,17 +306,41 @@
   text-align: center;
 }
 
-.ai-coach-unlimited-badge {
-  display: inline-flex;
+.ai-coach-unlimited-badge { margin-top: 8px; }
+
+/* Free usage meter (display only — the server enforces the limit) */
+.ai-coach-usage-meter {
+  display: flex;
   align-items: center;
-  margin-top: 8px;
-  padding: 5px 10px;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  background: var(--charcoal);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  color: var(--gray);
+}
+.ai-coach-usage-label {
   font-family: var(--font-ui);
   font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.03em;
-  color: var(--gold);
-  background: rgba(255, 182, 72, 0.08);
-  border: 1px solid rgba(255, 182, 72, 0.28);
-  border-radius: var(--radius);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-dim);
+}
+.ai-coach-usage-pips { display: inline-flex; gap: 4px; }
+.ai-coach-usage-pips i {
+  width: 18px;
+  height: 5px;
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(255, 182, 72, 0.35);
+}
+.ai-coach-usage-pips i.is-used { background: var(--charcoal-3); box-shadow: none; }
+.ai-coach-usage-count strong { color: var(--white); font-variant-numeric: tabular-nums; }
+.ai-coach-usage-reset { color: var(--gray-dim); }
+.ai-coach-usage-cta { margin-left: auto; padding: 5px 10px; font-size: 12px; }
+@media (max-width: 640px) {
+  .ai-coach-usage-cta { margin-left: 0; }
 }

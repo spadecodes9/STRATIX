@@ -14,7 +14,7 @@ export default function TrainingProgress({ trainingObjective, recommendedNext })
   return (
     <div className="panel training-progress-panel">
       <div className="panel-title-row">
-        <div><span className="eyebrow">Live training analysis</span><h3>Training Progress</h3></div>
+        <div><span className="eyebrow">Training objective</span><h3>Training Progress</h3></div>
         <Sparkles size={20} className="panel-icon" />
       </div>
 

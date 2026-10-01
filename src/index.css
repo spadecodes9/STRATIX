@@ -21,6 +21,10 @@
   --gray: #9a9aa4;
   --gray-dim: #616169;
 
+  /* Semantic status — fixed, never follows the accent theme */
+  --danger-rgb: 255 59 78;
+  --danger: rgb(var(--danger-rgb));
+  --danger-text: #ff8f9c;
   --success: #3ddc84;
   --warning: #ffb648;
   --gold: #ffb648;
@@ -173,12 +177,15 @@ ul { list-style: none; margin: 0; padding: 0; }
       background-color 0.4s ease,
       border-color 0.4s ease,
       box-shadow 0.4s ease,
-      color 0.4s ease !important;
+      color 0.4s ease,
+      fill 0.4s ease,
+      stroke 0.4s ease,
+      filter 0.4s ease !important;
   }
 }
 
 .error-boundary-shell { display: flex; align-items: center; justify-content: center; flex: 1; }
-.error-boundary-panel { max-width: 460px; text-align: center; border-color: rgba(255, 59, 78, 0.35); }
+.error-boundary-panel { max-width: 460px; text-align: center; border-color: rgb(var(--danger-rgb) / 0.35); }
 .error-boundary-panel .eyebrow { display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%; margin-bottom: 10px; }
 .error-boundary-panel h2 { margin-bottom: 8px; }
 .error-boundary-panel p { margin-bottom: 20px; }

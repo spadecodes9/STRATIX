@@ -82,7 +82,7 @@
 }
 .category-chip-active .category-chip-count {
   color: var(--red-bright);
-  border-color: rgba(255, 59, 78, 0.35);
+  border-color: rgb(var(--accent-rgb) / 0.35);
 }
 
 /* Mirrors v2's own breakpoints for these selectors — chips shrink slightly

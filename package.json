@@ -9,7 +9,8 @@
     "dev:all": "concurrently -k -n WEB,API -c blue,magenta \"npm:dev\" \"npm:dev:server\"",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test server/*.test.js src/demo/*.test.js src/lib/*.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

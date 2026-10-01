@@ -128,6 +128,7 @@
   transform: none;
 }
 .oauth-btn svg { flex-shrink: 0; }
+.oauth-riot-note { margin-top: 2px; font-size: 11px; line-height: 1.45; color: var(--gray-dim); text-align: center; }
 
 .auth-footnote {
   margin-top: 18px;

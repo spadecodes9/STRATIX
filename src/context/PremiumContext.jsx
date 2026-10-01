@@ -1,24 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { useAuth } from './AuthContext.jsx'
-import { CURRENT_VALORANT_PATCH } from '../data/patch.js'
+import { canAccess, canUseTheme, computeIsPremium } from '../lib/entitlement.js'
 
 const PremiumContext = createContext(null)
 
 const DEFAULT_STATE = { plan: 'free', status: 'none', entitlement_type: 'patch', patch_version: null }
 
-// A lifetime entitlement is valid regardless of patch. A normal ("patch")
-// entitlement is only valid while its patch_version matches the patch
-// STRATIX is currently selling Premium for. Both branches require
-// status === 'active' — the actual privilege-granting fact always comes
-// from the RLS-protected subscriptions row, never from frontend state.
-function computeIsPremium(state) {
-  if (state.status !== 'active') return false
-  return state.entitlement_type === 'lifetime'
-    ? true
-    : state.patch_version === CURRENT_VALORANT_PATCH
-}
-
+// Display only — the server re-derives Premium itself from the same
+// subscriptions row before granting anything (see server/aiCoachUsage.js).
 export function PremiumProvider({ children }) {
   const { user, isAuthenticated } = useAuth()
   const [state, setState] = useState(DEFAULT_STATE)
@@ -62,10 +52,16 @@ export function PremiumProvider({ children }) {
     }
   }, [isAuthenticated, user?.id])
 
+  const isPremium = computeIsPremium(state)
+
   return (
     <PremiumContext.Provider
       value={{
-        isPremium: computeIsPremium(state),
+        isPremium,
+        // Components ask these instead of hardcoding access. Display only —
+        // each gated feature is enforced again on the server.
+        canAccess: (feature) => canAccess(feature, isPremium),
+        canUseTheme: (theme) => canUseTheme(theme, isPremium),
         plan: state.plan,
         status: state.status,
         entitlementType: state.entitlement_type,

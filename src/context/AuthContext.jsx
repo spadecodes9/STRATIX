@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { currentUser } from '../data/user.js'
 
 const AuthContext = createContext(null)
 
@@ -52,53 +51,40 @@ export function getAuthErrorMessage(error) {
   return 'Something went wrong. Try again in a moment.'
 }
 
+// Only real STRATIX account data. VALORANT/Riot data never lives on the
+// user object — it comes exclusively from RiotContext, and only once a Riot
+// account is actually connected through RSO.
 function mapUser(authUser, profile = null) {
   if (!authUser) return null
 
+  const username =
+    profile?.display_name ??
+    authUser.user_metadata?.full_name ??
+    authUser.user_metadata?.name ??
+    authUser.email?.split('@')[0] ??
+    'Player'
+
   return {
-    ...currentUser,
     id: authUser.id,
     email: authUser.email ?? '',
-    username:
-      profile?.display_name ??
-      authUser.user_metadata?.full_name ??
-      authUser.user_metadata?.name ??
-      currentUser.username,
-    avatarUrl:
-      profile?.avatar_url ??
-      authUser.user_metadata?.avatar_url ??
-      null,
-    avatarInitials: (
-      profile?.display_name ??
-      authUser.user_metadata?.full_name ??
-      authUser.user_metadata?.name ??
-      currentUser.username ??
-      'S'
-    )
+    username,
+    avatarUrl: profile?.avatar_url ?? authUser.user_metadata?.avatar_url ?? null,
+    avatarInitials: username
       .split(/\s+/)
       .filter(Boolean)
       .slice(0, 2)
       .map((part) => part[0])
       .join('')
       .toUpperCase(),
-
-    riotTag: profile?.riot_tag ?? currentUser.riotTag,
-    rank: {
-      tier: profile?.rank_tier ?? currentUser.rank?.tier,
-      division: profile?.rank_division ?? currentUser.rank?.division,
-      rr: profile?.rank_rr ?? currentUser.rank?.rr,
-      peak: profile?.peak_rank ?? currentUser.rank?.peak,
-    },
-
-    onboardingComplete:
-      profile?.onboarding_complete ?? false,
-
+    joinDate: authUser.created_at ?? null,
+    onboardingComplete: profile?.onboarding_complete ?? false,
     preferences: {
       ...(profile?.preferences ?? {}),
       theme: profile?.theme ?? 'red',
     },
-
-    authProvider: authUser.app_metadata?.provider ?? 'google',
+    // How this STRATIX account signs in: google | discord | riot | email.
+    // Says nothing about whether a Riot account is connected.
+    authProvider: authUser.app_metadata?.stratix_auth_provider ?? authUser.app_metadata?.provider ?? 'email',
   }
 }
 
@@ -121,7 +107,7 @@ async function getOrCreateProfile(authUser) {
     authUser.user_metadata?.full_name ??
     authUser.user_metadata?.name ??
     authUser.email?.split('@')[0] ??
-    currentUser.username
+    'Player'
 
   const newProfile = {
     id: authUser.id,
@@ -130,11 +116,6 @@ async function getOrCreateProfile(authUser) {
       authUser.user_metadata?.avatar_url ??
       authUser.user_metadata?.picture ??
       null,
-    riot_tag: null,
-    rank_tier: currentUser.rank?.tier ?? null,
-    rank_division: currentUser.rank?.division ?? null,
-    rank_rr: currentUser.rank?.rr ?? null,
-    peak_rank: currentUser.rank?.peak ?? null,
     onboarding_complete: false,
     preferences: {},
   }
@@ -278,6 +259,28 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // "Continue with Riot": the backend runs RSO and, on success, redirects to
+  // /auth/riot, where completeRiotSignIn() trades a one-time httpOnly-cookie
+  // ticket for a Supabase session. No Riot secret or token touches the browser.
+  const signInWithRiot = async () => {
+    const res = await fetch('/api/riot/login', { method: 'POST' })
+    const data = await res.json().catch(() => null)
+    if (!res.ok || !data?.url) {
+      throw new Error(data?.error || "Riot sign-on isn't available right now.")
+    }
+    window.location.assign(data.url)
+  }
+
+  const completeRiotSignIn = async () => {
+    const res = await fetch('/api/riot/session', { method: 'POST' })
+    const data = await res.json().catch(() => null)
+    if (!res.ok || !data?.tokenHash) {
+      throw new Error(data?.error || 'Riot sign-in expired. Try again.')
+    }
+    const { error } = await supabase.auth.verifyOtp({ token_hash: data.tokenHash, type: 'magiclink' })
+    if (error) throw error
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
 
@@ -298,6 +301,8 @@ export function AuthProvider({ children }) {
         signUp,
         signInWithGoogle,
         signInWithDiscord,
+        signInWithRiot,
+        completeRiotSignIn,
         signOut,
       }}
     >

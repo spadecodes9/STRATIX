@@ -4,6 +4,9 @@ import ReactMarkdown from 'react-markdown'
 import { getCoachResponse } from '../services/ai/coachService.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { usePremium } from '../context/PremiumContext.jsx'
+import { useRiot } from '../context/RiotContext.jsx'
+import { formatSyncedAt } from '../components/riot/Riot.jsx'
+import { PremiumBadge, UpgradeButton } from '../components/premium/PremiumGate.jsx'
 import { useAICoachUsage } from '../hooks/useAICoachUsage.js'
 import Button from '../components/ui/Button.jsx'
 import './AICoach.css'
@@ -18,6 +21,32 @@ function formatCountdown(ms) {
 }
 
 const COMPOSER_MAX_HEIGHT = 160
+
+function formatResetIn(resetAt) {
+  const minutes = Math.max(1, Math.round((new Date(resetAt).getTime() - Date.now()) / 60000))
+  return minutes >= 60 ? `${Math.floor(minutes / 60)}h ${minutes % 60}m` : `${minutes}m`
+}
+
+// Display-only Free allowance, from server-reported usage. The server enforces it.
+function FreeUsageMeter({ usage }) {
+  const used = Math.min(usage.messageCount ?? 0, usage.limit)
+  const left = usage.limit - used
+  return (
+    <div className="ai-coach-usage-meter" role="status" aria-live="polite">
+      <span className="ai-coach-usage-label">Free plan</span>
+      <span className="ai-coach-usage-pips" aria-hidden="true">
+        {Array.from({ length: usage.limit }, (_, i) => (
+          <i key={i} className={i < used ? 'is-used' : ''} />
+        ))}
+      </span>
+      <span className="ai-coach-usage-count">
+        <strong>{left}</strong> of {usage.limit} messages left
+        {usage.resetAt && used > 0 && <span className="ai-coach-usage-reset"> · resets in {formatResetIn(usage.resetAt)}</span>}
+      </span>
+      <UpgradeButton variant="ghost" className="ai-coach-usage-cta">Go unlimited</UpgradeButton>
+    </div>
+  )
+}
 
 // react-markdown never renders raw HTML/scripts from the source text by
 // default (no rehype-raw, no dangerouslySetInnerHTML anywhere here) — this
@@ -43,10 +72,12 @@ const markdownComponents = { a: MarkdownLink }
 
 export default function AICoach() {
   const { user } = useAuth()
-  const { isPremium, isLoading: isPremiumLoading } = usePremium()
-  // Server-backed rate limit: the real gate is the check_and_consume RPC,
-  // called from sendMessage before any AI request goes out. This hook only
-  // reconstructs/displays that server state — it never grants access itself.
+  const { canAccess, isLoading: isPremiumLoading } = usePremium()
+  const isPremium = canAccess('ai-coach-unlimited')
+  const riot = useRiot()
+  const hasPlayerData = riot.status === 'connected' && Boolean(riot.playerData?.stats)
+  // Display-only view of the Free quota. /api/ai-coach enforces it
+  // server-side (Premium and the count are decided there, not here).
   const usage = useAICoachUsage(user?.id, isPremium, isPremiumLoading)
   // Explicit states, not a single generic `disabled` condition — a
   // disabled composer must always have a matching, visible reason.
@@ -83,32 +114,33 @@ export default function AICoach() {
   const sendMessage = async (text) => {
     const trimmed = text.trim()
     if (!trimmed || isTyping) return
+    // UX only: the server is the authority and rejects over-limit requests
+    // itself (free_limit_reached) whatever this local state says.
     if (chatLimitReached) return
-
-    // Authoritative gate: Free users must clear the server-side atomic
-    // check BEFORE any AI request goes out. If it's not allowed, stop here
-    // — OpenRouter is never called, and no message is appended.
-    if (!isPremium) {
-      const result = await usage.checkAndConsume()
-      if (!result.allowed) return
-    }
 
     // Snapshot history before appending the new user message — this is what
     // gets sent to the backend as conversation context.
     const history = messages
+    const pendingId = crypto.randomUUID()
 
-    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text: trimmed }])
+    setMessages((prev) => [...prev, { id: pendingId, role: 'user', text: trimmed }])
     setInput('')
     setIsTyping(true)
 
     try {
-      const reply = await getCoachResponse({ history, userText: trimmed, user })
+      const { reply, usage: serverUsage } = await getCoachResponse({ history, userText: trimmed })
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'coach', text: reply }])
+      usage.applyServerUsage(serverUsage)
     } catch (err) {
-      // The AI request failed before producing a response — refund the
-      // message this attempt consumed so a failed attempt doesn't cost the
-      // user one of their 3 free messages.
-      if (!isPremium) await usage.refund()
+      if (err.code === 'free_limit_reached') {
+        // Not sent: take the message back out and return it to the composer
+        // so nothing is lost, then show the server-reported lock + countdown.
+        setMessages((prev) => prev.filter((m) => m.id !== pendingId))
+        setInput(trimmed)
+        usage.applyServerUsage(err.usage)
+        return
+      }
+      // Any count for a failed request is refunded server-side.
       setMessages((prev) => [
         ...prev,
         { id: crypto.randomUUID(), role: 'coach', text: err.message || 'Something went wrong. Try again.' },
@@ -130,8 +162,25 @@ export default function AICoach() {
       <div className="page-header">
         <span className="eyebrow">AI Coach</span>
         <h1>Ask your coach</h1>
-        <p>Get personalized VALORANT coaching based on your gameplay, progress, and goals.</p>
-        {isPremium && <span className="ai-coach-unlimited-badge">Unlimited conversations · Premium</span>}
+        {/* Mirrors the server-built coach context: player-specific analysis
+            only when real Riot data exists, general coaching otherwise. */}
+        {hasPlayerData ? (
+          <p>
+            Player-specific analysis uses your Riot data for {riot.connection.riotId}
+            {riot.syncedAt ? ` (synced ${formatSyncedAt(riot.syncedAt)})` : ''}.
+          </p>
+        ) : (
+          <p>
+            General VALORANT coaching on aim, utility, positioning, and more.{' '}
+            {riot.status === 'connected'
+              ? 'Your Riot account is connected, but no match data has synced yet, so answers are general.'
+              : 'Connect your Riot account to use player-specific analysis.'}
+          </p>
+        )}
+        {!hasPlayerData && riot.status === 'disconnected' && (
+          <Button variant="secondary" onClick={riot.connect}>Connect Riot</Button>
+        )}
+        {isPremium && <PremiumBadge className="ai-coach-unlimited-badge">Unlimited conversations</PremiumBadge>}
       </div>
 
       <div className="coach-conversation">
@@ -164,15 +213,17 @@ export default function AICoach() {
             <Lock size={16} />
             <div>
               <strong>Free AI Coach limit reached</strong>
-              <p>You've used 3 of 3 free AI Coach messages.</p>
+              <p>You&apos;ve used {usage.limit} of {usage.limit} free AI Coach messages. Premium removes the limit.</p>
               <div className="ai-coach-countdown">
                 <span className="ai-coach-countdown-label">Next messages available in</span>
                 <span className="ai-coach-countdown-value">{formatCountdown(usage.remainingMs)}</span>
               </div>
             </div>
-            <Button variant="primary" to="/premium">Upgrade to Premium</Button>
+            <UpgradeButton />
           </div>
         )}
+
+        {usageDisplayState === 'unlocked' && <FreeUsageMeter usage={usage} />}
 
         {usageDisplayState === 'loading' && (
           <div className="ai-coach-usage-loading">

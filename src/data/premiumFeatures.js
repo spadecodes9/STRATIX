@@ -1,27 +1,30 @@
 import {
   Bot, BookOpen, Crosshair, Target, Sparkles, Video, Save, UserCog, Palette, ListChecks,
 } from 'lucide-react'
+import { FREE_AI_COACH_LIMIT } from '../lib/entitlement.js'
 
-// Each entry is one Premium Hub feature card. `status: 'gated'` means the
-// free/premium split is actually enforced in the app today (see AI Coach
-// and Guides); everything else is `'coming-soon'` — visible and honest
-// about not being wired up yet, per the free/premium table in the spec.
+// One row per feature in the Premium comparison. `status: 'live'` rows are
+// gated today and name their `entitlement` key in src/lib/entitlement.js
+// (each is enforced server-side); `'coming-soon'` rows are honest about not
+// being wired up yet. Copy only — access is never decided from this file.
 export const premiumFeatures = [
   {
     id: 'ai-coach',
     icon: Bot,
     title: 'AI Coach',
-    freeDescription: 'Limited to 3 chats',
+    freeDescription: `${FREE_AI_COACH_LIMIT} messages every 24 hours`,
     premiumDescription: 'Unlimited AI conversations',
-    status: 'gated',
+    status: 'live',
+    entitlement: 'ai-coach-unlimited',
   },
   {
     id: 'guides',
     icon: BookOpen,
     title: 'Guides',
-    freeDescription: 'Limited selection of guides',
-    premiumDescription: 'Full Guides Library',
-    status: 'gated',
+    freeDescription: 'Core guides library',
+    premiumDescription: 'Full library, including advanced Premium guides',
+    status: 'live',
+    entitlement: 'premium-guides',
   },
   {
     id: 'crosshair',
@@ -77,7 +80,8 @@ export const premiumFeatures = [
     title: 'Theme Customization',
     freeDescription: 'Default STRATIX theme only',
     premiumDescription: 'Unlock exclusive STRATIX themes',
-    status: 'gated',
+    status: 'live',
+    entitlement: 'premium-themes',
   },
   {
     id: 'quizzes',

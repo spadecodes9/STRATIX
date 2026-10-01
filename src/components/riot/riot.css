@@ -1,0 +1,29 @@
+.riot-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 18px; border: 1px dashed var(--border); background: rgba(8, 8, 10, .45); }
+.riot-empty strong { font-family: var(--font-display); font-size: 16px; color: var(--white); }
+.riot-empty p { font-size: 13px; color: var(--gray); max-width: 46ch; }
+.riot-empty .btn { margin-top: 4px; }
+
+.riot-status-block { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.riot-status-block p { font-size: 13px; color: var(--gray); }
+.riot-status-id { font-family: var(--font-display); font-size: 22px; color: var(--white); overflow-wrap: anywhere; }
+.riot-status-rank { font-family: var(--font-ui); font-weight: 600; font-size: 14px; color: var(--red-bright); letter-spacing: .03em; }
+
+.riot-synced { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-dim); }
+.riot-synced svg { color: var(--success); }
+
+.riot-account-rows { display: flex; flex-direction: column; gap: 10px; }
+.riot-account-row { display: grid; grid-template-columns: minmax(130px, 180px) minmax(110px, 140px) 1fr; align-items: center; gap: 12px; padding: 11px 13px; border: 1px solid var(--border-soft); background: var(--black); }
+.riot-account-label { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--gray); }
+.riot-account-state { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--gray); }
+.riot-account-state i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--gray-dim); }
+.riot-account-state.is-on { color: var(--white); }
+.riot-account-state.is-on i { border-color: var(--success); background: var(--success); box-shadow: 0 0 6px rgba(61, 220, 132, .6); }
+.riot-account-detail { font-size: 13px; color: var(--gray); overflow-wrap: anywhere; }
+.riot-account-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.riot-account-error { margin-top: 10px; font-size: 13px; color: var(--danger-text); }
+.riot-disclaimer { margin-top: 14px; font-size: 11px; line-height: 1.5; color: var(--gray-dim); }
+
+@media (max-width: 640px) {
+  .riot-account-row { grid-template-columns: 1fr auto; }
+  .riot-account-detail { grid-column: 1 / -1; }
+}

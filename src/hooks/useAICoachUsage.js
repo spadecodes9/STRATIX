@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { FREE_AI_COACH_LIMIT } from '../lib/entitlement.js'
 
 const TICK_MS = 1000
 
 /**
- * Server-backed AI Coach rate-limit state for Free users. The 3-message /
- * 24-hour window lives entirely in the `ai_coach_usage` table, read here
- * (RLS-protected, own row only) to reconstruct the locked/unlocked state on
- * mount, and mutated exclusively through the `check_and_consume_ai_coach_message`
- * / `refund_ai_coach_message` RPCs — this hook never writes the table
- * directly, and never invents its own 24h timer as the source of truth.
+ * DISPLAY-ONLY view of the Free-plan AI Coach quota (3 messages / 24h).
  *
- * Premium users never touch the table: `status` resolves straight to
- * 'unlocked' and `checkAndConsume`/`refund` are no-ops.
+ * Enforcement lives entirely on the server: /api/ai-coach decides Premium
+ * from the subscriptions row and counts each message with a SQL function
+ * only the backend can call. This hook never grants or consumes anything —
+ * it reads the user's own ai_coach_usage row (RLS, read-only) on mount, and
+ * applies the usage the server returns with each reply via `applyServerUsage`.
  */
 export function useAICoachUsage(userId, isPremium, isPremiumLoading) {
   const [state, setState] = useState({ status: 'loading', resetAt: null, messageCount: null })
@@ -51,12 +50,14 @@ export function useAICoachUsage(userId, isPremium, isPremiumLoading) {
 
         const resetAtMs = new Date(data.window_started_at).getTime() + 24 * 60 * 60 * 1000
         const withinWindow = Date.now() < resetAtMs
-        const locked = withinWindow && data.message_count >= 3
+        const locked = withinWindow && data.message_count >= FREE_AI_COACH_LIMIT
 
+        // An expired window is a fresh allowance (the server resets it on the
+        // next message), so don't show the stale count.
         setState({
           status: locked ? 'locked' : 'unlocked',
           resetAt: withinWindow ? new Date(resetAtMs).toISOString() : null,
-          messageCount: data.message_count,
+          messageCount: withinWindow ? data.message_count : 0,
         })
       })
   }, [userId])
@@ -98,41 +99,24 @@ export function useAICoachUsage(userId, isPremium, isPremiumLoading) {
     return () => window.clearInterval(interval)
   }, [state.status, state.resetAt, loadUsage])
 
-  const checkAndConsume = useCallback(async () => {
-    if (isPremium) return { allowed: true }
-
-    const { data, error } = await supabase.rpc('check_and_consume_ai_coach_message')
-
-    if (error || !data) {
-      // Fail closed: an unreadable usage check should not grant a message.
-      return { allowed: false, error: error ?? new Error('No response from usage check') }
-    }
-
+  // Usage reported by /api/ai-coach (after a reply, or with a
+  // free_limit_reached rejection). Display only.
+  const applyServerUsage = useCallback((usage) => {
+    if (!usage || usage.plan !== 'free') return
+    const withinWindow = usage.resetAt && Date.now() < new Date(usage.resetAt).getTime()
     setState({
-      status: data.allowed ? 'unlocked' : 'locked',
-      resetAt: data.reset_at,
-      messageCount: data.message_count,
+      status: withinWindow && usage.messageCount >= usage.limit ? 'locked' : 'unlocked',
+      resetAt: withinWindow ? usage.resetAt : null,
+      messageCount: usage.messageCount,
     })
-
-    return { allowed: data.allowed, resetAt: data.reset_at }
-  }, [isPremium])
-
-  const refund = useCallback(async () => {
-    if (isPremium) return
-    const { error } = await supabase.rpc('refund_ai_coach_message')
-    if (error) {
-      console.error('Failed to refund AI Coach usage after a failed request:', error)
-      return
-    }
-    loadUsage()
-  }, [isPremium, loadUsage])
+  }, [])
 
   return {
     status: state.status,
     messageCount: state.messageCount,
+    limit: FREE_AI_COACH_LIMIT,
     resetAt: state.resetAt,
     remainingMs,
-    checkAndConsume,
-    refund,
+    applyServerUsage,
   }
 }

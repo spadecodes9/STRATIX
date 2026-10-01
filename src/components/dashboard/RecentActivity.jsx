@@ -1,4 +1,5 @@
 import { Activity, ArrowUpRight, CheckCircle2, BookOpen, Bot, GraduationCap } from 'lucide-react'
+import '../riot/riot.css'
 
 const iconByType = {
   lesson_complete: CheckCircle2,
@@ -14,7 +15,11 @@ export default function RecentActivity({ activity }) {
         <div><span className="eyebrow">Momentum log</span><h3>Recent Activity</h3></div>
         <Activity size={20} className="panel-icon" />
       </div>
-      <p className="activity-intro">Your latest work feeds the plan above — keep the chain unbroken.</p>
+      {activity.length === 0 ? (
+        <div className="riot-empty"><strong>No activity recorded yet</strong><p>Activity tracking isn&apos;t live yet — your guides, quizzes, and AI Coach sessions will appear here once it is.</p></div>
+      ) : (
+        <p className="activity-intro">Your latest work feeds the plan above — keep the chain unbroken.</p>
+      )}
       <ul className="activity-list">
         {activity.map((item, index) => {
           const Icon = iconByType[item.type] || Activity

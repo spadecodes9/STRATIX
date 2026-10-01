@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Crosshair, Menu, Shield, X } from 'lucide-react'
+import { Crosshair, Menu, Shield, Sparkles, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useRiot } from '../../context/RiotContext.jsx'
+import { usePremium } from '../../context/PremiumContext.jsx'
 import Button from '../ui/Button.jsx'
 import './layout.css'
 
@@ -17,6 +19,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { isAuthenticated, user, signOut } = useAuth()
+  const riot = useRiot()
+  const { isPremium } = usePremium()
+  const riotConnected = riot.status === 'connected'
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -88,8 +93,14 @@ export default function Navbar() {
           {isAuthenticated ? (
             <NavLink to="/profile" className="rank-pill">
               <span className="rank-pill-avatar">{user?.avatarInitials}</span>
-              <span className="rank-pill-copy"><small><i /> LIVE RANK</small><b>{user?.rank?.tier} {user?.rank?.division}</b></span>
-              <Shield size={14} />
+              {/* Real Riot identity only — never a placeholder rank. */}
+              <span className="rank-pill-copy">
+                <small>{riotConnected ? <><i /> RIOT CONNECTED</> : 'RIOT NOT CONNECTED'}</small>
+                <b>{riotConnected ? riot.playerData?.rank?.name || riot.connection.gameName : 'Connect Riot'}</b>
+              </span>
+              {isPremium
+                ? <Sparkles size={14} className="rank-pill-premium" aria-label="Premium" />
+                : <Shield size={14} />}
             </NavLink>
           ) : (
             <>

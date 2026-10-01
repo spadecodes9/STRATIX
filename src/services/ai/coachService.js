@@ -1,4 +1,8 @@
+import { supabase } from '../../lib/supabase.js'
+
 const AI_COACH_ENDPOINT = '/api/ai-coach'
+// Mirrors MAX_HISTORY_MESSAGES in server/config.js.
+const MAX_HISTORY_MESSAGES = 20
 
 /**
  * AI Coach service abstraction.
@@ -9,33 +13,46 @@ const AI_COACH_ENDPOINT = '/api/ai-coach'
  * ever called directly from the browser, and no API key ever reaches
  * client code.
  *
+ * No player data is sent from here. The backend builds the player context
+ * itself from the caller's verified session — real Riot data if a Riot
+ * account is connected, an explicit `riotConnected: false` otherwise.
+ *
  * @param {object} params
  * @param {Array}  params.history  - prior chat messages this session, each
  *                                   shaped like `{ role: 'user' | 'coach', text: string }`
  * @param {string} params.userText - the player's new message
- * @param {object} [params.user]   - current user profile; only skillMatrix /
- *                                   courseProgress are forwarded, and only
- *                                   if present — nothing is fabricated
  *
- * @returns {Promise<string>} the coach's reply text
- * @throws {Error} with a user-facing message if the request fails
+ * The server also enforces the Free-plan limit and reports usage back.
+ * That usage is for display only; the browser never sends it.
+ *
+ * @returns {Promise<{ reply: string, usage: object | null }>}
+ * @throws {Error} with a user-facing message if the request fails. When the
+ *   Free limit is reached, the error has `code: 'free_limit_reached'` and
+ *   `usage` (server-provided count + reset time).
  */
-export async function getCoachResponse({ history, userText, user }) {
+export async function getCoachResponse({ history, userText }) {
+  // The server only uses the most recent 20 turns, so don't send more.
   const messages = [
     ...history
       .filter((m) => (m.role === 'user' || m.role === 'coach') && m.text?.trim())
-      .map((m) => ({ role: m.role === 'coach' ? 'assistant' : 'user', content: m.text })),
+      .map((m) => ({ role: m.role === 'coach' ? 'assistant' : 'user', content: m.text }))
+      .slice(-(MAX_HISTORY_MESSAGES - 1)),
     { role: 'user', content: userText },
   ]
 
-  const context = buildPlayerContext(user)
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
   let response
   try {
     response = await fetch(AI_COACH_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, context }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
+      body: JSON.stringify({ messages }),
     })
   } catch {
     throw new Error("Couldn't reach the AI Coach. Check your connection and try again.")
@@ -49,23 +66,15 @@ export async function getCoachResponse({ history, userText, user }) {
   }
 
   if (!response.ok) {
-    throw new Error(data?.error || 'AI Coach ran into an issue. Try again in a moment.')
+    const error = new Error(data?.error || 'AI Coach ran into an issue. Try again in a moment.')
+    error.code = data?.code ?? null
+    error.usage = data?.usage ?? null
+    throw error
   }
 
   if (!data?.reply) {
     throw new Error('AI Coach did not return a response. Try again.')
   }
 
-  return data.reply
-}
-
-// Only forwards player data that's actually known on the user object —
-// never padded or invented, since the backend explicitly instructs the
-// model not to assume anything beyond what's given here.
-function buildPlayerContext(user) {
-  if (!user) return null
-  const context = {}
-  if (Array.isArray(user.skillMatrix)) context.skillMatrix = user.skillMatrix
-  if (user.courseProgress) context.courseProgress = user.courseProgress
-  return Object.keys(context).length > 0 ? context : null
+  return { reply: data.reply, usage: data.usage ?? null }
 }

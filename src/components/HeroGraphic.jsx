@@ -49,9 +49,9 @@ export default function HeroGraphic() {
     <svg viewBox="0 0 560 560" className="hero-graphic" role="presentation" aria-hidden="true">
       <defs>
         <radialGradient id="hero-core-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ff5c6d" stopOpacity="0.3" />
-          <stop offset="45%" stopColor="#ff3b4e" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="#ff3b4e" stopOpacity="0" />
+          <stop offset="0%" style={{ stopColor: 'var(--red-bright)' }} stopOpacity="0.3" />
+          <stop offset="45%" style={{ stopColor: 'var(--red)' }} stopOpacity="0.08" />
+          <stop offset="100%" style={{ stopColor: 'var(--red)' }} stopOpacity="0" />
         </radialGradient>
       </defs>
 
