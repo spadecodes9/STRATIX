@@ -1,0 +1,178 @@
+diff --git a/package.json b/package.json
+index 42f3ffd..083166c 100644
+--- a/package.json
++++ b/package.json
+@@ -19,6 +19,7 @@
+     "lucide-react": "^1.44.0",
+     "react": "^19.2.8",
+     "react-dom": "^19.2.8",
++    "react-markdown": "^10.1.0",
+     "react-router-dom": "^7.18.3",
+     "sonner": "^2.0.8"
+   },
+diff --git a/src/pages/AICoach.css b/src/pages/AICoach.css
+index cbdcac9..df7c33f 100644
+--- a/src/pages/AICoach.css
++++ b/src/pages/AICoach.css
+@@ -43,7 +43,12 @@
+ .coach-message-coach .coach-avatar { background: var(--red-glow-soft); color: var(--red-bright); }
+ .coach-message-user .coach-avatar { background: var(--charcoal-3); color: var(--white); }
+ 
+-.coach-message p {
++/* Bubble box. Applied to the user's plain-text <p> and to the coach's
++   .md-content wrapper — using the direct-child combinator (>) so it does
++   NOT also match the <p> tags react-markdown renders *inside* .md-content
++   for a coach message (those get their own reset below instead). */
++.coach-message > p,
++.coach-message > .md-content {
+   background: var(--charcoal-2);
+   border: 1px solid var(--border);
+   border-radius: var(--radius);
+@@ -53,9 +58,82 @@
+   line-height: 1.6;
+   margin: 0;
+ }
+-.coach-message-user p { background: var(--red-glow-soft); border-color: rgba(255, 59, 78, 0.3); }
++.coach-message-user > p { background: var(--red-glow-soft); border-color: rgba(255, 59, 78, 0.3); }
+ .coach-typing { color: var(--gray-dim) !important; font-style: italic; }
+ 
++/* Markdown content rendered inside a coach bubble. Kept deliberately tight
++   (small margins, no nested boxes) so enabling Markdown doesn't visually
++   bloat the chat bubble. */
++.md-content > *:first-child { margin-top: 0; }
++.md-content > *:last-child { margin-bottom: 0; }
++
++.md-content p {
++  margin: 0 0 10px;
++  background: none;
++  border: none;
++  padding: 0;
++  font-size: inherit;
++  color: inherit;
++  line-height: inherit;
++}
++
++.md-content h1,
++.md-content h2,
++.md-content h3,
++.md-content h4 {
++  font-family: var(--font-display);
++  color: var(--white);
++  line-height: 1.25;
++  margin: 14px 0 6px;
++}
++.md-content h1 { font-size: 19px; }
++.md-content h2 { font-size: 17px; }
++.md-content h3 { font-size: 15.5px; }
++.md-content h4 { font-size: 14.5px; }
++
++.md-content ul,
++.md-content ol {
++  margin: 6px 0 10px;
++  padding-left: 20px;
++}
++.md-content li { margin: 3px 0; }
++.md-content li::marker { color: var(--red-bright); }
++
++.md-content strong { color: var(--white); font-weight: 700; }
++.md-content em { color: var(--gray); font-style: italic; }
++
++.md-content code {
++  font-family: var(--font-mono);
++  font-size: 13px;
++  background: var(--charcoal-3);
++  border: 1px solid var(--border);
++  border-radius: 3px;
++  padding: 1px 5px;
++}
++.md-content pre {
++  background: var(--black);
++  border: 1px solid var(--border);
++  border-radius: var(--radius);
++  padding: 10px 12px;
++  margin: 8px 0;
++  overflow-x: auto;
++}
++.md-content pre code {
++  background: none;
++  border: none;
++  padding: 0;
++  font-size: 12.5px;
++  line-height: 1.5;
++  color: var(--white);
++}
++
++.md-content a {
++  color: var(--red-bright);
++  text-decoration: underline;
++  text-underline-offset: 2px;
++}
++.md-content a:hover { color: var(--red); }
++
+ .prompt-suggestions {
+   padding: 0 24px 16px;
+   display: flex;
+@@ -160,7 +238,8 @@
+   .coach-composer-hint { display: none; }
+ }
+ 
+-.coach-message-error p {
++.coach-message-error > p,
++.coach-message-error > .md-content {
+   background: rgba(255, 59, 78, 0.12);
+   border-color: rgba(255, 59, 78, 0.35);
+   color: var(--red-bright, #ff3b4e);
+diff --git a/src/pages/AICoach.jsx b/src/pages/AICoach.jsx
+index c0488e2..24bb943 100644
+--- a/src/pages/AICoach.jsx
++++ b/src/pages/AICoach.jsx
+@@ -1,11 +1,34 @@
+ import { useEffect, useRef, useState } from 'react'
+ import { Bot, Send } from 'lucide-react'
++import ReactMarkdown from 'react-markdown'
+ import { getCoachResponse } from '../services/ai/coachService.js'
+ import { useAuth } from '../context/AuthContext.jsx'
+ import './AICoach.css'
+ 
+ const COMPOSER_MAX_HEIGHT = 160
+ 
++// react-markdown never renders raw HTML/scripts from the source text by
++// default (no rehype-raw, no dangerouslySetInnerHTML anywhere here) — this
++// only adds an extra guard on links, since a markdown link's URL can still
++// contain something like `javascript:`. Anything that isn't a plain
++// relative path, http(s), or mailto link renders as inert text instead.
++function isSafeHref(href) {
++  if (!href) return false
++  if (!/^[a-z][a-z0-9+.-]*:/i.test(href)) return true
++  return /^(https?:|mailto:)/i.test(href)
++}
++
++function MarkdownLink({ href, children, ...props }) {
++  if (!isSafeHref(href)) return <span>{children}</span>
++  return (
++    <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
++      {children}
++    </a>
++  )
++}
++
++const markdownComponents = { a: MarkdownLink }
++
+ export default function AICoach() {
+   const { user } = useAuth()
+   const [messages, setMessages] = useState([])
+@@ -75,7 +98,13 @@ export default function AICoach() {
+               <div className="coach-avatar">
+                 {m.role === 'coach' ? <Bot size={16} /> : <span>{user.avatarInitials}</span>}
+               </div>
+-              <p>{m.text}</p>
++              {m.role === 'coach' ? (
++                <div className="md-content">
++                  <ReactMarkdown components={markdownComponents}>{m.text}</ReactMarkdown>
++                </div>
++              ) : (
++                <p>{m.text}</p>
++              )}
+             </div>
+           ))}
+           {isTyping && (

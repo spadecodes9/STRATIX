@@ -1,0 +1,74 @@
+/* --------------------------------------------------------------------------
+   Shared Premium UI — badge, locked state (PremiumGate.jsx)
+   Gold is Premium's fixed signal colour; it never follows the accent theme.
+   -------------------------------------------------------------------------- */
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(255, 182, 72, 0.35);
+  background: rgba(255, 182, 72, 0.08);
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+
+.premium-lock {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, rgba(255, 182, 72, 0.07), var(--charcoal) 60%);
+  border: 1px solid rgba(255, 182, 72, 0.25);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius);
+}
+.premium-lock-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  color: var(--gold);
+  border: 1px solid rgba(255, 182, 72, 0.3);
+  background: rgba(255, 182, 72, 0.08);
+}
+.premium-lock-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.premium-lock-title { font-size: 17px; margin: 0; }
+.premium-lock-copy p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--gray); max-width: 52ch; }
+.premium-lock-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-left: auto; flex-shrink: 0; }
+.premium-lock-compare {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--gray);
+}
+.premium-lock-compare:hover, .premium-lock-compare:focus-visible { color: var(--gold-bright); }
+
+.premium-lock-page {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 36px 28px;
+  border-left-width: 1px;
+  box-shadow: 0 0 40px rgba(255, 182, 72, 0.06);
+  align-self: flex-start;
+}
+.premium-lock-page .premium-lock-icon { width: 46px; height: 46px; }
+.premium-lock-page .premium-lock-copy { align-items: center; }
+.premium-lock-page .premium-lock-title { font-size: 24px; }
+.premium-lock-page .premium-lock-actions { align-items: center; margin-left: 0; }
+
+@media (max-width: 640px) {
+  .premium-lock-inline { flex-direction: column; align-items: flex-start; }
+  .premium-lock-inline .premium-lock-actions { align-items: flex-start; margin-left: 0; }
+}

@@ -7,26 +7,55 @@
   --border: #2a2a32;
   --border-soft: #1e1e24;
 
-  --red: #ff3b4e;
-  --red-bright: #ff5c6d;
-  --red-dim: #8a1420;
-  --red-glow: rgba(255, 59, 78, 0.28);
-  --red-glow-soft: rgba(255, 59, 78, 0.12);
+  --accent-rgb: 255 59 78;
+  --accent-bright-rgb: 255 92 109;
+  --accent-dim-rgb: 138 20 32;
+
+  --red: rgb(var(--accent-rgb));
+  --red-bright: rgb(var(--accent-bright-rgb));
+  --red-dim: rgb(var(--accent-dim-rgb));
+  --red-glow: rgb(var(--accent-rgb) / 0.28);
+  --red-glow-soft: rgb(var(--accent-rgb) / 0.12);
 
   --white: #f2f1ee;
   --gray: #9a9aa4;
   --gray-dim: #616169;
 
+  /* Semantic status — fixed, never follows the accent theme */
+  --danger-rgb: 255 59 78;
+  --danger: rgb(var(--danger-rgb));
+  --danger-text: #ff8f9c;
   --success: #3ddc84;
   --warning: #ffb648;
+  --gold: #ffb648;
+  --gold-bright: #ffd280;
+  --gold-glow: rgba(255, 182, 72, 0.32);
 
-  /* Type */
-  --font-display: 'Rajdhani', system-ui, sans-serif;
+  /* Type — three-role system */
+  --font-display: 'Limelight', system-ui, sans-serif;
+  --font-ui: 'Big Shoulders Inline', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
   --shadow-glow: 0 0 24px var(--red-glow);
   --radius: 2px;
+}
+
+:root[data-theme='blue'] {
+  --accent-rgb: 60 140 255;
+  --accent-bright-rgb: 96 168 255;
+  --accent-dim-rgb: 20 60 138;
+}
+
+:root[data-theme='green'] {
+  --accent-rgb: 61 220 132;
+  --accent-bright-rgb: 96 235 160;
+  --accent-dim-rgb: 20 110 62;
+}
+
+:root[data-theme='gold'] {
+  --accent-rgb: 255 182 72;
+  --accent-bright-rgb: 255 205 122;
+  --accent-dim-rgb: 138 92 20;
 }
 
 * {
@@ -35,12 +64,10 @@
 
 html {
   color-scheme: dark;
-  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  overflow-x: hidden;
   min-height: 100svh;
   background: var(--black);
   background-image:
@@ -91,6 +118,19 @@ input, select, textarea {
   font-family: var(--font-body);
 }
 
+/* UI / technical role — labels, HUD, metadata, status */
+.font-ui {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
 ul { list-style: none; margin: 0; padding: 0; }
 
 ::selection {
@@ -129,3 +169,24 @@ ul { list-style: none; margin: 0; padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition:
+      background-color 0.4s ease,
+      border-color 0.4s ease,
+      box-shadow 0.4s ease,
+      color 0.4s ease,
+      fill 0.4s ease,
+      stroke 0.4s ease,
+      filter 0.4s ease !important;
+  }
+}
+
+.error-boundary-shell { display: flex; align-items: center; justify-content: center; flex: 1; }
+.error-boundary-panel { max-width: 460px; text-align: center; border-color: rgb(var(--danger-rgb) / 0.35); }
+.error-boundary-panel .eyebrow { display: inline-flex; align-items: center; gap: 6px; justify-content: center; width: 100%; margin-bottom: 10px; }
+.error-boundary-panel h2 { margin-bottom: 8px; }
+.error-boundary-panel p { margin-bottom: 20px; }
+.error-boundary-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }

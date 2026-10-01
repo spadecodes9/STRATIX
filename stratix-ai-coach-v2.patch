@@ -1,0 +1,281 @@
+diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..8bd55a8
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,20 @@
++# STRATIX AI Coach backend environment variables.
++# Copy this file to .env and fill in your own values.
++# .env is already git-ignored — never commit real secrets.
++
++# Required. Your OpenRouter API key. Server-side only: this must never be
++# prefixed with VITE_ or referenced from any client-side/React code, since
++# anything prefixed VITE_ gets bundled into the browser build.
++OPENROUTER_API_KEY=
++
++# Optional. OpenRouter model slug to use. Defaults to OpenRouter's free
++# model router (currently openrouter/free:free) if left unset. Browse
++# available models at https://openrouter.ai/models
++OPENROUTER_MODEL=openrouter/free:free
++
++# Optional. Port the backend listens on.
++PORT=8787
++
++# Optional. Sent as the HTTP-Referer header on OpenRouter requests (used
++# for OpenRouter's own app analytics/rankings — not required to function).
++OPENROUTER_SITE_URL=http://localhost:5178
+diff --git a/package.json b/package.json
+index bf9ddcb..42f3ffd 100644
+--- a/package.json
++++ b/package.json
+@@ -5,12 +5,17 @@
+   "type": "module",
+   "scripts": {
+     "dev": "vite",
++    "dev:server": "node server/index.js",
++    "dev:all": "concurrently -k -n WEB,API -c blue,magenta \"npm:dev\" \"npm:dev:server\"",
+     "build": "vite build",
+     "lint": "oxlint",
+     "preview": "vite preview"
+   },
+   "dependencies": {
+     "@supabase/supabase-js": "^2.116.0",
++    "cors": "^2.8.5",
++    "dotenv": "^16.4.5",
++    "express": "^4.21.2",
+     "lucide-react": "^1.44.0",
+     "react": "^19.2.8",
+     "react-dom": "^19.2.8",
+@@ -21,6 +26,7 @@
+     "@types/react": "^19.2.18",
+     "@types/react-dom": "^19.2.4",
+     "@vitejs/plugin-react": "^6.1.0",
++    "concurrently": "^9.1.0",
+     "oxlint": "^1.79.0",
+     "vite": "^8.2.2"
+   }
+diff --git a/server/config.js b/server/config.js
+new file mode 100644
+index 0000000..bc3f7ad
+--- /dev/null
++++ b/server/config.js
+@@ -0,0 +1,24 @@
++// Centralized AI Coach backend configuration.
++//
++// Keep the model slug and system prompt here, in one place, rather than
++// scattered through the app — server/index.js imports both.
++
++export const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'openrouter/free:free'
++
++export const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
++
++// How many prior chat turns (user + coach messages) get forwarded as
++// context on every request. Keeps request size and cost bounded on long
++// conversations without losing recent context.
++export const MAX_HISTORY_MESSAGES = 20
++
++export const SYSTEM_PROMPT = `You are STRATIX AI Coach, an expert VALORANT training and improvement assistant built into the STRATIX platform.
++
++You help players improve across: aim, crosshair placement, movement, positioning, peeking, utility usage, agent fundamentals, map knowledge, decision making, economy management, teamplay, round planning, warmups and practice routines, VOD/round analysis (when the player gives you specifics), and course or study recommendations (when given specific progress data).
++
++Guidelines:
++- Be concise and practical. Give actionable advice, not generic motivational filler.
++- Only reference a player's specific rank, stats, match history, or course progress if that information was actually given to you in this conversation — either directly by the player or in a "Known player context" block appended to this prompt. Never invent, assume, or imply access to data you were not given.
++- If a question needs more detail to answer well, ask one clear clarifying question, or give solid general guidance while noting what extra detail would sharpen it.
++- Keep most answers to a few short paragraphs or a tight list. Go longer only when the request genuinely calls for more depth (e.g. a full warmup routine or a multi-step drill plan).
++- You are not affiliated with, sponsored by, or connected to Riot Games. You do not have live access to Riot's API, a player's match history, or any live game state — only what's in this conversation.`
+diff --git a/server/index.js b/server/index.js
+new file mode 100644
+index 0000000..f33a4a0
+--- /dev/null
++++ b/server/index.js
+@@ -0,0 +1,123 @@
++// STRATIX AI Coach backend.
++//
++// The ONLY thing this server does is: receive a conversation from the
++// frontend, attach the STRATIX system prompt, and call OpenRouter with the
++// server-side API key. The key never reaches the browser. The frontend only
++// ever talks to this server, never to OpenRouter directly.
++//
++// Run standalone with `npm run dev:server`, or alongside the Vite dev
++// server with `npm run dev:all` (see package.json).
++
++import express from 'express'
++import cors from 'cors'
++import dotenv from 'dotenv'
++import {
++  OPENROUTER_MODEL,
++  OPENROUTER_API_URL,
++  SYSTEM_PROMPT,
++  MAX_HISTORY_MESSAGES,
++} from './config.js'
++
++dotenv.config()
++
++const app = express()
++app.use(cors())
++app.use(express.json({ limit: '1mb' }))
++
++const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
++const SITE_URL = process.env.OPENROUTER_SITE_URL || 'http://localhost:5178'
++
++app.post('/api/ai-coach', async (req, res) => {
++  if (!OPENROUTER_API_KEY) {
++    console.error('[ai-coach] Missing OPENROUTER_API_KEY — set it in your .env file.')
++    return res.status(500).json({
++      error: "AI Coach isn't configured yet — the server is missing its OpenRouter API key.",
++    })
++  }
++
++  const { messages, context } = req.body || {}
++
++  if (!Array.isArray(messages) || messages.length === 0) {
++    return res.status(400).json({ error: 'A message is required.' })
++  }
++
++  const chatMessages = messages
++    .filter(
++      (m) =>
++        m &&
++        typeof m.content === 'string' &&
++        m.content.trim().length > 0 &&
++        (m.role === 'user' || m.role === 'assistant')
++    )
++    .slice(-MAX_HISTORY_MESSAGES)
++
++  if (chatMessages.length === 0) {
++    return res.status(400).json({ error: 'A message is required.' })
++  }
++
++  let systemPrompt = SYSTEM_PROMPT
++  if (context && typeof context === 'object' && Object.keys(context).length > 0) {
++    systemPrompt += `\n\nKnown player context for this session (only reference this if it's actually relevant to the question — do not invent anything beyond it):\n${JSON.stringify(
++      context
++    )}`
++  }
++
++  try {
++    const upstream = await fetch(OPENROUTER_API_URL, {
++      method: 'POST',
++      headers: {
++        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
++        'Content-Type': 'application/json',
++        'HTTP-Referer': SITE_URL,
++        'X-Title': 'STRATIX AI Coach',
++      },
++      body: JSON.stringify({
++        model: OPENROUTER_MODEL,
++        messages: [{ role: 'system', content: systemPrompt }, ...chatMessages],
++      }),
++    })
++
++    if (!upstream.ok) {
++      const detail = await upstream.text().catch(() => '')
++      console.error('[ai-coach] OpenRouter error', upstream.status, detail)
++
++      if (upstream.status === 401 || upstream.status === 403) {
++        return res.status(502).json({
++          error: "AI Coach couldn't authenticate with its model provider. Check the server's API key.",
++        })
++      }
++      if (upstream.status === 429) {
++        return res.status(429).json({
++          error: 'AI Coach is getting rate-limited right now. Wait a moment and try again.',
++        })
++      }
++      return res.status(502).json({
++        error: "AI Coach couldn't reach its model provider. Try again in a moment.",
++      })
++    }
++
++    const data = await upstream.json().catch(() => null)
++    const reply = data?.choices?.[0]?.message?.content?.trim()
++
++    if (!reply) {
++      console.error('[ai-coach] Empty or malformed response from OpenRouter:', data)
++      return res.status(502).json({
++        error: 'AI Coach got an empty response back. Try rephrasing your question.',
++      })
++    }
++
++    return res.json({ reply })
++  } catch (err) {
++    console.error('[ai-coach] Request failed:', err)
++    return res.status(500).json({
++      error: 'AI Coach ran into an unexpected error. Try again.',
++    })
++  }
++})
++
++app.get('/api/health', (_req, res) => res.json({ ok: true }))
++
++const PORT = process.env.PORT || 8787
++app.listen(PORT, () => {
++  console.log(`STRATIX AI Coach backend listening on http://localhost:${PORT}`)
++})
+diff --git a/src/pages/AICoach.jsx b/src/pages/AICoach.jsx
+index e346021..4456536 100644
+--- a/src/pages/AICoach.jsx
++++ b/src/pages/AICoach.jsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useRef, useState } from 'react'
+ import { Bot, Send } from 'lucide-react'
+-import { suggestedPrompts, seedConversation, getMockCoachReply } from '../data/aiCoach.js'
++import { suggestedPrompts, seedConversation } from '../data/aiCoach.js'
++import { getCoachResponse } from '../services/ai/coachService.js'
+ import { useAuth } from '../context/AuthContext.jsx'
+ import './AICoach.css'
+ 
+@@ -15,19 +16,29 @@ export default function AICoach() {
+     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+   }, [messages, isTyping])
+ 
+-  const sendMessage = (text) => {
++  const sendMessage = async (text) => {
+     const trimmed = text.trim()
+     if (!trimmed) return
+ 
++    // Snapshot history before appending the new user message — this is what
++    // gets sent to the backend as conversation context.
++    const history = messages
++
+     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text: trimmed }])
+     setInput('')
+     setIsTyping(true)
+ 
+-    setTimeout(() => {
+-      const reply = getMockCoachReply(trimmed)
++    try {
++      const reply = await getCoachResponse({ history, userText: trimmed, user })
+       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'coach', text: reply }])
++    } catch (err) {
++      setMessages((prev) => [
++        ...prev,
++        { id: crypto.randomUUID(), role: 'coach', text: err.message || 'Something went wrong. Try again.' },
++      ])
++    } finally {
+       setIsTyping(false)
+-    }, 700)
++    }
+   }
+ 
+   return (
+diff --git a/vite.config.js b/vite.config.js
+index ea73791..8d49775 100644
+--- a/vite.config.js
++++ b/vite.config.js
+@@ -4,4 +4,14 @@ import react from '@vitejs/plugin-react'
+ // https://vite.dev/config/
+ export default defineConfig({
+   plugins: [react()],
++  server: {
++    proxy: {
++      // Forwards AI Coach requests to the local Express backend during dev,
++      // so the frontend can call a same-origin `/api/ai-coach` path.
++      '/api': {
++        target: 'http://localhost:8787',
++        changeOrigin: true,
++      },
++    },
++  },
+ })

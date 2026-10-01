@@ -1,43 +1,80 @@
-import { generateCoachReply } from './mockCoachEngine.js'
-import { ACTIVE_GAME } from '../../data/coachKnowledge.js'
+import { supabase } from '../../lib/supabase.js'
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+const AI_COACH_ENDPOINT = '/api/ai-coach'
+// Mirrors MAX_HISTORY_MESSAGES in server/config.js.
+const MAX_HISTORY_MESSAGES = 20
 
 /**
  * AI Coach service abstraction.
  *
- * This is the ONLY function the AI Coach page calls to get a reply. Right
- * now it delegates to `generateCoachReply`, a rule-based mock — no network
- * request, no API key, nothing leaves the browser.
+ * This is the ONLY function the AI Coach page calls to get a reply. It posts
+ * the conversation to STRATIX's own backend (server/index.js), which adds
+ * the system prompt and calls OpenRouter server-side. No model provider is
+ * ever called directly from the browser, and no API key ever reaches
+ * client code.
  *
- * To swap in a real provider later: replace the body of this function with
- * a real call (e.g. POST { history, userText, gameId } to a backend route
- * that talks to a model), while returning the same shape below. Nothing in
- * AICoach.jsx needs to change for that swap — it only depends on this
- * function's signature and return shape, not on how the reply is produced.
+ * No player data is sent from here. The backend builds the player context
+ * itself from the caller's verified session — real Riot data if a Riot
+ * account is connected, an explicit `riotConnected: false` otherwise.
  *
  * @param {object} params
- * @param {Array}  params.history  - prior chat messages this session
+ * @param {Array}  params.history  - prior chat messages this session, each
+ *                                   shaped like `{ role: 'user' | 'coach', text: string }`
  * @param {string} params.userText - the player's new message
- * @param {object} params.user     - current mock user profile
- * @param {string} [params.gameId] - which game's coach this is for (v1: 'valorant' only)
  *
- * @returns {Promise<{
- *   category: string,
- *   intro: string,
- *   points: string[],
- *   recommendation: { type: 'course'|'lesson'|'guide', id: string, courseId?: string, title: string, subtitle: string } | null,
- *   followUp: string | null
- * }>}
+ * The server also enforces the Free-plan limit and reports usage back.
+ * That usage is for display only; the browser never sends it.
+ *
+ * @returns {Promise<{ reply: string, usage: object | null }>}
+ * @throws {Error} with a user-facing message if the request fails. When the
+ *   Free limit is reached, the error has `code: 'free_limit_reached'` and
+ *   `usage` (server-provided count + reset time).
  */
-export async function getCoachResponse({ history, userText, user, gameId = ACTIVE_GAME }) {
-  // Simulated "thinking" delay so the typing indicator reads as real latency.
-  await wait(550 + Math.random() * 450)
+export async function getCoachResponse({ history, userText }) {
+  // The server only uses the most recent 20 turns, so don't send more.
+  const messages = [
+    ...history
+      .filter((m) => (m.role === 'user' || m.role === 'coach') && m.text?.trim())
+      .map((m) => ({ role: m.role === 'coach' ? 'assistant' : 'user', content: m.text }))
+      .slice(-(MAX_HISTORY_MESSAGES - 1)),
+    { role: 'user', content: userText },
+  ]
 
-  // v1 only ships a VALORANT knowledge base. `gameId` is threaded through now
-  // so a future multi-game version can route to a per-game engine/knowledge
-  // base here without touching the UI or this function's contract.
-  return generateCoachReply({ history, userText, user, gameId })
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  let response
+  try {
+    response = await fetch(AI_COACH_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
+      body: JSON.stringify({ messages }),
+    })
+  } catch {
+    throw new Error("Couldn't reach the AI Coach. Check your connection and try again.")
+  }
+
+  let data = null
+  try {
+    data = await response.json()
+  } catch {
+    // Leave data as null — handled by the checks below.
+  }
+
+  if (!response.ok) {
+    const error = new Error(data?.error || 'AI Coach ran into an issue. Try again in a moment.')
+    error.code = data?.code ?? null
+    error.usage = data?.usage ?? null
+    throw error
+  }
+
+  if (!data?.reply) {
+    throw new Error('AI Coach did not return a response. Try again.')
+  }
+
+  return { reply: data.reply, usage: data.usage ?? null }
 }

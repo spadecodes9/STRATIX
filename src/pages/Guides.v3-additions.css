@@ -1,0 +1,158 @@
+/* ==========================================================================
+   GUIDES v3 ADDITIONS — structure / spacing / navigation pass
+   --------------------------------------------------------------------------
+   Append this AFTER Guides.v2-additions.css (order matters only where a
+   selector here has equal specificity to something in v2 — see notes below).
+   Nothing is deleted from the original file or from v2; this only adds
+   rules and a few higher-specificity overrides.
+
+   One old rule becomes fully dead as a result of this pass: `.guide-hero-visual`
+   in the original Guides.css. GuideDetail.jsx no longer renders that div at
+   all (that was the actual cause of the empty space above "Tactical
+   Briefing" — a fixed 150px decorative panel with no content in it), so the
+   CSS rule now matches nothing. Leaving it in the file is harmless, but it's
+   safe to delete `.guide-hero-visual { ... }` next time you're in that file.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Divider between header/tags and Tactical Briefing, and around the AI Coach
+   / Related Guides sections on the guide detail page — replaces the old
+   fixed-height media block with a plain 1px rule, per the "use spacing and
+   typography, not boxes" note.
+   -------------------------------------------------------------------------- */
+.guide-detail-divider {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 28px 0;
+}
+
+/* --------------------------------------------------------------------------
+   CONTROL DECK — grouped, labeled filter rows (Category, then Difficulty)
+   so the two chip rows read as distinct controls instead of duplicate nav.
+   -------------------------------------------------------------------------- */
+.control-deck-group {
+  margin-bottom: 18px;
+}
+.control-deck-group:last-child {
+  margin-bottom: 0;
+}
+.control-deck-group-label {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gray-dim);
+  margin-bottom: 8px;
+}
+/* Higher specificity than the original .control-deck-difficulty rule, so
+   this cleanly overrides its margin-bottom now that difficulty is the last
+   group in the deck rather than being followed by the category tiles. */
+.control-deck-group .control-deck-difficulty {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   DEFAULT LIBRARY VIEW — grouped by category (Maps / Weapons & Aim /
+   Strategy / Utility / Mental Game), each sorted Beginner -> Advanced.
+   Only used when no search/category/difficulty filter is active; filtered
+   results still render as the original flat .guide-grid.
+   -------------------------------------------------------------------------- */
+.guide-library-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.guide-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  color: var(--white);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.guide-group-heading svg { color: var(--red); flex-shrink: 0; }
+.guide-group-count {
+  margin-left: auto;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--gray-dim);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1px 8px;
+}
+/* Grouped grids don't need their own trailing margin — spacing between
+   groups is handled by .guide-library-groups' gap instead. Higher
+   specificity than the base .guide-grid rule, so this wins cleanly. */
+.guide-group .guide-grid {
+  margin-bottom: 0;
+}
+/* Slightly tighter than the original 44px now that spacing elsewhere on
+   the page has also been tightened — applies to the flat filtered grid
+   and the related-guides grid too, which is a welcome side effect. */
+.guide-grid {
+  margin-bottom: 32px;
+}
+
+/* --------------------------------------------------------------------------
+   GUIDE CARD CONSISTENCY — clamp title/excerpt so card copy blocks read at
+   a consistent depth regardless of how long an individual title or excerpt
+   is. Additive to the existing .guide-card h3 / .guide-card p rules (only
+   new properties, nothing here conflicts with font-size/flex already set).
+   -------------------------------------------------------------------------- */
+.guide-card h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.guide-card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   FEATURED GUIDE — slightly more compact, slightly more present watermark,
+   so the visual half reads as a deliberate treatment rather than a mostly
+   blank panel next to the copy.
+   -------------------------------------------------------------------------- */
+.featured-guide {
+  min-height: 300px;
+}
+.featured-guide-watermark {
+  opacity: 0.16;
+}
+
+/* --------------------------------------------------------------------------
+   Defensive overflow guards — nothing found in this pass's own code that
+   causes horizontal scroll (see the written report), but these are safe,
+   zero-risk additions: long unbroken guide titles/tags can never force a
+   container wider than its column.
+   -------------------------------------------------------------------------- */
+.guide-card h3,
+.guide-card p,
+.recommended-guide-title,
+.guide-body p {
+  overflow-wrap: break-word;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .guide-library-groups { gap: 28px; }
+}
+
+@media (max-width: 600px) {
+  .guide-group-heading { flex-wrap: wrap; }
+  .guide-detail-divider { margin: 20px 0; }
+}

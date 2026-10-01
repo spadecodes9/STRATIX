@@ -1,29 +1,36 @@
-import { BarChart3 } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3 } from 'lucide-react'
+import Button from '../ui/Button.jsx'
 import ProgressBar from '../ui/ProgressBar.jsx'
+import '../riot/riot.css'
 
-function severity(score) {
-  if (score < 60) return 'critical'
-  if (score < 75) return 'moderate'
-  return 'stable'
-}
-
-export default function SkillMatrix({ skills }) {
+export default function SkillMatrix({ skills, weakestSkill }) {
   return (
-    <div className="panel">
+    <div className="panel skill-panel">
       <div className="panel-title-row">
-        <h3>Skill Matrix</h3>
-        <BarChart3 size={18} className="panel-icon" />
+        <div><span className="eyebrow">Performance scan</span><h3>Skill Matrix</h3></div>
+        <BarChart3 size={20} className="panel-icon" />
       </div>
+      {weakestSkill && (
+        <div className="weak-skill-callout">
+          <AlertTriangle size={18} />
+          <div><span>Priority improvement</span><strong>{weakestSkill.skill} <em>{weakestSkill.score}/100</em></strong></div>
+          <Button to="/guides" variant="ghost" icon={ArrowRight}>Train</Button>
+        </div>
+      )}
+      {skills.length === 0 && <div className="riot-empty"><strong>No skill scores yet</strong><p>Skill scoring isn&apos;t live yet. STRATIX shows nothing here rather than estimated scores.</p></div>}
       <div className="skill-matrix-list">
-        {skills.map((s) => (
-          <div key={s.skill} className={`skill-row skill-row-${severity(s.score)}`}>
-            <div className="skill-row-label">
-              <span>{s.skill}</span>
-              <span className="skill-row-score">{s.score}</span>
+        {skills.map((skill) => {
+          const isWeakest = weakestSkill && skill.skill === weakestSkill.skill
+          return (
+            <div key={skill.skill} className={`skill-row ${isWeakest ? 'skill-row-priority' : ''}`}>
+              <div className="skill-row-label">
+                <span>{skill.skill}{isWeakest && <small>Focus</small>}</span>
+                <span className="skill-row-score">{skill.score}</span>
+              </div>
+              <ProgressBar percent={skill.score} />
             </div>
-            <ProgressBar percent={s.score} />
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

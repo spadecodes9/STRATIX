@@ -1,0 +1,24 @@
+.teammates-page { flex: 1; display: flex; }
+.teammates-shell { max-width: 760px; }
+.teammates-shell .eyebrow { display: inline-flex; align-items: center; gap: 7px; }
+.teammates-shell h1 { margin: 10px 0 14px; font-size: clamp(38px, 5.5vw, 56px); line-height: .96; letter-spacing: -.03em; }
+.teammates-intro { max-width: 540px; margin-bottom: 16px; font-size: 15px; line-height: 1.72; }
+.teammates-shell > .badge { margin-bottom: 30px; }
+
+.teammates-preview { position: relative; padding: 30px 26px 26px; margin-bottom: 30px; border: 1px solid var(--border); background: rgba(16,16,21,.6); }
+.teammates-preview-ribbon { position: absolute; left: 0; top: 0; padding: 6px 12px; color: var(--warning); border-bottom: 1px solid rgba(255,182,72,.3); border-right: 1px solid rgba(255,182,72,.3); background: rgba(255,182,72,.08); font: 600 10px var(--font-ui); letter-spacing: .05em; text-transform: uppercase; }
+.teammates-filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 34px 0 22px; }
+.teammates-filter { display: flex; flex-direction: column; gap: 7px; }
+.teammates-filter label { color: var(--gray-dim); font: 600 10px var(--font-ui); letter-spacing: .05em; text-transform: uppercase; }
+.teammates-filter select { padding: 10px 11px; color: var(--gray); border: 1px solid var(--border); background: var(--charcoal); font: 500 13px var(--font-body); cursor: not-allowed; opacity: .75; }
+
+.teammates-footer-note { padding-top: 26px; border-top: 1px solid var(--border-soft); }
+.teammates-footer-note p { max-width: 540px; margin-bottom: 18px; font-size: 13px; line-height: 1.65; }
+.teammates-footer-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 700px) {
+  .teammates-filter-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .teammates-filter-grid { grid-template-columns: 1fr; }
+}

@@ -5,14 +5,21 @@ import ProtectedRoute from './components/layout/ProtectedRoute.jsx'
 import Landing from './pages/Landing.jsx'
 import SignIn from './pages/SignIn.jsx'
 import CreateAccount from './pages/CreateAccount.jsx'
+import RiotAuthComplete from './pages/RiotAuthComplete.jsx'
 import Dashboard from './pages/Dashboard.jsx'
-import Courses from './pages/Courses.jsx'
-import CourseDetail from './pages/CourseDetail.jsx'
-import LessonView from './pages/LessonView.jsx'
 import Guides from './pages/Guides.jsx'
 import GuideDetail from './pages/GuideDetail.jsx'
 import AICoach from './pages/AICoach.jsx'
+import Premium from './pages/Premium.jsx'
 import Profile from './pages/Profile.jsx'
+import Quizzes from './pages/Quizzes.jsx'
+import FindTeammates from './pages/FindTeammates.jsx'
+import Terms from './pages/Terms.jsx'
+import Privacy from './pages/Privacy.jsx'
+import Cookies from './pages/Cookies.jsx'
+import License from './pages/License.jsx'
+import Disclaimer from './pages/Disclaimer.jsx'
+import Contact from './pages/Contact.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
@@ -22,23 +29,16 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/auth/riot" element={<RiotAuthComplete />} />
 
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="Dashboard"
+              description="Sign in to access your personal STRATIX dashboard."
+            >
               <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId" element={<CourseDetail />} />
-        <Route
-          path="/courses/:courseId/lessons/:lessonId"
-          element={
-            <ProtectedRoute>
-              <LessonView />
             </ProtectedRoute>
           }
         />
@@ -49,7 +49,10 @@ function App() {
         <Route
           path="/ai-coach"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="AI Coach"
+              description="Sign in to use AI Coach and get personalized VALORANT coaching."
+            >
               <AICoach />
             </ProtectedRoute>
           }
@@ -58,11 +61,25 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              feature="Profile"
+              description="Sign in to access and manage your STRATIX profile."
+            >
               <Profile />
             </ProtectedRoute>
           }
         />
+
+        <Route path="/quizzes" element={<Quizzes />} />
+        <Route path="/premium" element={<Premium />} />
+        <Route path="/teammates" element={<FindTeammates />} />
+
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/license" element={<License />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

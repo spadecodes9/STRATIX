@@ -1,0 +1,119 @@
+/* ==========================================================================
+   GUIDES — CATEGORY CHIP FIX (authoritative — append LAST, after everything)
+   --------------------------------------------------------------------------
+   ROOT CAUSE, confirmed via DevTools:
+
+   Every category-chip rule shipped so far — in Guides.v2-additions.css and
+   Guides.v6-additions.css — used a plain single-class selector:
+   `.category-chip { ... }`. That has specificity (0,0,1,0).
+
+   The DevTools screenshot shows the live, rendered .category-chip-row at
+   878.67 x 24.79px. 24.79px is essentially bare text with no button
+   padding or border at all — proof that something else in your existing
+   Guides.css has HIGHER specificity than (0,0,1,0) and has been winning
+   the cascade this entire time. CSS resolves conflicts by specificity
+   FIRST — source order (which file was appended last) only decides ties
+   between rules of EQUAL specificity. Six rounds of restating the same
+   (0,0,1,0) selector could never win against a higher-specificity rule,
+   no matter which file it was in or what order it was pasted in. That's
+   why v2 and now v6 both had zero visible effect despite being otherwise
+   correct — this wasn't a guess, it's what the measured height proves.
+
+   I can't name the exact competing selector without seeing it directly
+   (my knowledge of your base Guides.css has only ever come from partial
+   search results, never a full read) — but I don't need to remove it to
+   fix this. The correct, standard technique for winning a specificity
+   fight you can't directly edit is to legitimately outrank it. Every
+   selector below is qualified with #control-deck — a REAL id already
+   present in your DOM around this exact panel (visible in your own
+   screenshot, used elsewhere only for the hero's "jump to search" scroll
+   target) — which pushes specificity to (0,1,2,0) or higher, well above
+   any realistic un-ID'd, non-!important reset rule. The structural
+   properties are also marked !important as a second, independent
+   guarantee, in case the competing rule carries weight I still can't see.
+
+   This is a deliberate, reasoned escalation — not another same-strength
+   restatement. It supersedes the .category-chip* rules in v2 and v6 for
+   this component; those old rules are now dead weight (harmless to leave,
+   safe to delete whenever you're next in that file).
+   ========================================================================== */
+
+#control-deck .category-chip-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  row-gap: 8px !important;
+  max-width: 100%;
+}
+
+#control-deck .category-chip-row .category-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  min-height: 32px !important;
+  background: var(--charcoal-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 8px 14px !important;
+  margin: 0 !important;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1;
+  color: var(--gray);
+  white-space: nowrap !important;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+#control-deck .category-chip-row .category-chip span {
+  display: inline-block;
+  line-height: 1;
+}
+#control-deck .category-chip-row .category-chip svg {
+  color: var(--red);
+  flex-shrink: 0 !important;
+}
+#control-deck .category-chip-row .category-chip:hover {
+  color: var(--white);
+  transform: translateY(-1px);
+}
+#control-deck .category-chip-row .category-chip-active {
+  color: var(--red-bright) !important;
+  border-color: var(--red) !important;
+  background: var(--red-glow-soft) !important;
+}
+#control-deck .category-chip-row .category-chip-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--gray-dim);
+  background: var(--black) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  padding: 2px 7px !important;
+  margin-left: 4px !important;
+}
+#control-deck .category-chip-row .category-chip-active .category-chip-count {
+  color: var(--red-bright) !important;
+  border-color: rgb(var(--accent-rgb) / 0.35) !important;
+}
+
+@media (max-width: 900px) {
+  #control-deck .category-chip-row { gap: 6px !important; row-gap: 6px !important; }
+  #control-deck .category-chip-row .category-chip { padding: 7px 12px !important; font-size: 13px; }
+}
+@media (max-width: 600px) {
+  #control-deck .category-chip-row { flex-direction: column !important; align-items: stretch !important; }
+  #control-deck .category-chip-row .category-chip { justify-content: flex-start !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #control-deck .category-chip-row .category-chip:hover { transform: none; }
+}

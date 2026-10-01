@@ -1,31 +1,36 @@
-import { Activity, CheckCircle2, BookOpen, Bot, GraduationCap } from 'lucide-react'
+import { Activity, ArrowUpRight, CheckCircle2, BookOpen, Bot, GraduationCap } from 'lucide-react'
+import '../riot/riot.css'
 
 const iconByType = {
   lesson_complete: CheckCircle2,
   guide_read: BookOpen,
   ai_session: Bot,
-  course_start: GraduationCap,
+  session_start: GraduationCap,
 }
 
 export default function RecentActivity({ activity }) {
   return (
-    <div className="panel">
+    <div className="panel activity-panel">
       <div className="panel-title-row">
-        <h3>Recent Activity</h3>
-        <Activity size={18} className="panel-icon" />
+        <div><span className="eyebrow">Momentum log</span><h3>Recent Activity</h3></div>
+        <Activity size={20} className="panel-icon" />
       </div>
+      {activity.length === 0 ? (
+        <div className="riot-empty"><strong>No activity recorded yet</strong><p>Activity tracking isn&apos;t live yet — your guides, quizzes, and AI Coach sessions will appear here once it is.</p></div>
+      ) : (
+        <p className="activity-intro">Your latest work feeds the plan above — keep the chain unbroken.</p>
+      )}
       <ul className="activity-list">
-        {activity.map((item) => {
+        {activity.map((item, index) => {
           const Icon = iconByType[item.type] || Activity
           return (
-            <li key={item.id} className="activity-item">
-              <span className="activity-icon-wrap">
-                <Icon size={15} className="activity-icon" />
-              </span>
+            <li key={item.id} className={`activity-item ${index === 0 ? 'activity-item-latest' : ''}`}>
+              <span className="activity-icon"><Icon size={16} /></span>
               <div className="activity-text">
                 <p className="activity-title">{item.title}</p>
-                <span className="activity-meta">{item.meta} · {item.time}</span>
+                <span className="activity-meta">{item.meta} <i /> {item.time}</span>
               </div>
+              {index === 0 && <ArrowUpRight size={15} className="activity-latest-icon" />}
             </li>
           )
         })}

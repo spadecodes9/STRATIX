@@ -1,6 +1,7 @@
-import { Search, X, SlidersHorizontal } from 'lucide-react'
-import CategoryTiles from './CategoryTiles.jsx'
+import { Search, X, LayoutGrid } from 'lucide-react'
+import { getCategoryMeta } from './categoryMeta.js'
 
+// `categories` / `difficulties`: [{ key, label, count }], first entry is 'all'.
 export default function ControlDeck({
   query,
   onQueryChange,
@@ -13,16 +14,11 @@ export default function ControlDeck({
 }) {
   return (
     <div className="control-deck">
-      <div className="control-deck-header">
-        <SlidersHorizontal size={15} />
-        <span>Database Access // Search &amp; Filter</span>
-      </div>
-
       <div className="control-deck-search">
         <Search size={17} />
         <input
           type="text"
-          placeholder="Search tactical knowledge…"
+          placeholder="Search guides — try “retake”, “Vandal”, “tilt”…"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           aria-label="Search guides"
@@ -34,20 +30,44 @@ export default function ControlDeck({
         )}
       </div>
 
-      <div className="control-deck-difficulty" role="group" aria-label="Filter by difficulty">
-        {difficulties.map((d) => (
-          <button
-            key={d}
-            className={`difficulty-chip ${difficulty === d ? 'difficulty-chip-active' : ''}`}
-            onClick={() => onDifficultyChange(d)}
-            aria-pressed={difficulty === d}
-          >
-            {d}
-          </button>
-        ))}
+      <div className="control-deck-row">
+        <span className="control-deck-label">Category</span>
+        <div className="category-chip-row" role="group" aria-label="Filter guides by category">
+          {categories.map(({ key, label, count }) => {
+            const Icon = key === 'all' ? LayoutGrid : getCategoryMeta(key).icon
+            const isActive = category === key
+            return (
+              <button
+                key={key}
+                className={`category-chip ${isActive ? 'category-chip-active' : ''}`}
+                onClick={() => onCategoryChange(key)}
+                aria-pressed={isActive}
+              >
+                <Icon size={14} />
+                <span>{label}</span>
+                <span className="category-chip-count">{count}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      <CategoryTiles categories={categories} active={category} onSelect={onCategoryChange} />
+      <div className="control-deck-row">
+        <span className="control-deck-label">Difficulty</span>
+        <div className="control-deck-difficulty" role="group" aria-label="Filter by difficulty">
+          {difficulties.map(({ key, label, count }) => (
+            <button
+              key={key}
+              className={`difficulty-chip ${difficulty === key ? 'difficulty-chip-active' : ''}`}
+              onClick={() => onDifficultyChange(key)}
+              aria-pressed={difficulty === key}
+            >
+              {label}
+              <span className="difficulty-chip-count">{count}</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

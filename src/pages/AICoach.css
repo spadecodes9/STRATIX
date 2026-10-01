@@ -1,22 +1,12 @@
-.ai-coach-shell { max-width: 780px; }
+.ai-coach-shell { max-width: 780px; padding-bottom: 24px; }
 
-.coach-panel {
-  background: var(--charcoal);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+.coach-conversation {
   display: flex;
   flex-direction: column;
-  height: 560px;
-  overflow: hidden;
-}
-
-.coach-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  gap: 22px;
+  padding: 4px 0 32px;
+  /* Leaves clearance so the last message never sits under the sticky
+     composer — see .coach-composer-wrap below. */
 }
 
 .coach-message {
@@ -24,7 +14,7 @@
   gap: 12px;
   max-width: 85%;
 }
-.coach-message-coach { align-self: flex-start; }
+.coach-message-coach { align-self: flex-start; max-width: 100%; }
 .coach-message-user { align-self: flex-end; flex-direction: row-reverse; }
 
 .coach-avatar {
@@ -41,9 +31,11 @@
 .coach-message-coach .coach-avatar { background: var(--red-glow-soft); color: var(--red-bright); }
 .coach-message-user .coach-avatar { background: var(--charcoal-3); color: var(--white); }
 
-.coach-message p {
-  background: var(--charcoal-2);
-  border: 1px solid var(--border);
+/* User message: the only message type that keeps a defined card — kept
+   small and content-width, not "giant", per the redesign brief. */
+.coach-message > p {
+  background: var(--red-glow-soft);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
   border-radius: var(--radius);
   padding: 12px 16px;
   font-size: 14.5px;
@@ -51,8 +43,89 @@
   line-height: 1.6;
   margin: 0;
 }
-.coach-message-user p { background: var(--red-glow-soft); border-color: rgba(255, 59, 78, 0.3); }
 .coach-typing { color: var(--gray-dim) !important; font-style: italic; }
+
+/* Coach message: sits directly on the page background, no card, no border —
+   just comfortably-wide reading text, like a ChatGPT assistant reply. */
+.coach-message > .md-content {
+  max-width: 640px;
+  font-size: 14.5px;
+  color: var(--white);
+  line-height: 1.6;
+}
+
+/* Markdown content rendered inside a coach bubble. Kept deliberately tight
+   (small margins, no nested boxes) so enabling Markdown doesn't visually
+   bloat the chat bubble. */
+.md-content > *:first-child { margin-top: 0; }
+.md-content > *:last-child { margin-bottom: 0; }
+
+.md-content p {
+  margin: 0 0 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
+.md-content h1,
+.md-content h2,
+.md-content h3,
+.md-content h4 {
+  font-family: var(--font-display);
+  color: var(--white);
+  line-height: 1.25;
+  margin: 14px 0 6px;
+}
+.md-content h1 { font-size: 19px; }
+.md-content h2 { font-size: 17px; }
+.md-content h3 { font-size: 15.5px; }
+.md-content h4 { font-size: 14.5px; }
+
+.md-content ul,
+.md-content ol {
+  margin: 6px 0 10px;
+  padding-left: 20px;
+}
+.md-content li { margin: 3px 0; }
+.md-content li::marker { color: var(--red-bright); }
+
+.md-content strong { color: var(--white); font-weight: 700; }
+.md-content em { color: var(--gray); font-style: italic; }
+
+.md-content code {
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 13px;
+  background: var(--charcoal-3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+.md-content pre {
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin: 8px 0;
+  overflow-x: auto;
+}
+.md-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--white);
+}
+
+.md-content a {
+  color: var(--red-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-content a:hover { color: var(--red); }
 
 .prompt-suggestions {
   padding: 0 24px 16px;
@@ -94,13 +167,180 @@
   border: none;
   border-radius: var(--radius);
   padding: 0 16px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: background 0.15s ease;
 }
 .coach-send-btn:hover { background: var(--red-bright); }
 
+/* Composer — the one intentionally-defined surface on this page. Sticky so
+   it stays anchored at the bottom of the viewport as the conversation
+   above it grows and the page scrolls, ChatGPT-style. The gradient fade
+   keeps the last line of a message from looking like it's cut off flush
+   against the composer's top edge. */
+.coach-composer-wrap {
+  position: sticky;
+  bottom: 0;
+  padding: 20px 0 4px;
+  background: linear-gradient(to top, var(--black) 60%, transparent);
+}
+.coach-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.coach-composer-textarea {
+  width: 100%;
+  resize: none;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  min-height: 60px;
+  max-height: 160px;
+  overflow-y: auto;
+  transition: border-color 0.15s ease;
+}
+.coach-composer-textarea:focus { outline: none; border-color: var(--red); }
+.coach-composer-textarea:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.coach-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.coach-composer-hint {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--gray-dim);
+  letter-spacing: 0.03em;
+}
+
+.ai-coach-footnote {
+  margin: 8px 4px 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  color: var(--gray-dim);
+}
+
 @media (max-width: 600px) {
-  .coach-panel { height: 70vh; }
+  .coach-composer-hint { display: none; }
+}
+
+.coach-message-error > p,
+.coach-message-error > .md-content {
+  background: rgb(var(--danger-rgb) / 0.12);
+  border: 1px solid rgb(var(--danger-rgb) / 0.35);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  max-width: 640px;
+  color: var(--danger-text);
+}
+
+.coach-input-row input:disabled,
+.coach-send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.prompt-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-coach-limit-reached {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255, 182, 72, 0.06);
+  border: 1px solid rgba(255, 182, 72, 0.25);
+  border-radius: var(--radius);
+}
+.ai-coach-limit-reached svg { color: var(--gold); flex-shrink: 0; }
+.ai-coach-limit-reached strong { display: block; margin-bottom: 3px; }
+.ai-coach-limit-reached p { color: var(--gray); font-size: 13px; margin: 0 0 8px; }
+.ai-coach-limit-reached .btn { margin-left: auto; flex-shrink: 0; }
+
+.ai-coach-countdown { display: flex; align-items: baseline; gap: 8px; }
+.ai-coach-countdown-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--gray-dim);
+}
+.ai-coach-countdown-value {
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-coach-usage-loading {
+  padding: 16px 18px;
+  background: var(--charcoal);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--gray-dim);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+.ai-coach-unlimited-badge { margin-top: 8px; }
+
+/* Free usage meter (display only — the server enforces the limit) */
+.ai-coach-usage-meter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  background: var(--charcoal);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  color: var(--gray);
+}
+.ai-coach-usage-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-dim);
+}
+.ai-coach-usage-pips { display: inline-flex; gap: 4px; }
+.ai-coach-usage-pips i {
+  width: 18px;
+  height: 5px;
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(255, 182, 72, 0.35);
+}
+.ai-coach-usage-pips i.is-used { background: var(--charcoal-3); box-shadow: none; }
+.ai-coach-usage-count strong { color: var(--white); font-variant-numeric: tabular-nums; }
+.ai-coach-usage-reset { color: var(--gray-dim); }
+.ai-coach-usage-cta { margin-left: auto; padding: 5px 10px; font-size: 12px; }
+@media (max-width: 640px) {
+  .ai-coach-usage-cta { margin-left: 0; }
 }

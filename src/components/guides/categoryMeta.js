@@ -1,11 +1,12 @@
 import { Map, Crosshair, Zap, Compass, Brain, LayoutGrid } from 'lucide-react'
 
+// Keyed by the normalized category keys in data/guides.js.
 export const CATEGORY_META = {
-  Maps: { icon: Map, description: 'Site setups, post-plant holds, and retake angles.' },
-  Weapons: { icon: Crosshair, description: 'Crosshairs, settings, and spray control that hold up under pressure.' },
-  Utility: { icon: Zap, description: 'Lineups, timings, and utility economy.' },
-  Strategy: { icon: Compass, description: 'Rotations, economy, and round-level decisions.' },
-  'Mental Game': { icon: Brain, description: 'Tilt control and consistency between rounds.' },
+  maps: { icon: Map, description: 'Layouts, site holds, mid control, and rotations.' },
+  weapons: { icon: Crosshair, description: 'Crosshairs, first-shot discipline, and weapon choice.' },
+  strategy: { icon: Compass, description: 'Economy, trades, and round-level decisions.' },
+  utility: { icon: Zap, description: 'Smokes, flashes, and role utility with a purpose.' },
+  'mental-game': { icon: Brain, description: 'Resets, focus, and decisions under pressure.' },
 }
 
 export function getCategoryMeta(category) {
