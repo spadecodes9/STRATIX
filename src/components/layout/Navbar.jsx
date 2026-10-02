@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Crosshair, Menu, Shield, Sparkles, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -15,9 +15,14 @@ const navLinks = [
   { to: '/teammates', label: 'Find Teammates' },
 ]
 
+// Same breakpoint as the slide-out menu in layout.css.
+const MOBILE_NAV_QUERY = '(max-width: 1000px)'
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE_NAV_QUERY).matches)
   const [scrolled, setScrolled] = useState(false)
+  const toggleRef = useRef(null)
   const { isAuthenticated, user, signOut } = useAuth()
   const riot = useRiot()
   const { isPremium } = usePremium()
@@ -30,6 +35,30 @@ export default function Navbar() {
     window.addEventListener('scroll', updateScrolled, { passive: true })
     return () => window.removeEventListener('scroll', updateScrolled)
   }, [])
+
+  // Leaving the mobile layout closes the slide-out menu.
+  useEffect(() => {
+    const query = window.matchMedia(MOBILE_NAV_QUERY)
+    const onChange = (e) => {
+      setIsMobile(e.matches)
+      if (!e.matches) setMenuOpen(false)
+    }
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
+
+  // Escape closes the open menu and returns focus to its toggle. Only
+  // listening while open, so Escape elsewhere is untouched.
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKeyDown = (e) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return
+      setMenuOpen(false)
+      toggleRef.current?.focus()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [menuOpen])
 
   const handleSignOut = () => {
     signOut()
@@ -47,7 +76,29 @@ export default function Navbar() {
           <i className="brand-status" aria-hidden="true" />
         </NavLink>
 
-        <nav id="mobile-navigation" className={'nav-links' + (menuOpen ? ' nav-links-open' : '')} aria-label="Main navigation">
+        {/* Before the menu in DOM order so Tab moves from the toggle into the
+            open menu. Hidden on desktop; the menu is position: fixed on
+            mobile, so the visual order is unchanged. */}
+        <button
+          ref={toggleRef}
+          className="menu-toggle"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          <span className="menu-toggle-frame">{menuOpen ? <X size={20} /> : <Menu size={20} />}</span>
+        </button>
+
+        {/* The closed slide-out menu is only moved off-screen by CSS, so it's
+            made inert: no Tab stops, hidden from assistive technology. On
+            desktop this is the normal, always-visible nav. */}
+        <nav
+          id="mobile-navigation"
+          className={'nav-links' + (menuOpen ? ' nav-links-open' : '')}
+          aria-label="Main navigation"
+          inert={isMobile && !menuOpen}
+        >
           <div className="mobile-nav-status"><span><i /> SYSTEM ONLINE</span><span>STRATIX // NAVIGATION</span></div>
           {navLinks.map((link, index) => (
             <NavLink
@@ -109,16 +160,6 @@ export default function Navbar() {
             </>
           )}
         </div>
-
-        <button
-          className="menu-toggle"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
-          onClick={() => setMenuOpen((value) => !value)}
-        >
-          <span className="menu-toggle-frame">{menuOpen ? <X size={20} /> : <Menu size={20} />}</span>
-        </button>
       </div>
     </header>
   )
