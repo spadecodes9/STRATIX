@@ -5,6 +5,7 @@ import express from 'express'
 import { registerPremiumRoutes } from '../../server/premium.js'
 
 const app = express()
+app.disable('x-powered-by')
 app.use(express.json({ limit: '100kb' }))
 registerPremiumRoutes(app)
 

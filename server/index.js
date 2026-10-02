@@ -35,6 +35,7 @@ import { isPremiumUser, registerPremiumRoutes } from './premium.js'
 import { canAccess } from '../src/lib/entitlement.js'
 
 export const app = express()
+app.disable('x-powered-by')
 // Browsers may only call this API from the STRATIX frontend (dev uses the
 // same-origin Vite proxy, so this never blocks local development).
 app.use(cors({ origin: APP_URL }))

@@ -420,6 +420,13 @@ test('malformed requests are rejected without calling the model or counting a me
   assert.equal(log.rpc.length, rpcs)
 })
 
+test('API responses do not advertise Express (no X-Powered-By)', async () => {
+  for (const [method, path, token] of [['GET', '/api/health'], ['POST', '/api/ai-coach'], ['POST', '/api/ai-coach', 'tok-free']]) {
+    const res = await call(method, path, token, method === 'POST' ? hello : undefined)
+    assert.equal(res.headers.get('x-powered-by'), null, `${method} ${path}`)
+  }
+})
+
 test('per-user rate limit: 8 per minute, then 429, independent per user', () => {
   for (let i = 0; i < 8; i++) assert.equal(rateLimited('rl-user', 1_000 + i), false)
   assert.equal(rateLimited('rl-user', 1_010), true)
