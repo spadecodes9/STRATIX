@@ -5,7 +5,7 @@ import { getCoachResponse } from '../services/ai/coachService.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { usePremium } from '../context/PremiumContext.jsx'
 import { useRiot } from '../context/RiotContext.jsx'
-import { formatSyncedAt } from '../components/riot/Riot.jsx'
+import { formatSyncedAt, RiotLinkDisclosure } from '../components/riot/Riot.jsx'
 import { PremiumBadge, UpgradeButton } from '../components/premium/PremiumGate.jsx'
 import { useAICoachUsage } from '../hooks/useAICoachUsage.js'
 import Button from '../components/ui/Button.jsx'
@@ -178,7 +178,10 @@ export default function AICoach() {
           </p>
         )}
         {!hasPlayerData && riot.status === 'disconnected' && (
-          <Button variant="secondary" onClick={riot.connect}>Connect Riot</Button>
+          <>
+            <Button variant="secondary" onClick={riot.connect}>Connect Riot</Button>
+            <RiotLinkDisclosure />
+          </>
         )}
         {isPremium && <PremiumBadge className="ai-coach-unlimited-badge">Unlimited conversations</PremiumBadge>}
       </div>

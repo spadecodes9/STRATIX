@@ -28,8 +28,53 @@ const VAL_SHARDS = new Set(['na', 'eu', 'ap', 'kr', 'latam', 'br'])
 // Supabase email validation ever rejects .invalid.
 const RIOT_ONLY_EMAIL_DOMAIN = 'riot-users.stratix.invalid'
 
-export const rsoConfigured = () =>
-  Boolean(env.RIOT_CLIENT_ID && env.RIOT_CLIENT_SECRET && env.RIOT_REDIRECT_URI && hasServiceRole())
+// Deterministic per Riot account, so a Riot-only STRATIX account can be found
+// again after its Riot link is removed (see find_riot_only_user).
+export function riotOnlyEmail(puuid) {
+  const digest = crypto.createHash('sha256').update(puuid).digest('hex').slice(0, 32)
+  return `riot-${digest}@${RIOT_ONLY_EMAIL_DOMAIN}`
+}
+
+export const RIOT_CALLBACK_PATH = '/api/riot/callback'
+
+// Production deployment assumptions, enforced rather than just documented:
+//   * The site and /api are served from ONE origin (APP_URL). The OAuth nonce
+//     and the Riot sign-in ticket are httpOnly cookies scoped to /api/riot, and
+//     the frontend calls /api/riot/* with relative URLs, so a separate API
+//     domain would silently break the flow. (In dev, Vite proxies /api.)
+//   * RIOT_REDIRECT_URI must be exactly APP_URL + /api/riot/callback, so the
+//     callback receives the nonce cookie set by /api/riot/connect|login.
+//   * In production (NODE_ENV=production) APP_URL must be set explicitly and
+//     use https (cookies are then marked Secure).
+// Returns a human-readable problem, or null when the configuration is sound.
+export function riotOriginProblem(e = process.env) {
+  const isProd = e.NODE_ENV === 'production'
+  if (isProd && !e.APP_URL) return 'APP_URL must be set in production (the public https origin serving both the site and /api).'
+  const parse = (value) => {
+    try {
+      return new URL(value)
+    } catch {
+      return null
+    }
+  }
+  const app = parse(e.APP_URL || 'http://localhost:5173')
+  const redirect = parse(e.RIOT_REDIRECT_URI)
+  if (!app) return 'APP_URL is not a valid URL.'
+  if (!redirect) return 'RIOT_REDIRECT_URI is not a valid URL.'
+  if (redirect.origin !== app.origin) {
+    return `RIOT_REDIRECT_URI must be on the same origin as APP_URL (${app.origin}); the OAuth cookies are only sent same-origin.`
+  }
+  if (redirect.pathname !== RIOT_CALLBACK_PATH) return `RIOT_REDIRECT_URI must point to ${RIOT_CALLBACK_PATH}.`
+  if (isProd && app.protocol !== 'https:') return 'APP_URL must use https in production.'
+  return null
+}
+
+const hasRsoCredentials = () => Boolean(env.RIOT_CLIENT_ID && env.RIOT_CLIENT_SECRET && env.RIOT_REDIRECT_URI)
+
+export const rsoConfigured = () => hasRsoCredentials() && hasServiceRole() && riotOriginProblem() === null
+
+// For a startup log: why RSO is disabled even though credentials are present.
+export const rsoStartupProblem = () => (hasRsoCredentials() ? riotOriginProblem() : null)
 
 // ---------------------------------------------------------------------------
 // OAuth state: HMAC-signed payload + a nonce that must also match an
@@ -78,15 +123,19 @@ function setCookie(res, name, value, maxAgeSec) {
 // ---------------------------------------------------------------------------
 
 class RiotApiError extends Error {
-  constructor(status) {
+  constructor(status, retryAfterSeconds = null) {
     super(`Riot API responded ${status}`)
     this.status = status
+    this.retryAfterSeconds = retryAfterSeconds
   }
 }
 
 async function riotGet(url, headers) {
   const res = await fetch(url, { headers })
-  if (!res.ok) throw new RiotApiError(res.status)
+  if (!res.ok) {
+    const retryAfter = Number.parseInt(res.headers.get('retry-after') ?? '', 10)
+    throw new RiotApiError(res.status, Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : null)
+  }
   return res.json()
 }
 
@@ -226,9 +275,52 @@ async function rpc(fn, args) {
   return data
 }
 
-// Returns { ok: true } or { ok: false, code } where code is one of:
+// ---------------------------------------------------------------------------
+// Sync throttling — server-side. Riot rate limits apply to STRATIX's whole
+// API key, and one sync costs ~12 Riot calls, so a single user repeatedly
+// pressing "Sync" could starve every other user.
+//   * SYNC_COOLDOWN_MS after the last successful sync (riot_player_data.synced_at)
+//   * SYNC_ATTEMPT_GAP_MS between any two attempts, successful or not
+//   * after a Riot 429, ALL syncs back off for Riot's Retry-After (app-wide)
+// ---------------------------------------------------------------------------
+
+export const SYNC_COOLDOWN_MS = 5 * 60 * 1000
+export const SYNC_ATTEMPT_GAP_MS = 60 * 1000
+const DEFAULT_RIOT_BACKOFF_SECONDS = 60
+
+// Test seam for time; production always uses Date.now().
+export const syncClock = { now: () => Date.now() }
+
+// ponytail: per-process memory, resets on restart. Move attempt/backoff state
+// to the DB (or Redis) if the server ever runs as multiple instances.
+const lastSyncAttempt = new Map()
+let riotBackoffUntil = 0
+
+// Pure: how long until a sync may run. null = may sync now, otherwise
+// { code: 'sync_cooldown' | 'rate_limited', retryAfterSeconds }.
+export function syncWait({ syncedAt, lastAttempt, backoffUntil, now }) {
+  const waits = [
+    ['rate_limited', backoffUntil ? backoffUntil - now : 0],
+    ['sync_cooldown', syncedAt ? Date.parse(syncedAt) + SYNC_COOLDOWN_MS - now : 0],
+    ['sync_cooldown', lastAttempt ? lastAttempt + SYNC_ATTEMPT_GAP_MS - now : 0],
+  ].filter(([, ms]) => ms > 0)
+  if (waits.length === 0) return null
+  const [code, ms] = waits.reduce((longest, w) => (w[1] > longest[1] ? w : longest))
+  return { code, retryAfterSeconds: Math.ceil(ms / 1000) }
+}
+
+const rateLimitedResult = () => ({
+  ok: false,
+  code: 'rate_limited',
+  retryAfterSeconds: Math.max(1, Math.ceil((riotBackoffUntil - syncClock.now()) / 1000)),
+})
+
+// Returns { ok: true } or { ok: false, code, retryAfterSeconds? } where code is one of:
 // not_connected | api_unavailable | unsupported_region | rate_limited | riot_error
 export async function syncPlayerData(userId) {
+  // Riot told us to back off: don't call it again until then (this also
+  // covers the sync that runs inside the RSO callback).
+  if (syncClock.now() < riotBackoffUntil) return rateLimitedResult()
   try {
     const conn = (await rpc('get_riot_connection_for_user', { p_user_id: userId }))?.[0]
     if (!conn) return { ok: false, code: 'not_connected' }
@@ -260,7 +352,10 @@ export async function syncPlayerData(userId) {
   } catch (err) {
     if (err instanceof RiotApiError) {
       console.error('[riot] sync failed with status', err.status)
-      if (err.status === 429) return { ok: false, code: 'rate_limited' }
+      if (err.status === 429) {
+        riotBackoffUntil = syncClock.now() + (err.retryAfterSeconds ?? DEFAULT_RIOT_BACKOFF_SECONDS) * 1000
+        return rateLimitedResult()
+      }
       if (err.status === 401 || err.status === 403) return { ok: false, code: 'api_unavailable' }
       return { ok: false, code: 'riot_error' }
     }
@@ -364,15 +459,28 @@ export function registerRiotRoutes(app) {
       } else {
         userId = existingUserId
         if (!userId) {
-          const digest = crypto.createHash('sha256').update(account.puuid).digest('hex').slice(0, 32)
-          const { data, error } = await db.auth.admin.createUser({
-            email: `riot-${digest}@${RIOT_ONLY_EMAIL_DOMAIN}`,
-            email_confirm: true,
-            app_metadata: { stratix_auth_provider: 'riot' },
-            user_metadata: { full_name: account.gameName },
-          })
-          if (error) throw error
-          userId = data.user.id
+          const email = riotOnlyEmail(account.puuid)
+          // A Riot-created account whose Riot link was disconnected: the
+          // placeholder email is derived from this puuid, which RSO just
+          // proved, so this is the same player — sign them back into it
+          // (re-linking below) instead of failing on a duplicate email.
+          const returningUserId = await rpc('find_riot_only_user', { p_email: email })
+          if (returningUserId) {
+            // If that account has since linked a DIFFERENT Riot account,
+            // don't silently swap it.
+            const current = (await rpc('get_riot_connection_for_user', { p_user_id: returningUserId }))?.[0]
+            if (current && current.puuid !== account.puuid) return back('/sign-in', 'failed')
+            userId = returningUserId
+          } else {
+            const { data, error } = await db.auth.admin.createUser({
+              email,
+              email_confirm: true,
+              app_metadata: { stratix_auth_provider: 'riot' },
+              user_metadata: { full_name: account.gameName },
+            })
+            if (error) throw error
+            userId = data.user.id
+          }
         }
       }
 
@@ -421,7 +529,30 @@ export function registerRiotRoutes(app) {
     if (!rsoConfigured()) return notConfigured(res)
     const auth = await getUserFromRequest(req)
     if (!auth) return res.status(401).json({ error: 'Your session expired. Sign in again.' })
+
+    // Cooldown is decided here from server state only: the user's own
+    // synced_at (RLS-scoped read; users cannot write it), the per-user attempt
+    // time, and the app-wide Riot backoff. A failed read just means "unknown".
+    const { data: last } = await userClient(auth.token)
+      .from('riot_player_data')
+      .select('synced_at')
+      .eq('user_id', auth.user.id)
+      .maybeSingle()
+    const now = syncClock.now()
+    const wait = syncWait({
+      syncedAt: last?.synced_at,
+      lastAttempt: lastSyncAttempt.get(auth.user.id),
+      backoffUntil: riotBackoffUntil,
+      now,
+    })
+    if (wait) {
+      res.set('Retry-After', String(wait.retryAfterSeconds))
+      return res.status(429).json({ ok: false, ...wait })
+    }
+
+    lastSyncAttempt.set(auth.user.id, now)
     const result = await syncPlayerData(auth.user.id)
+    if (result.retryAfterSeconds) res.set('Retry-After', String(result.retryAfterSeconds))
     res.status(result.ok ? 200 : result.code === 'rate_limited' ? 429 : 502).json(result)
   })
 

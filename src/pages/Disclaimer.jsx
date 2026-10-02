@@ -1,4 +1,5 @@
 import LegalPage from '../components/legal/LegalPage.jsx'
+import { RIOT_LEGAL_NOTICE } from '../data/legal.js'
 
 export default function Disclaimer() {
   return (
@@ -11,7 +12,8 @@ export default function Disclaimer() {
         {
           heading: '1. Independent Platform',
           body: [
-            'STRATIX is an independent training platform for VALORANT players. STRATIX is not affiliated with, sponsored by, or endorsed by Riot Games, Inc. VALORANT and all related assets are trademarks of Riot Games.',
+            'STRATIX is an independent training platform for VALORANT players.',
+            RIOT_LEGAL_NOTICE,
           ],
         },
         {

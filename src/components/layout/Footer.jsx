@@ -1,6 +1,7 @@
 import { Crosshair } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { DISCORD_INVITE_URL } from '../../data/contact.js'
+import { RIOT_LEGAL_NOTICE } from '../../data/legal.js'
 import './layout.css'
 
 const columns = [
@@ -65,7 +66,7 @@ export default function Footer() {
               <i className="footer-brand-status" aria-hidden="true" />
             </NavLink>
             <p className="footer-note">
-              Independent training platform for VALORANT players. Not affiliated with or endorsed by Riot Games.
+              Independent training platform for VALORANT players.
             </p>
             {/* TODO: Replace with the real STRATIX Discord invite URL once the server exists. */}
             <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className="footer-discord-link">
@@ -98,9 +99,8 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <span>© 2026 STRATIX. All rights reserved.</span>
-          <span className="footer-bottom-disclaimer">
-            Independent training platform for VALORANT players. Not affiliated with or endorsed by Riot Games.
-          </span>
+          {/* Riot's required legal notice — verbatim, on every page. */}
+          <span className="footer-bottom-disclaimer">{RIOT_LEGAL_NOTICE}</span>
         </div>
       </div>
     </footer>

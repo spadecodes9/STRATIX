@@ -5,10 +5,14 @@ import { Link2, Link2Off, RefreshCw, ShieldCheck, Swords } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useRiot } from '../../context/RiotContext.jsx'
 import Button from '../ui/Button.jsx'
+import { RIOT_LINKING_DISCLOSURE } from '../../data/legal.js'
 import './riot.css'
 
-export const RIOT_DISCLAIMER =
-  'Connecting is opt-in: linking your Riot account makes your VALORANT player data visible within STRATIX. Disconnect any time to remove it. STRATIX is not endorsed by or affiliated with Riot Games.'
+// Riot's required account-linking disclosure. Render it next to EVERY control
+// that starts a Riot link, so players see it before they opt in.
+export function RiotLinkDisclosure({ className = '' }) {
+  return <p className={`riot-disclaimer ${className}`.trim()}>{RIOT_LINKING_DISCLOSURE}</p>
+}
 
 const PROVIDER_LABEL = { google: 'Google', discord: 'Discord', riot: 'Riot', email: 'email' }
 
@@ -47,6 +51,7 @@ export function RiotEmptyState() {
         <strong>Riot Account Not Connected</strong>
         <p>Connect your Riot account to sync your VALORANT profile and statistics.</p>
         <Button variant="primary" onClick={riot.connect}>Connect Riot</Button>
+        <RiotLinkDisclosure />
       </div>
     )
   }
@@ -92,6 +97,7 @@ export function RiotStatusBlock() {
       <Button variant="primary" onClick={riot.status === 'error' ? riot.reload : riot.connect}>
         {riot.status === 'error' ? 'Retry' : 'Connect Riot'}
       </Button>
+      {riot.status !== 'error' && <RiotLinkDisclosure />}
     </div>
   )
 }
@@ -140,7 +146,7 @@ export function RiotAccountPanel() {
         )}
       </div>
       {riot.syncError && <p className="riot-account-error">{riot.syncError}</p>}
-      <p className="riot-disclaimer">{RIOT_DISCLAIMER}</p>
+      <RiotLinkDisclosure />
     </div>
   )
 }

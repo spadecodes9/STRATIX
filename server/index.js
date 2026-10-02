@@ -24,7 +24,7 @@ import {
   MAX_HISTORY_MESSAGES,
 } from './config.js'
 import { fileURLToPath } from 'node:url'
-import { APP_URL, NO_PLAYER_DATA, registerRiotRoutes, getCoachPlayerContext } from './riot.js'
+import { APP_URL, NO_PLAYER_DATA, registerRiotRoutes, getCoachPlayerContext, rsoStartupProblem } from './riot.js'
 import { getUserFromRequest } from './supabase.js'
 import { consumeFreeMessage, hasServiceRole, publicUsage, refundFreeMessage } from './aiCoachUsage.js'
 import { isPremiumUser, registerPremiumRoutes } from './premium.js'
@@ -209,5 +209,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const PORT = process.env.PORT || 8787
   app.listen(PORT, () => {
     console.log(`STRATIX AI Coach backend listening on http://localhost:${PORT}`)
+    const riotProblem = rsoStartupProblem()
+    if (riotProblem) console.error(`[riot] Riot sign-on is DISABLED: ${riotProblem}`)
   })
 }

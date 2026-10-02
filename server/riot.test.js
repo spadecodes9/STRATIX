@@ -1,7 +1,62 @@
 // Run with: npm test
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { signState, verifyState, tierName, mapName, summarizeMatches } from './riot.js'
+import {
+  signState,
+  verifyState,
+  tierName,
+  mapName,
+  summarizeMatches,
+  syncWait,
+  SYNC_COOLDOWN_MS,
+  SYNC_ATTEMPT_GAP_MS,
+  riotOriginProblem,
+  riotOnlyEmail,
+} from './riot.js'
+
+test('syncWait: no history -> may sync; cooldown from synced_at; attempt gap; Riot backoff wins when longest', () => {
+  const now = 1_000_000_000_000
+  assert.equal(syncWait({ now }), null)
+  assert.deepEqual(syncWait({ syncedAt: new Date(now - 1000).toISOString(), now }), { code: 'sync_cooldown', retryAfterSeconds: SYNC_COOLDOWN_MS / 1000 - 1 })
+  assert.equal(syncWait({ syncedAt: new Date(now - SYNC_COOLDOWN_MS).toISOString(), now }), null, 'cooldown expires exactly at the boundary')
+  assert.deepEqual(syncWait({ lastAttempt: now - 10_000, now }), { code: 'sync_cooldown', retryAfterSeconds: SYNC_ATTEMPT_GAP_MS / 1000 - 10 })
+  assert.equal(syncWait({ lastAttempt: now - SYNC_ATTEMPT_GAP_MS, now }), null)
+  assert.deepEqual(syncWait({ backoffUntil: now + 30_500, now }), { code: 'rate_limited', retryAfterSeconds: 31 })
+  // Several reasons at once: report the longest wait.
+  assert.deepEqual(
+    syncWait({ syncedAt: new Date(now - 4 * 60_000).toISOString(), lastAttempt: now - 5_000, backoffUntil: now + 90_000, now }),
+    { code: 'rate_limited', retryAfterSeconds: 90 },
+  )
+})
+
+test('riotOriginProblem: dev defaults pass; mismatched origin/path, missing or non-https production APP_URL fail', () => {
+  const dev = { RIOT_REDIRECT_URI: 'http://localhost:5173/api/riot/callback' }
+  assert.equal(riotOriginProblem(dev), null)
+  assert.equal(riotOriginProblem({ ...dev, APP_URL: 'http://localhost:5173' }), null)
+  assert.match(riotOriginProblem({ RIOT_REDIRECT_URI: 'http://localhost:8787/api/riot/callback' }), /same origin/)
+  assert.match(riotOriginProblem({ RIOT_REDIRECT_URI: 'http://localhost:5173/callback' }), /\/api\/riot\/callback/)
+  assert.match(riotOriginProblem({ RIOT_REDIRECT_URI: 'not a url' }), /RIOT_REDIRECT_URI/)
+  assert.match(riotOriginProblem({ ...dev, NODE_ENV: 'production' }), /APP_URL must be set/)
+  assert.match(
+    riotOriginProblem({ NODE_ENV: 'production', APP_URL: 'http://stratix.example', RIOT_REDIRECT_URI: 'http://stratix.example/api/riot/callback' }),
+    /https/,
+  )
+  assert.equal(
+    riotOriginProblem({ NODE_ENV: 'production', APP_URL: 'https://stratix.example', RIOT_REDIRECT_URI: 'https://stratix.example/api/riot/callback' }),
+    null,
+  )
+  assert.match(
+    riotOriginProblem({ NODE_ENV: 'production', APP_URL: 'https://stratix.example', RIOT_REDIRECT_URI: 'https://api.stratix.example/api/riot/callback' }),
+    /same origin/,
+    'a separate API subdomain would break the cookies',
+  )
+})
+
+test('riotOnlyEmail is deterministic per Riot account, lowercase, and on the placeholder domain', () => {
+  assert.equal(riotOnlyEmail('puuid-1'), riotOnlyEmail('puuid-1'))
+  assert.notEqual(riotOnlyEmail('puuid-1'), riotOnlyEmail('puuid-2'))
+  assert.match(riotOnlyEmail('PUUID-Mixed'), /^riot-[0-9a-f]{32}@riot-users\.stratix\.invalid$/)
+})
 
 const SECRET = 'test-secret'
 

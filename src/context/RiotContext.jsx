@@ -22,6 +22,17 @@ const SYNC_MESSAGES = {
   riot_error: 'Unable to load Riot data. Try again.',
 }
 
+const formatWait = (seconds) =>
+  seconds >= 90 ? `${Math.ceil(seconds / 60)} minutes` : `${Math.max(1, seconds)} seconds`
+
+// The server decides cooldowns; this only words what it reported.
+function syncErrorMessage(data) {
+  const wait = data?.retryAfterSeconds
+  if (data?.code === 'sync_cooldown') return `You synced recently. You can sync again in ${formatWait(wait ?? 60)}.`
+  if (data?.code === 'rate_limited' && wait) return `Riot is rate-limiting requests right now. Try again in ${formatWait(wait)}.`
+  return SYNC_MESSAGES[data?.code] || data?.error || SYNC_MESSAGES.riot_error
+}
+
 // Tables not created yet (migration pending) means "nothing connected",
 // not an error worth showing.
 const isMissingTable = (error) => error?.code === 'PGRST205' || error?.code === '42P01'
@@ -89,7 +100,13 @@ export function RiotProvider({ children }) {
   const disconnect = async () => {
     const { ok, data } = await riotApi('disconnect')
     if (!ok) return toast.error(data?.error || "Couldn't disconnect Riot. Try again.")
-    toast.success('Riot account disconnected')
+    // Riot-created accounts keep working: "Continue with Riot" signs them back
+    // into this same account (and re-links Riot) — see find_riot_only_user.
+    toast.success(
+      user?.authProvider === 'riot'
+        ? 'Riot account disconnected. Use "Continue with Riot" to sign back in to this account.'
+        : 'Riot account disconnected'
+    )
     setSyncError(null)
     reload()
   }
@@ -98,7 +115,7 @@ export function RiotProvider({ children }) {
     setSyncing(true)
     setSyncError(null)
     const { ok, data } = await riotApi('sync')
-    if (!ok) setSyncError(SYNC_MESSAGES[data?.code] || data?.error || SYNC_MESSAGES.riot_error)
+    if (!ok) setSyncError(syncErrorMessage(data))
     await reload()
     setSyncing(false)
   }

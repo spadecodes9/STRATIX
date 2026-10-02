@@ -20,6 +20,7 @@ const SERVICE_ONLY_FUNCTIONS = new Set([
   'get_riot_connection_for_user',
   'save_riot_player_data_for_user',
   'disconnect_riot_account_for_user',
+  'find_riot_only_user',
 ])
 const USER_READABLE_TABLES = new Set(['profiles', 'subscriptions', 'ai_coach_usage', 'riot_connections', 'riot_player_data'])
 const THEMES = ['red', 'blue', 'green', 'gold']
@@ -27,7 +28,8 @@ const SHARDS = ['na', 'eu', 'ap', 'kr', 'latam', 'br']
 const LIMIT = 3
 const WINDOW_MS = 24 * 60 * 60 * 1000
 
-export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}, handlers = [] }) {
+// `now` stands in for the database clock (synced_at), so tests can move time.
+export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}, handlers = [], now = () => Date.now() }) {
   const realFetch = globalThis.fetch
   const db = {
     profiles: seed.profiles ?? [],
@@ -96,8 +98,17 @@ export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}
       if (!conn) return false
       conn.shard = p_shard ?? conn.shard
       db.riot_player_data = db.riot_player_data.filter((d) => d.user_id !== p_user_id)
-      db.riot_player_data.push({ user_id: p_user_id, puuid: p_puuid, data: p_data, synced_at: new Date().toISOString() })
+      db.riot_player_data.push({ user_id: p_user_id, puuid: p_puuid, data: p_data, synced_at: new Date(now()).toISOString() })
       return true
+    },
+    // Same rules as migration 20261001000500: placeholder domain AND created via Riot.
+    find_riot_only_user({ p_email }) {
+      const email = String(p_email).toLowerCase()
+      if (!email.endsWith('@riot-users.stratix.invalid')) return null
+      for (const u of db.authUsers.values()) {
+        if (u.email === email && u.app_metadata?.stratix_auth_provider === 'riot') return u.id
+      }
+      return null
     },
     disconnect_riot_account_for_user({ p_user_id }) {
       const before = db.riot_connections.length
@@ -135,7 +146,11 @@ export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}
       log.authAdmin.push(`${method} ${path}`)
       if (path === '/auth/v1/admin/users' && method === 'POST') {
         const body = JSON.parse(init.body)
-        const created = { id: crypto.randomUUID(), email: body.email, app_metadata: body.app_metadata, user_metadata: body.user_metadata }
+        // Real Supabase Auth refuses a second user with the same email.
+        if ([...db.authUsers.values()].some((u) => u.email === String(body.email).toLowerCase())) {
+          return json({ code: 'email_exists', msg: 'A user with this email address has already been registered' }, 422)
+        }
+        const created = { id: crypto.randomUUID(), email: String(body.email).toLowerCase(), app_metadata: body.app_metadata, user_metadata: body.user_metadata }
         db.authUsers.set(created.id, created)
         return json(created)
       }

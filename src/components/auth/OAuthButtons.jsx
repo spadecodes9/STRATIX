@@ -1,4 +1,4 @@
-import { RiotIcon } from '../riot/Riot.jsx'
+import { RiotIcon, RiotLinkDisclosure } from '../riot/Riot.jsx'
 
 // Shared "Continue with Google / Discord / Riot" buttons for the STRATIX auth
 // pages. Deliberately minimal: no analytics, no fake behavior — each button
@@ -46,9 +46,12 @@ export default function OAuthButtons({ onGoogle, onDiscord, onRiot, pendingProvi
         </button>
       )}
       {onRiot && (
-        <p className="oauth-riot-note">
-          Already have a STRATIX account? Sign in with it, then connect Riot from your Profile to keep one account.
-        </p>
+        <>
+          <RiotLinkDisclosure className="oauth-riot-note" />
+          <p className="oauth-riot-note">
+            Already have a STRATIX account? Sign in with it, then connect Riot from your Profile to keep one account.
+          </p>
+        </>
       )}
     </div>
   )
