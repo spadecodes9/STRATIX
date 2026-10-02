@@ -84,7 +84,7 @@
 .showcase-legal { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-soft); color: rgba(154,154,164,.55); }
 .showcase-legal svg { color: rgba(255,182,72,.55); flex-shrink: 0; }
 .showcase-legal span { display: inline-flex; align-items: center; gap: 8px; }
-.showcase-legal a { color: rgba(154,154,164,.7); font: 600 10px var(--font-ui); letter-spacing: .03em; transition: color .2s ease; }
+.showcase-legal a { color: rgba(154,154,164,.7); font: 600 11px var(--font-ui); letter-spacing: .03em; transition: color .2s ease; }
 .showcase-legal a:hover { color: var(--gray); }
 .showcase-legal i { font-style: normal; color: var(--border); }
 

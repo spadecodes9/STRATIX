@@ -132,7 +132,7 @@
 .profile-rank-card-tier { position: relative; z-index: 1; font-family: var(--font-display); font-size: 27px; font-weight: 700; color: var(--white); letter-spacing: -0.01em; }
 .profile-rank-card-rr-row { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 6px; margin-top: -4px; }
 .profile-rank-card-rr { font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: var(--red-bright); letter-spacing: 0.03em; }
-.profile-rank-card-caption { position: relative; z-index: 1; font-size: 10px; color: var(--gray-dim); }
+.profile-rank-card-caption { position: relative; z-index: 1; font-size: 11px; color: var(--gray-dim); }
 
 .profile-plan-card {
   padding: 14px 16px;
@@ -174,11 +174,11 @@
 .quick-stat-cell:hover { border-top-color: var(--red); background: var(--charcoal-3); transform: translateY(-2px); }
 .quick-stat-cell > svg { color: var(--red); flex-shrink: 0; }
 .quick-stat-cell div { display: flex; flex-direction: column; gap: 1px; line-height: 1.2; min-width: 0; }
-.quick-stat-cell span { font-size: 10px; font-family: var(--font-ui); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--gray-dim); white-space: nowrap; }
+.quick-stat-cell span { font-size: 11px; font-family: var(--font-ui); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--gray-dim); white-space: nowrap; }
 .quick-stat-cell strong { font-size: 13px; color: var(--white); font-weight: 600; }
 .quick-stat-level-bar { display: flex; flex-direction: column; gap: 3px; margin-top: 3px; }
 .quick-stat-level-bar .progress-track { height: 3px; }
-.quick-stat-level-bar small { font-size: 10px; color: var(--gray-dim); font-family: var(--font-ui); font-weight: 600; white-space: nowrap; }
+.quick-stat-level-bar small { font-size: 11px; color: var(--gray-dim); font-family: var(--font-ui); font-weight: 600; white-space: nowrap; }
 
 /* ---------- Performance Stats ---------- */
 .performance-stats-grid {
@@ -210,7 +210,7 @@
 .performance-stat-value.is-positive { color: var(--success); }
 .performance-stat-value.is-negative { color: var(--red-bright); }
 .performance-stat-label {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--gray-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -274,8 +274,8 @@
 }
 .skill-radar-point { fill: var(--red-bright); stroke: var(--charcoal); stroke-width: 1.5; }
 .skill-radar-point-priority { fill: var(--warning); r: 5; }
-.skill-radar-label { fill: var(--gray-dim); font-size: 10px; font-family: var(--font-ui); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
-.skill-radar-value { fill: var(--white); font-size: 9px; font-family: var(--font-ui); font-weight: 600; }
+.skill-radar-label { fill: var(--gray-dim); font-size: 11px; font-family: var(--font-ui); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.skill-radar-value { fill: var(--white); font-size: 11px; font-family: var(--font-ui); font-weight: 600; }
 .skill-radar-label-priority { fill: var(--warning); font-weight: 700; }
 .skill-radar-legend { display: flex; flex-direction: column; gap: 8px; }
 .skill-radar-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--gray); font-family: var(--font-ui); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
@@ -305,7 +305,7 @@
   border: none;
   background: transparent;
   padding: 0 12px;
-  font-size: 9px;
+  font-size: 11px;
   font-family: var(--font-ui);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -318,7 +318,7 @@
 .match-result-tag {
   justify-self: start;
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
   padding: 2px 6px;
@@ -355,7 +355,7 @@
   justify-content: center;
 }
 .training-progress-ring-copy strong { font-family: var(--font-display); font-size: 21px; color: var(--white); line-height: 1; }
-.training-progress-ring-copy span { font-size: 9px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--gray-dim); font-family: var(--font-ui); font-weight: 600; margin-top: 2px; }
+.training-progress-ring-copy span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--gray-dim); font-family: var(--font-ui); font-weight: 600; margin-top: 2px; }
 
 .training-objective { flex: 1; min-width: 0; }
 .training-objective-label { display: block; font-size: 11px; font-family: var(--font-ui); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--gray-dim); margin-bottom: 5px; }
@@ -440,7 +440,7 @@
   display: inline-block;
   margin-left: 6px;
   padding: 2px 6px;
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--font-ui);
   font-weight: 600;
   text-transform: uppercase;

@@ -700,7 +700,7 @@
 }
 .tq-skill { grid-area: skill; display: flex; flex-direction: column; gap: 3px; }
 .tq-skill-name {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gray-dim);

@@ -7,7 +7,7 @@
 .contact-card { position: relative; padding: 22px 20px; color: var(--gray); border: 1px solid var(--border); background: rgba(16,16,21,.6); transition: border-color .25s ease, background .25s ease; }
 .contact-card:hover { border-color: rgb(var(--accent-bright-rgb) / .4); background: rgba(20,20,24,.85); }
 .contact-card > svg { color: var(--red-bright); margin-bottom: 12px; }
-.contact-card-label { display: block; margin-bottom: 8px; color: var(--gray-dim); font: 600 10px var(--font-ui); letter-spacing: .05em; text-transform: uppercase; }
+.contact-card-label { display: block; margin-bottom: 8px; color: var(--gray-dim); font: 600 11px var(--font-ui); letter-spacing: .05em; text-transform: uppercase; }
 .contact-card-value { display: block; margin-bottom: 8px; color: var(--white); font: 600 15px var(--font-display); word-break: break-word; }
 a.contact-card-value:hover { color: var(--red-bright); }
 .contact-card-value-muted { color: var(--gray); }
