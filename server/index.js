@@ -3,9 +3,11 @@
 // /api/ai-coach pipeline (every step server-side, nothing trusted from the
 // browser except the chat text itself):
 //   verify Supabase session -> per-user rate limit -> validate body
+//   -> load the user's saved history (already answered? return it)
 //   -> Premium from the user's subscriptions row -> Free: consume 1 of 3
 //      (server-side SQL, rejects at the limit) -> build player context from
-//      DB for THAT user -> OpenRouter -> reply (refund the count on failure)
+//      DB for THAT user -> OpenRouter -> save the exchange -> reply
+//      (refund the count on failure)
 // The OpenRouter key never reaches the browser.
 //
 // Run standalone with `npm run dev:server`, or alongside the Vite dev
@@ -23,10 +25,12 @@ import {
   SYSTEM_PROMPT,
   MAX_HISTORY_MESSAGES,
 } from './config.js'
+import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { APP_URL, NO_PLAYER_DATA, registerRiotRoutes, getCoachPlayerContext, rsoStartupProblem } from './riot.js'
 import { getUserFromRequest } from './supabase.js'
 import { consumeFreeMessage, hasServiceRole, publicUsage, refundFreeMessage } from './aiCoachUsage.js'
+import { loadRecentMessages, saveExchange } from './aiCoachHistory.js'
 import { isPremiumUser, registerPremiumRoutes } from './premium.js'
 import { canAccess } from '../src/lib/entitlement.js'
 
@@ -73,6 +77,8 @@ function parseMessages(body) {
   return messages.slice(-MAX_HISTORY_MESSAGES).map(({ role, content }) => ({ role, content }))
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
 const SITE_URL = process.env.OPENROUTER_SITE_URL || 'http://localhost:5178'
 
@@ -89,11 +95,16 @@ app.post('/api/ai-coach', async (req, res) => {
     return res.status(429).json({ error: "You're sending messages too fast. Wait a minute and try again." })
   }
 
-  // 3. Validate.
+  // 3. Validate. Only the newest user message is used: the conversation
+  //    context comes from the user's saved history, not from the browser.
   const chatMessages = parseMessages(req.body)
   if (!chatMessages) {
     return res.status(400).json({ error: 'That message could not be sent. Try a shorter message.' })
   }
+  const userText = chatMessages.at(-1).content
+  // Client-generated per send, so a retried/double-submitted request is
+  // answered and stored once.
+  const requestId = UUID_RE.test(req.body.requestId) ? req.body.requestId.toLowerCase() : randomUUID()
 
   if (!OPENROUTER_API_KEY) {
     console.error('[ai-coach] Missing OPENROUTER_API_KEY — set it in your .env file.')
@@ -102,7 +113,19 @@ app.post('/api/ai-coach', async (req, res) => {
     })
   }
 
-  // 4. Free-plan quota. Premium status and the count both come from the
+  // 4. Saved history (RLS: this user's rows only) is the model's context. A
+  //    request that was already answered gets its stored reply back without
+  //    using quota or calling the model again.
+  let history = []
+  try {
+    history = await loadRecentMessages(auth, MAX_HISTORY_MESSAGES - 1)
+  } catch (err) {
+    console.error('[ai-coach] Failed to load history, continuing without it:', err.message)
+  }
+  const answered = history.find((m) => m.request_id === requestId && m.role === 'assistant')
+  if (answered) return res.json({ reply: answered.content, usage: null })
+
+  // 5. Free-plan quota. Premium status and the count both come from the
   //    database, never from the request.
   const premium = canAccess('ai-coach-unlimited', await isPremiumUser(auth))
   let usage = null
@@ -127,7 +150,7 @@ app.post('/api/ai-coach', async (req, res) => {
   }
   const usageForClient = premium ? { plan: 'premium' } : publicUsage(usage)
 
-  // 5. Player context, built from the DB for the verified user only — the
+  // 6. Player context, built from the DB for the verified user only — the
   //    model sees server-verified Riot data or an explicit "no player data".
   let playerContext
   try {
@@ -154,7 +177,11 @@ ${JSON.stringify(playerContext)}`
       },
       body: JSON.stringify({
         model: OPENROUTER_MODEL,
-        messages: [{ role: 'system', content: systemPrompt }, ...chatMessages],
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...history.map(({ role, content }) => ({ role, content })),
+          { role: 'user', content: userText },
+        ],
       }),
     })
 
@@ -185,6 +212,20 @@ ${JSON.stringify(playerContext)}`
       return res.status(502).json({
         error: 'AI Coach got an empty response back. Try rephrasing your question.',
       })
+    }
+
+    // 7. Save the exchange — only now, so a failed request never stores a
+    //    fake reply. A concurrent duplicate of this request already saved
+    //    one: answer with that and refund this request's count.
+    if (!hasServiceRole()) {
+      console.error('[ai-coach] SUPABASE_SERVICE_ROLE_KEY is not set — reply not saved to history.')
+    } else {
+      try {
+        const saved = await saveExchange(auth.user.id, requestId, userText, reply)
+        if (!saved.inserted) return res.json({ reply: saved.reply, usage: null })
+      } catch (err) {
+        console.error('[ai-coach] Failed to save history:', err.message)
+      }
     }
 
     delivered = true

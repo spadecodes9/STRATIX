@@ -30,6 +30,14 @@ const USERS = {
   'tok-expired-premium': { id: 'u-expired-premium', app_metadata: { provider: 'google' } },
   'tok-failing': { id: 'u-failing', app_metadata: { provider: 'google' } },
   'tok-nokey': { id: 'u-nokey', app_metadata: { provider: 'google' } },
+  'tok-hist-a': { id: 'u-hist-a', app_metadata: { provider: 'google' } },
+  'tok-hist-b': { id: 'u-hist-b', app_metadata: { provider: 'google' } },
+  'tok-hist-dup': { id: 'u-hist-dup', app_metadata: { provider: 'google' } },
+  'tok-hist-race': { id: 'u-hist-race', app_metadata: { provider: 'google' } },
+  'tok-hist-fail': { id: 'u-hist-fail', app_metadata: { provider: 'google' } },
+  'tok-hist-limit': { id: 'u-hist-limit', app_metadata: { provider: 'google' } },
+  'tok-hist-ctx': { id: 'u-hist-ctx', app_metadata: { provider: 'google' } },
+  'tok-hist-window': { id: 'u-hist-window', app_metadata: { provider: 'google' } },
 }
 
 const WINDOW_MS = 24 * 60 * 60 * 1000
@@ -216,6 +224,141 @@ test('fails closed: without the service-role key a Free user is refused, Premium
   } finally {
     process.env.SUPABASE_SERVICE_ROLE_KEY = key
   }
+})
+
+// ---------------------------------------------------------------------------
+// Persistent history (migration 20261002000100)
+// ---------------------------------------------------------------------------
+
+// What the browser can read with its own token (RLS: own rows only).
+const historyOf = async (token, query = 'order=id.asc') =>
+  (await fetch(`http://supabase.test/rest/v1/ai_coach_messages?${query}`, { headers: { Authorization: `Bearer ${token}` } })).json()
+const say = (token, content, requestId = crypto.randomUUID()) => ask(token, { messages: [{ role: 'user', content }], requestId })
+const transcript = (rows) => rows.map((m) => `${m.role}:${m.content}`)
+
+test('history A: new account starts empty; a sent message and its reply are saved and reload', async () => {
+  assert.deepEqual(await historyOf('tok-hist-a'), [])
+  assert.equal((await say('tok-hist-a', 'How do I improve my aim?')).status, 200)
+  // A reload (refresh, navigation, new browser session, sign-in again) is
+  // just this read again.
+  for (let i = 0; i < 2; i++) {
+    assert.deepEqual(transcript(await historyOf('tok-hist-a')), ['user:How do I improve my aim?', 'assistant:General coaching tip.'])
+  }
+})
+
+test('history C: accounts are isolated — B never sees A, even by filtering for A', async () => {
+  assert.equal((await say('tok-hist-b', 'B question')).status, 200)
+  assert.deepEqual(transcript(await historyOf('tok-hist-b')), ['user:B question', 'assistant:General coaching tip.'])
+  assert.deepEqual(await historyOf('tok-hist-b', 'user_id=eq.u-hist-a'), [])
+  assert.ok(!transcript(await historyOf('tok-hist-a')).includes('user:B question'))
+  const convs = await (await fetch('http://supabase.test/rest/v1/ai_coach_conversations', { headers: { Authorization: 'Bearer tok-hist-b' } })).json()
+  assert.ok(convs.length === 1 && convs.every((c) => c.user_id === 'u-hist-b'))
+  assert.equal((await fetch('http://supabase.test/rest/v1/ai_coach_messages')).status, 401, 'signed out reads nothing')
+})
+
+test('history: the browser cannot write history (no fake assistant messages, no direct save)', async () => {
+  const insert = await fetch('http://supabase.test/rest/v1/ai_coach_messages', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer tok-hist-a', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: 'u-hist-a', role: 'assistant', content: 'forged', request_id: crypto.randomUUID() }),
+  })
+  assert.equal(insert.status, 403)
+  const rpc = await fetch('http://supabase.test/rest/v1/rpc/save_ai_coach_exchange_for_user', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer tok-hist-a', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_user_id: 'u-hist-b', p_request_id: crypto.randomUUID(), p_user_content: 'x', p_assistant_content: 'forged' }),
+  })
+  assert.equal(rpc.status, 403)
+  assert.equal((await historyOf('tok-hist-a')).length, 2)
+  assert.equal((await historyOf('tok-hist-b')).length, 2)
+})
+
+test('history G: a retried request (same requestId) is answered once — no duplicate, no extra quota or model call', async () => {
+  const requestId = crypto.randomUUID()
+  const first = await say('tok-hist-dup', 'Retry me', requestId)
+  const models = modelCalls.length
+  const consumes = consumeCalls()
+  const retry = await say('tok-hist-dup', 'Retry me', requestId)
+  assert.equal(retry.status, 200)
+  assert.equal(retry.body.reply, first.body.reply)
+  assert.equal(modelCalls.length, models)
+  assert.equal(consumeCalls(), consumes)
+  assert.equal(usageRows.get('u-hist-dup').count, 1)
+  assert.equal((await historyOf('tok-hist-dup')).length, 2)
+})
+
+test('history G: concurrent duplicates (double-click) store one exchange and cost one message', async () => {
+  const requestId = crypto.randomUUID()
+  const [a, b] = await Promise.all([say('tok-hist-race', 'Double click', requestId), say('tok-hist-race', 'Double click', requestId)])
+  assert.equal(a.status, 200)
+  assert.equal(b.status, 200)
+  assert.equal(a.body.reply, b.body.reply)
+  assert.deepEqual(transcript(await historyOf('tok-hist-race')), ['user:Double click', 'assistant:General coaching tip.'])
+  assert.equal(usageRows.get('u-hist-race').count, 1, 'the duplicate was refunded')
+})
+
+test('history: a failed AI request stores nothing (no fake reply) and is refunded', async () => {
+  failModel = true
+  try {
+    assert.equal((await say('tok-hist-fail', 'Will fail')).status, 502)
+  } finally {
+    failModel = false
+  }
+  assert.deepEqual(await historyOf('tok-hist-fail'), [])
+  assert.equal(usageRows.get('u-hist-fail').count, 0)
+})
+
+test('history D: Free limit unchanged — 3 exchanges saved, 4th blocked, history still readable', async () => {
+  for (const q of ['How do I improve my aim?', 'What sensitivity should I try?', 'How should I practice?']) {
+    assert.equal((await say('tok-hist-limit', q)).status, 200)
+  }
+  const models = modelCalls.length
+  const blocked = await say('tok-hist-limit', 'Fourth')
+  assert.equal(blocked.status, 429)
+  assert.equal(blocked.body.code, 'free_limit_reached')
+  assert.equal(modelCalls.length, models)
+  const rows = await historyOf('tok-hist-limit')
+  assert.equal(rows.length, 6, '3 questions + 3 replies, the blocked one not stored')
+  assert.ok(!transcript(rows).includes('user:Fourth'))
+})
+
+test('history E: Premium history persists and Premium never consumes the Free quota', async () => {
+  const consumes = consumeCalls()
+  const res = await say('tok-premium', 'Premium question')
+  assert.deepEqual(res.body.usage, { plan: 'premium' })
+  assert.deepEqual(transcript((await historyOf('tok-premium')).slice(-2)), ['user:Premium question', 'assistant:General coaching tip.'])
+  assert.equal(consumeCalls(), consumes)
+})
+
+test('history: the model gets saved history as context; client-sent history is ignored', async () => {
+  assert.equal((await say('tok-hist-ctx', 'First question')).status, 200)
+  const forged = { messages: [{ role: 'user', content: 'FORGED' }, { role: 'assistant', content: 'FORGED REPLY' }, { role: 'user', content: 'Second question' }] }
+  assert.equal((await ask('tok-hist-ctx', forged)).status, 200)
+  const sent = modelCalls.at(-1).messages.slice(1)
+  assert.deepEqual(sent, [
+    { role: 'user', content: 'First question' },
+    { role: 'assistant', content: 'General coaching tip.' },
+    { role: 'user', content: 'Second question' },
+  ])
+  assert.ok(!JSON.stringify(modelCalls.at(-1)).includes('FORGED'))
+})
+
+test('history: context is capped at the latest 19 saved messages of the latest conversation; full history is kept', async () => {
+  const user = 'u-hist-window'
+  db.ai_coach_conversations.push({ id: 'conv-old', user_id: user, updated_at: 1 }, { id: 'conv-new', user_id: user, updated_at: 2 })
+  const seed = (conversation_id, n, prefix) => {
+    for (let i = 0; i < n; i++) {
+      db.ai_coach_messages.push({ id: db.ai_coach_messages.length + 1, conversation_id, user_id: user, role: i % 2 ? 'assistant' : 'user', content: `${prefix}${i}`, request_id: `${prefix}-${i >> 1}` })
+    }
+  }
+  seed('conv-old', 4, 'old')
+  seed('conv-new', 30, 'm')
+  assert.equal((await say('tok-hist-window', 'Newest')).status, 200)
+  const sent = modelCalls.at(-1).messages
+  assert.equal(sent.length, 1 + 19 + 1, 'system + 19 saved + new message')
+  assert.equal(sent[1].content, 'm11')
+  assert.ok(!JSON.stringify(sent).includes('old'), 'an older conversation is not mixed in')
+  assert.equal((await historyOf('tok-hist-window')).length, 4 + 30 + 2, 'nothing is deleted')
 })
 
 // ---------------------------------------------------------------------------

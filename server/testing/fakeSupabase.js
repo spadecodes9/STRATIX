@@ -21,8 +21,9 @@ const SERVICE_ONLY_FUNCTIONS = new Set([
   'save_riot_player_data_for_user',
   'disconnect_riot_account_for_user',
   'find_riot_only_user',
+  'save_ai_coach_exchange_for_user',
 ])
-const USER_READABLE_TABLES = new Set(['profiles', 'subscriptions', 'ai_coach_usage', 'riot_connections', 'riot_player_data'])
+const USER_READABLE_TABLES = new Set(['profiles', 'subscriptions', 'ai_coach_usage', 'riot_connections', 'riot_player_data', 'ai_coach_conversations', 'ai_coach_messages'])
 const THEMES = ['red', 'blue', 'green', 'gold']
 const SHARDS = ['na', 'eu', 'ap', 'kr', 'latam', 'br']
 const LIMIT = 3
@@ -36,6 +37,8 @@ export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}
     subscriptions: seed.subscriptions ?? [],
     riot_connections: seed.riot_connections ?? [],
     riot_player_data: seed.riot_player_data ?? [],
+    ai_coach_conversations: [],
+    ai_coach_messages: [],
     usage: new Map(), // userId -> { count, windowStart }
     authUsers: new Map(Object.values(users).map((u) => [u.id, u])),
   }
@@ -109,6 +112,21 @@ export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}
         if (u.email === email && u.app_metadata?.stratix_auth_provider === 'riot') return u.id
       }
       return null
+    },
+    // Same rules as migration 20261002000100: once per request id, in the
+    // user's latest conversation (created on first use).
+    save_ai_coach_exchange_for_user({ p_user_id, p_request_id, p_user_content, p_assistant_content }) {
+      if (!p_user_id || !p_request_id) throw ['22004', 'user id and request id required']
+      if (!p_user_content?.trim() || !p_assistant_content?.trim()) throw ['22023', 'message content required']
+      const prior = db.ai_coach_messages.find((m) => m.user_id === p_user_id && m.request_id === p_request_id && m.role === 'assistant')
+      if (prior) return { inserted: false, reply: prior.content }
+      let conv = db.ai_coach_conversations.filter((c) => c.user_id === p_user_id).sort((a, b) => b.updated_at - a.updated_at)[0]
+      if (!conv) db.ai_coach_conversations.push((conv = { id: crypto.randomUUID(), user_id: p_user_id, title: null }))
+      conv.updated_at = Date.now()
+      for (const [role, content] of [['user', p_user_content], ['assistant', p_assistant_content]]) {
+        db.ai_coach_messages.push({ id: db.ai_coach_messages.length + 1, conversation_id: conv.id, user_id: p_user_id, role, content, request_id: p_request_id })
+      }
+      return { inserted: true, reply: p_assistant_content }
     },
     disconnect_riot_account_for_user({ p_user_id }) {
       const before = db.riot_connections.length
@@ -187,7 +205,15 @@ export function installFakeSupabase({ supabaseHost, serviceKey, users, seed = {}
         return denied(role === 'anon' ? 401 : 403)
       }
       const ownKey = table === 'profiles' ? 'id' : 'user_id'
-      return json(tableRows(table).filter((r) => r[ownKey] === user.id)) // RLS: own rows only
+      let rows = tableRows(table).filter((r) => r[ownKey] === user.id) // RLS: own rows only
+      // Basic PostgREST query params: col=eq.value, order=col.asc|desc, limit=n.
+      for (const [key, value] of url.searchParams) {
+        if (value.startsWith('eq.')) rows = rows.filter((r) => String(r[key]) === value.slice(3))
+      }
+      const [orderCol, dir] = (url.searchParams.get('order') || '').split('.')
+      if (orderCol) rows = [...rows].sort((a, b) => (a[orderCol] > b[orderCol] ? 1 : -1) * (dir === 'desc' ? -1 : 1))
+      if (url.searchParams.has('limit')) rows = rows.slice(0, Number(url.searchParams.get('limit')))
+      return json(rows)
     }
 
     throw new Error(`Unexpected Supabase request: ${method} ${path}`)

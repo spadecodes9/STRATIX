@@ -8,6 +8,7 @@ import { useRiot } from '../context/RiotContext.jsx'
 import { formatSyncedAt, RiotLinkDisclosure } from '../components/riot/Riot.jsx'
 import { PremiumBadge, UpgradeButton } from '../components/premium/PremiumGate.jsx'
 import { useAICoachUsage } from '../hooks/useAICoachUsage.js'
+import { useCoachHistory } from '../hooks/useCoachHistory.js'
 import Button from '../components/ui/Button.jsx'
 import './AICoach.css'
 
@@ -91,9 +92,13 @@ export default function AICoach() {
         ? 'loading'
         : 'unlocked'
   const chatLimitReached = usageDisplayState === 'locked'
-  const [messages, setMessages] = useState([])
+  // Saved conversation for this account (loaded from Supabase, RLS-scoped).
+  const { status: historyStatus, messages, setMessages } = useCoachHistory(user?.id)
+  const historyLoading = historyStatus === 'loading'
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  // Synchronous guard: two clicks in the same tick both see isTyping=false.
+  const sendingRef = useRef(false)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -113,14 +118,13 @@ export default function AICoach() {
 
   const sendMessage = async (text) => {
     const trimmed = text.trim()
-    if (!trimmed || isTyping) return
+    if (!trimmed || isTyping || historyLoading || sendingRef.current) return
     // UX only: the server is the authority and rejects over-limit requests
     // itself (free_limit_reached) whatever this local state says.
     if (chatLimitReached) return
 
-    // Snapshot history before appending the new user message — this is what
-    // gets sent to the backend as conversation context.
-    const history = messages
+    sendingRef.current = true
+    // Also the request id: the server answers and saves each id once.
     const pendingId = crypto.randomUUID()
 
     setMessages((prev) => [...prev, { id: pendingId, role: 'user', text: trimmed }])
@@ -128,7 +132,7 @@ export default function AICoach() {
     setIsTyping(true)
 
     try {
-      const { reply, usage: serverUsage } = await getCoachResponse({ history, userText: trimmed })
+      const { reply, usage: serverUsage } = await getCoachResponse({ userText: trimmed, requestId: pendingId })
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'coach', text: reply }])
       usage.applyServerUsage(serverUsage)
     } catch (err) {
@@ -146,6 +150,7 @@ export default function AICoach() {
         { id: crypto.randomUUID(), role: 'coach', text: err.message || 'Something went wrong. Try again.' },
       ])
     } finally {
+      sendingRef.current = false
       setIsTyping(false)
     }
   }
@@ -187,6 +192,12 @@ export default function AICoach() {
       </div>
 
       <div className="coach-conversation">
+        {historyLoading && <div className="ai-coach-usage-loading" role="status">Loading your conversation…</div>}
+        {historyStatus === 'error' && (
+          <div className="ai-coach-usage-loading" role="alert">
+            Couldn&apos;t load your previous conversation. Refresh to try again.
+          </div>
+        )}
         {messages.map((m) => (
           <div key={m.id} className={`coach-message coach-message-${m.role}`}>
             <div className="coach-avatar">
@@ -249,7 +260,7 @@ export default function AICoach() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleComposerKeyDown}
-              disabled={isTyping}
+              disabled={isTyping || historyLoading}
               rows={1}
             />
             <div className="coach-composer-actions">
@@ -258,7 +269,7 @@ export default function AICoach() {
                 type="submit"
                 className="coach-send-btn"
                 aria-label="Send message"
-                disabled={isTyping || !input.trim()}
+                disabled={isTyping || historyLoading || !input.trim()}
               >
                 <Send size={17} />
               </button>

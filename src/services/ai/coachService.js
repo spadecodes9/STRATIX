@@ -1,8 +1,6 @@
 import { supabase } from '../../lib/supabase.js'
 
 const AI_COACH_ENDPOINT = '/api/ai-coach'
-// Mirrors MAX_HISTORY_MESSAGES in server/config.js.
-const MAX_HISTORY_MESSAGES = 20
 
 /**
  * AI Coach service abstraction.
@@ -17,10 +15,13 @@ const MAX_HISTORY_MESSAGES = 20
  * itself from the caller's verified session — real Riot data if a Riot
  * account is connected, an explicit `riotConnected: false` otherwise.
  *
+ * Only the new message is sent: the server builds the conversation context
+ * from the user's saved history and saves this exchange once it has a reply.
+ *
  * @param {object} params
- * @param {Array}  params.history  - prior chat messages this session, each
- *                                   shaped like `{ role: 'user' | 'coach', text: string }`
- * @param {string} params.userText - the player's new message
+ * @param {string} params.userText  - the player's new message
+ * @param {string} params.requestId - a UUID per send; a retry with the same id
+ *                                    is answered and stored only once
  *
  * The server also enforces the Free-plan limit and reports usage back.
  * That usage is for display only; the browser never sends it.
@@ -30,16 +31,7 @@ const MAX_HISTORY_MESSAGES = 20
  *   Free limit is reached, the error has `code: 'free_limit_reached'` and
  *   `usage` (server-provided count + reset time).
  */
-export async function getCoachResponse({ history, userText }) {
-  // The server only uses the most recent 20 turns, so don't send more.
-  const messages = [
-    ...history
-      .filter((m) => (m.role === 'user' || m.role === 'coach') && m.text?.trim())
-      .map((m) => ({ role: m.role === 'coach' ? 'assistant' : 'user', content: m.text }))
-      .slice(-(MAX_HISTORY_MESSAGES - 1)),
-    { role: 'user', content: userText },
-  ]
-
+export async function getCoachResponse({ userText, requestId }) {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -52,7 +44,7 @@ export async function getCoachResponse({ history, userText }) {
         'Content-Type': 'application/json',
         ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
       },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages: [{ role: 'user', content: userText }], requestId }),
     })
   } catch {
     throw new Error("Couldn't reach the AI Coach. Check your connection and try again.")
