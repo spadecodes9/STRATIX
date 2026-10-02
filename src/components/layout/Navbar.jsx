@@ -60,6 +60,16 @@ export default function Navbar() {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [menuOpen])
 
+  // While the mobile menu is open, the page behind it shouldn't scroll.
+  useEffect(() => {
+    if (!menuOpen || !isMobile) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [menuOpen, isMobile])
+
   const handleSignOut = () => {
     signOut()
     setMenuOpen(false)
